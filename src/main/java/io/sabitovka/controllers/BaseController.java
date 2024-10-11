@@ -4,10 +4,12 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-public class BaseController {
+public abstract class BaseController {
     protected Scanner scanner;
 
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    public abstract void showMenu();
 
     public BaseController(Scanner scanner) {
         this.scanner = scanner;

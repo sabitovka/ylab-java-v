@@ -7,7 +7,7 @@ import io.sabitovka.service.UserService;
 
 import java.util.Scanner;
 
-public class MainController extends BaseController{
+public class MainController extends BaseController {
     private final AuthorizationService authorizationService;
     private final UserService userService;
     private final HabitService habitService;
@@ -24,7 +24,8 @@ public class MainController extends BaseController{
         this.habitController = new HabitController(scanner, habitService, userService);
     }
 
-    public void start() {
+    @Override
+    public void showMenu() {
         System.out.println("Приложение для отслеживания привычек. Задание V-го интенсива по Java разработке.\n");
         while (true) {
             System.out.println("Для продолжения необходимо выполнить вход в систему или регистрацию:");
@@ -37,7 +38,7 @@ public class MainController extends BaseController{
                 case "1" -> {
                     if (login()) {
                         System.out.println("Здравствуйте, " + userService.getCurrentUser().getName());
-                        showMenu();
+                        showMainMenu();
                     }
                 }
                 case "2" -> register();
@@ -82,7 +83,7 @@ public class MainController extends BaseController{
         }
     }
 
-    private void showMenu() {
+    private void showMainMenu() {
         while (true) {
             System.out.println("=== Главное меню  ===");
             System.out.println("Выберите действие из меню");

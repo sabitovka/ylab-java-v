@@ -1,5 +1,6 @@
 package io.sabitovka;
 
+import io.sabitovka.controllers.BaseController;
 import io.sabitovka.controllers.MainController;
 import io.sabitovka.dto.HabitInfoDto;
 import io.sabitovka.factory.ServiceFactory;
@@ -24,7 +25,7 @@ public class Application {
         habit.setActive(false);
         habitService.disableHabit(habit);
 
-        MainController mainController = new MainController(authorizationService, userService, habitService);
-        mainController.start();
+        BaseController mainController = new MainController(authorizationService, userService, habitService);
+        mainController.showMenu();
     }
 }

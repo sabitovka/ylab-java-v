@@ -10,6 +10,7 @@ import io.sabitovka.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HabitService {
 
@@ -34,12 +35,14 @@ public class HabitService {
         return habitRepository.create(newHabit);
     }
 
-    public List<Habit> getHabitsByFilters(User currentUser, LocalDate startDate, LocalDate endDate, Boolean isActive) {
-        return habitRepository.filterByUserAndTimeAndStatus(currentUser, startDate, endDate, isActive);
+    public List<HabitInfoDto> getHabitsByFilters(User currentUser, LocalDate startDate, LocalDate endDate, Boolean isActive) {
+        List<Habit> habits = habitRepository.filterByUserAndTimeAndStatus(currentUser, startDate, endDate, isActive);
+        return habits.stream().map(this::mapHabitToDto).collect(Collectors.toList());
     }
 
-    public List<Habit> getAllByOwner(User currentUser) {
-        return habitRepository.findAllByUser(currentUser);
+    public List<HabitInfoDto> getAllByOwner(User currentUser) {
+        List<Habit> habits = habitRepository.findAllByUser(currentUser);
+        return habits.stream().map(this::mapHabitToDto).collect(Collectors.toList());
     }
 
     public void disableHabit(Habit habit) {
@@ -47,7 +50,21 @@ public class HabitService {
         habitRepository.update(habit);
     }
 
-    public Habit getHabitById(Long id) {
-        return habitRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Привычка не найдена"));
+    public HabitInfoDto getHabitById(Long id) {
+        Habit habit = habitRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Привычка не найдена"));
+        return mapHabitToDto(habit);
+    }
+
+    public void updateHabit(HabitInfoDto updatedHabit) {
+        Habit habit = new Habit(updatedHabit.getId(), updatedHabit.getName(), updatedHabit.getDescription(), updatedHabit.getFrequency(), updatedHabit.getOwner());
+        habitRepository.update(habit);
+    }
+
+    public void delete(Long habitId) {
+        habitRepository.deleteById(habitId);
+    }
+
+    private HabitInfoDto mapHabitToDto(Habit habit) {
+        return new HabitInfoDto(habit.getId(), habit.getName(), habit.getDescription(), habit.getFrequency(), habit.getCreatedAt(), habit.isActive(), habit.getOwner());
     }
 }

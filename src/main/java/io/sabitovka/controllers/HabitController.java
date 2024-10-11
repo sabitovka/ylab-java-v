@@ -22,6 +22,7 @@ public class HabitController extends BaseController {
         this.userService = userService;
     }
 
+    @Override
     public void showMenu() {
         while (true) {
             System.out.println("=== Редактирование привычек ===");
@@ -37,7 +38,7 @@ public class HabitController extends BaseController {
                 switch (choice) {
                     case "1" -> createHabit();
                     case "2" -> changeHabit();
-                    case "3" -> {}
+                    case "3" -> deleteHabit();
                     case "4" -> printAllHabits();
                     case "5" -> {
                         System.out.println("Выход в главное меню");
@@ -65,7 +66,7 @@ public class HabitController extends BaseController {
         return new HabitInfoDto(name, description, frequency);
     }
 
-    public void createHabit() {
+    private void createHabit() {
         System.out.println("Добавление привычки");
         HabitInfoDto habitInfoDto = fillHabitInfo();
 
@@ -73,9 +74,10 @@ public class HabitController extends BaseController {
         System.out.println("Новая привычка добавлена");
     }
 
-    public void printAllHabits() {
+    private void printAllHabits() {
         System.out.println("== Список всех привычек ==");
         boolean useFilter = promptForBoolean("Применить фильтрацию? (1 - Да, 2 - Нет): ");
+        List<HabitInfoDto> habits;
         if (useFilter) {
             LocalDate startDate = promptForDate("Введите дату начала фильтрации (dd-MM-yyyy) или пропустите: ");
             LocalDate endDate = promptForDate("Введите дату конца фильтрации (dd-MM-yyyy) или пропустите: ");
@@ -88,23 +90,36 @@ public class HabitController extends BaseController {
                 default -> throw new IllegalStateException("Unexpected value: " + isActive);
             };
 
-            List<Habit> filteredHabits = habitService.getHabitsByFilters(userService.getCurrentUser(), startDate, endDate, activeFilter);
-            System.out.println("Найденные привычки:");
-            filteredHabits.forEach(habit -> System.out.println(habit.toString()));
+            habits = habitService.getHabitsByFilters(userService.getCurrentUser(), startDate, endDate, activeFilter);
         } else {
-            List<Habit> allHabits = habitService.getAllByOwner(userService.getCurrentUser());
-            System.out.println("Найденные привычки:");
-            allHabits.forEach(habit -> System.out.println(habit.toString()));
+            habits = habitService.getAllByOwner(userService.getCurrentUser());
         }
+
+        System.out.println("Найденные привычки:");
+        habits.forEach(System.out::println);
     }
 
-    public void changeHabit() {
+    private void changeHabit() {
         System.out.println("Изменить привычку");
         String habitId = prompt("Введите ID привычки: ", "\\d+");
-        Habit habit = habitService.getHabitById(Long.parseLong(habitId));
+        HabitInfoDto habit = habitService.getHabitById(Long.parseLong(habitId));
         System.out.println(habit);
         System.out.println("Введите данные новой привычки");
         HabitInfoDto updatedHabit = fillHabitInfo();
+        updatedHabit.setId(habit.getId());
+        habitService.updateHabit(updatedHabit);
+        System.out.println("Привычка обновлена");
+    }
+
+    private void deleteHabit() {
+        System.out.println("Удалить привычку");
+        String habitId = prompt("Введите ID привычки: ", "\\d+");
+        HabitInfoDto habit = habitService.getHabitById(Long.parseLong(habitId));
+        System.out.println(habit);
+        String isSure = prompt("Удалить привычку? (1 - Да, 2 - Нет): ", "^[1-2]$");
+        if (isSure.equals("1")) {
+            habitService.delete(habit.getId());
+        }
     }
 
 }

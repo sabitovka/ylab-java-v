@@ -1,5 +1,7 @@
 package io.sabitovka.dto;
 
+import io.sabitovka.model.User;
+
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -10,7 +12,7 @@ public class HabitInfoDto {
     private Period frequency;
     private LocalDate createdAt;
     private boolean isActive;
-    private String owner;
+    private User owner; // TODO: 11.10.2024 Заменить на UserDto
 
     public HabitInfoDto(String name, String description, Period frequency) {
         this(null, name, description, frequency);
@@ -21,6 +23,16 @@ public class HabitInfoDto {
         this.name = name;
         this.description = description;
         this.frequency = frequency;
+    }
+
+    public HabitInfoDto(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, User owner) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.frequency = frequency;
+        this.createdAt = createdAt;
+        this.isActive = isActive;
+        this.owner = owner;
     }
 
     public Long getId() {
@@ -71,11 +83,22 @@ public class HabitInfoDto {
         isActive = active;
     }
 
-    public String getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
+
+    @Override
+    public String toString() {
+        return "Привычка #" + id +
+                ", Название: " + name +
+                ", Описание: " + description +
+                ", Периодичность: " + frequency +
+                ", Создана: " + createdAt +
+                ", Активна: " + (isActive ? "Да" : "Нет");
+    }
+
 }

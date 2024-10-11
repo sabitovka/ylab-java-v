@@ -14,6 +14,7 @@ public class UserController extends BaseController {
         this.userService = userService;
     }
 
+    @Override
     public void showMenu() {
         while (true) {
             System.out.println("=== Редактирование профиля пользователя ===");
