@@ -19,8 +19,8 @@ public final class ServiceFactory {
         UserRepository userRepository = new UserRepositoryImpl();
         HabitRepository habitRepository = new HabitRepositoryImpl();
 
-        userService = new UserService(userRepository);
-        authorizationService = new AuthorizationService(userRepository, userService);
+        userService = new UserService(userRepository, authorizationService);
+        authorizationService = new AuthorizationService(userRepository);
         habitService = new HabitService(habitRepository, userRepository);
     }
 

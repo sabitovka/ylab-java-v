@@ -1,6 +1,7 @@
 package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
+import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
 
 import java.util.Scanner;
@@ -8,17 +9,19 @@ import java.util.Scanner;
 public class UserController extends BaseController {
 
     private final UserService userService;
+    private final AuthorizationService authorizationService;
 
-    public UserController(Scanner scanner, UserService userService) {
+    public UserController(Scanner scanner, UserService userService, AuthorizationService authorizationService) {
         super(scanner);
         this.userService = userService;
+        this.authorizationService = authorizationService;
     }
 
     @Override
     public void showMenu() {
         while (true) {
             System.out.println("=== Редактирование профиля пользователя ===");
-            System.out.println("Текущие параметры пользователя: " + userService.getCurrentUser().toString());
+            System.out.println("Текущие параметры пользователя: " + UserService.userToUserInfoDto(authorizationService.getCurrentUser()));
             System.out.println("Выберите действие из меню");
             System.out.println("1. Изменить имя");
             System.out.println("2. Изменить email");

@@ -2,7 +2,8 @@ package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
 import io.sabitovka.dto.HabitInfoDto;
-import io.sabitovka.model.Habit;
+import io.sabitovka.dto.UserInfoDto;
+import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.UserService;
 
@@ -15,11 +16,13 @@ public class HabitController extends BaseController {
 
     private final HabitService habitService;
     private final UserService userService;
+    private final AuthorizationService authorizationService;
 
-    public HabitController(Scanner scanner, HabitService habitService, UserService userService) {
+    public HabitController(Scanner scanner, HabitService habitService, UserService userService, AuthorizationService authorizationService) {
         super(scanner);
         this.habitService = habitService;
         this.userService = userService;
+        this.authorizationService = authorizationService;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class HabitController extends BaseController {
         }
     }
 
-    private HabitInfoDto fillHabitInfo() {
+    private HabitInfoDto promptHabitInfo() {
         String name = prompt("Введите название привычки: ", Constants.HABIT_NAME);
         String description = prompt("Введите описание привычки: ", ".{0,255}");
         System.out.println("Введите частоту привычки: 1. Ежедневно, 2. Еженедельно");
@@ -63,14 +66,15 @@ public class HabitController extends BaseController {
             default -> throw new IllegalStateException("Unexpected value: " + frequencyChoice);
         };
 
-        return new HabitInfoDto(name, description, frequency);
+        UserInfoDto ownerDto = UserService.userToUserInfoDto(authorizationService.getCurrentUser());
+        return new HabitInfoDto(name, description, frequency, ownerDto);
     }
 
     private void createHabit() {
         System.out.println("Добавление привычки");
-        HabitInfoDto habitInfoDto = fillHabitInfo();
+        HabitInfoDto habitInfoDto = promptHabitInfo();
 
-        habitService.createHabit(habitInfoDto, userService.getCurrentUser());
+        habitService.createHabit(habitInfoDto);
         System.out.println("Новая привычка добавлена");
     }
 
@@ -90,9 +94,9 @@ public class HabitController extends BaseController {
                 default -> throw new IllegalStateException("Unexpected value: " + isActive);
             };
 
-            habits = habitService.getHabitsByFilters(userService.getCurrentUser(), startDate, endDate, activeFilter);
+            habits = habitService.getHabitsByFilters(authorizationService.getCurrentUser(), startDate, endDate, activeFilter);
         } else {
-            habits = habitService.getAllByOwner(userService.getCurrentUser());
+            habits = habitService.getAllByOwner(authorizationService.getCurrentUser());
         }
 
         System.out.println("Найденные привычки:");
@@ -105,7 +109,7 @@ public class HabitController extends BaseController {
         HabitInfoDto habit = habitService.getHabitById(Long.parseLong(habitId));
         System.out.println(habit);
         System.out.println("Введите данные новой привычки");
-        HabitInfoDto updatedHabit = fillHabitInfo();
+        HabitInfoDto updatedHabit = promptHabitInfo();
         updatedHabit.setId(habit.getId());
         habitService.updateHabit(updatedHabit);
         System.out.println("Привычка обновлена");

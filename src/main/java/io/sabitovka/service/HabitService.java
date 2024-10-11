@@ -1,6 +1,7 @@
 package io.sabitovka.service;
 
 import io.sabitovka.dto.HabitInfoDto;
+import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -8,7 +9,6 @@ import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,27 +22,28 @@ public class HabitService {
         this.userRepository = userRepository;
     }
 
-    public Habit createHabit(HabitInfoDto habitInfoDto, User owner) {
+    public Habit createHabit(HabitInfoDto habitInfoDto) {
         if (habitInfoDto.getName() == null || habitInfoDto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название привычки не может быть пустым");
         }
 
-        if (owner == null || !userRepository.existsById(owner.getId())) {
+        if (habitInfoDto.getOwner() == null || !userRepository.existsById(habitInfoDto.getOwner().getId())) {
             throw new IllegalArgumentException("Владелец привычки должен быть валидным пользователем");
         }
 
+        User owner = userRepository.findById(habitInfoDto.getOwner().getId()).orElseThrow();
         Habit newHabit = new Habit(habitInfoDto.getName(), habitInfoDto.getDescription(), habitInfoDto.getFrequency(), owner);
         return habitRepository.create(newHabit);
     }
 
     public List<HabitInfoDto> getHabitsByFilters(User currentUser, LocalDate startDate, LocalDate endDate, Boolean isActive) {
         List<Habit> habits = habitRepository.filterByUserAndTimeAndStatus(currentUser, startDate, endDate, isActive);
-        return habits.stream().map(this::mapHabitToDto).collect(Collectors.toList());
+        return habits.stream().map(HabitService::mapHabitToDto).collect(Collectors.toList());
     }
 
     public List<HabitInfoDto> getAllByOwner(User currentUser) {
         List<Habit> habits = habitRepository.findAllByUser(currentUser);
-        return habits.stream().map(this::mapHabitToDto).collect(Collectors.toList());
+        return habits.stream().map(HabitService::mapHabitToDto).collect(Collectors.toList());
     }
 
     public void disableHabit(Habit habit) {
@@ -56,7 +57,16 @@ public class HabitService {
     }
 
     public void updateHabit(HabitInfoDto updatedHabit) {
-        Habit habit = new Habit(updatedHabit.getId(), updatedHabit.getName(), updatedHabit.getDescription(), updatedHabit.getFrequency(), updatedHabit.getOwner());
+        User owner = userRepository.findById(updatedHabit.getOwner().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        Habit habit = new Habit(
+                updatedHabit.getId(),
+                updatedHabit.getName(),
+                updatedHabit.getDescription(),
+                updatedHabit.getFrequency(),
+                owner
+        );
         habitRepository.update(habit);
     }
 
@@ -64,7 +74,16 @@ public class HabitService {
         habitRepository.deleteById(habitId);
     }
 
-    private HabitInfoDto mapHabitToDto(Habit habit) {
-        return new HabitInfoDto(habit.getId(), habit.getName(), habit.getDescription(), habit.getFrequency(), habit.getCreatedAt(), habit.isActive(), habit.getOwner());
+    public static HabitInfoDto mapHabitToDto(Habit habit) {
+        UserInfoDto ownerDto = UserService.userToUserInfoDto(habit.getOwner());
+        return new HabitInfoDto(
+                habit.getId(),
+                habit.getName(),
+                habit.getDescription(),
+                habit.getFrequency(),
+                habit.getCreatedAt(),
+                habit.isActive(),
+                ownerDto
+        );
     }
 }

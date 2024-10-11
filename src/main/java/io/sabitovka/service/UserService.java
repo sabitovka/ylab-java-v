@@ -1,6 +1,7 @@
 package io.sabitovka.service;
 
 import io.sabitovka.common.Constants;
+import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.util.PasswordHasher;
@@ -10,18 +11,19 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private User currentUser;
+    private final AuthorizationService authorizationService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AuthorizationService authorizationService) {
         this.userRepository = userRepository;
+        this.authorizationService = authorizationService;
     }
 
-    public User getCurrentUser() {
-        return currentUser;
-    }
-
-    public void setCurrentUser(User currentUser) {
-        this.currentUser = currentUser;
+    public static UserInfoDto userToUserInfoDto(User user) {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setId(user.getId());
+        userInfoDto.setName(user.getName());
+        userInfoDto.setEmail(user.getEmail());
+        return userInfoDto;
     }
 
     public void changeName(String newName) {
@@ -29,9 +31,7 @@ public class UserService {
             throw new IllegalArgumentException("Новое имя пользователя не может быть пустым");
         }
 
-        if (currentUser == null) {
-            throw new IllegalStateException("Пользователь не авторизован");
-        }
+        User currentUser = authorizationService.getCurrentUser();
 
         currentUser.setName(newName.trim());
         userRepository.update(currentUser);
@@ -42,9 +42,7 @@ public class UserService {
             throw new IllegalArgumentException("Новый email не может быть пустым");
         }
 
-        if (currentUser == null) {
-            throw new IllegalStateException("Пользователь не авторизован");
-        }
+        User currentUser = authorizationService.getCurrentUser();
 
         if (!newEmail.matches(Constants.EMAIL_REGEX)) {
             throw new IllegalArgumentException("Некорректный формат email");
@@ -65,9 +63,7 @@ public class UserService {
             throw new IllegalArgumentException("Новый пароль не может быть пустым");
         }
 
-        if (currentUser == null) {
-            throw new IllegalStateException("Пользователь не авторизован");
-        }
+        User currentUser = authorizationService.getCurrentUser();
 
         if (!newPassword.matches(Constants.PASSWORD_REGEX)) {
             throw new IllegalArgumentException("Новый пароль не соответствует требованиям");
@@ -84,9 +80,7 @@ public class UserService {
             throw new IllegalArgumentException("Пароль не может быть пустым");
         }
 
-        if (currentUser == null) {
-            throw new IllegalStateException("Пользователь не авторизован");
-        }
+        User currentUser = authorizationService.getCurrentUser();
 
         if (!password.matches(Constants.PASSWORD_REGEX)) {
             throw new IllegalArgumentException("Пароль не соответствует требованиям");

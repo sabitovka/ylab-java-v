@@ -12,8 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,9 +20,6 @@ class AuthorizationServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private UserService userService;
 
     @InjectMocks
     private AuthorizationService authorizationService;
@@ -51,39 +47,58 @@ class AuthorizationServiceTest {
     }
 
     @Test
-    public void login_whenEmailNotFound_shouldReturnFalse() {
+    public void login_whenEmailNotFound_shouldNotSetCurrentUser() {
         String email = "user1@example.com";
         when(userRepository.findUserByEmail(email)).thenReturn(Optional.empty());
 
-        boolean result = authorizationService.login(email, "password123");
-        assertThat(result).isFalse();
+        authorizationService.login(email, "password123");
 
-        verify(userService, never()).setCurrentUser(any(User.class));
+        assertThat(authorizationService.isLoggedIn()).isFalse();
     }
 
     @Test
-    public void login_whenPasswordIsIncorrect_shouldReturnFalse() {
+    public void login_whenPasswordIsIncorrect_shouldNotSetUser() {
         String email = "user@example.com";
         String password = "wrongPassword";
         User user = new User("user", email, PasswordHasher.hash("correctPassword"));
         when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
 
-        boolean result = authorizationService.login(email, password);
-        assertThat(result).isFalse();
+        authorizationService.login(email, password);
 
-        verify(userService, never()).setCurrentUser(any(User.class));
+        assertThat(authorizationService.isLoggedIn()).isFalse();
     }
 
     @Test
-    public void login_whenCredentialsAreCorrect_shouldReturnTrueAndSetCurrentUser() {
+    public void login_whenCredentialsAreCorrect_shouldSetCurrentUser() {
         String email = "user@example.com";
         String password = "correctPassword";
         User user = new User("user", email, PasswordHasher.hash(password));
         when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
 
-        boolean result = authorizationService.login(email, password);
-        assertThat(result).isTrue();
+        authorizationService.login(email, password);
 
-        verify(userService, times(1)).setCurrentUser(user);
+        assertThat(authorizationService.isLoggedIn()).isTrue();
+        assertThat(authorizationService.getCurrentUser()).isEqualTo(user);
+    }
+
+    @Test
+    public void logout_whenLogout_shouldUnsetCurrentUser() {
+        String email = "user@example.com";
+        String password = "correctPassword";
+        User user = new User("user", email, PasswordHasher.hash(password));
+        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
+
+        authorizationService.login(email, password);
+        assertThat(authorizationService.isLoggedIn()).isTrue();
+
+        authorizationService.logout();
+        assertThat(authorizationService.isLoggedIn()).isFalse();
+    }
+
+    @Test
+    public void getCurrentUser_whenNoUserLoggedIn_shouldThrowException() {
+        assertThatThrownBy(() -> authorizationService.getCurrentUser())
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Нет авторизованного пользователя");
     }
 }

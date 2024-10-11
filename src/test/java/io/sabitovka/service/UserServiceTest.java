@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,24 +21,24 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
     @Mock
-    private PasswordHasher passwordHasher;
+    private AuthorizationService authorizationService;
     @InjectMocks
     private UserService userService;
-
 
     private User currentUser;
 
     @BeforeEach
     public void setUp() {
-        currentUser = new User(1L, "user", "user@example.com", PasswordHasher.hash("password123"));
-        userService.setCurrentUser(currentUser);
+        String email = "user@example.com";
+        String password = PasswordHasher.hash("password123");
+        currentUser = new User(1L, "user", email, password);
+        lenient().when(authorizationService.getCurrentUser()).thenReturn(currentUser);
     }
 
     @Test
     public void changeName_whenNameIsValid_shouldChangeNameAndCallUpdate() {
-        String newName = "user";
+        String newName = "newUser";
 
         userService.changeName(newName);
 
@@ -60,7 +59,7 @@ class UserServiceTest {
 
     @Test
     void changeEmail_whenEmailIsValid_shouldChangeEmailAndCallUpdate() {
-        String newEmail = "user@example.com";
+        String newEmail = "newuser@example.com";
         when(userRepository.findUserByEmail(newEmail)).thenReturn(Optional.empty());
 
         userService.changeEmail(newEmail);
@@ -78,15 +77,6 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.changeEmail("   "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Новый email не может быть пустым");
-    }
-
-    @Test
-    void changeEmail_whenUserIsNotAuthorized_shouldThrowException() {
-        userService.setCurrentUser(null);
-
-        assertThatThrownBy(() -> userService.changeEmail("user@example.com"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Пользователь не авторизован");
     }
 
     @Test
@@ -131,15 +121,6 @@ class UserServiceTest {
     }
 
     @Test
-    void changePassword_whenUserIsNotAuthorized_shouldThrowIllegalStateException() {
-        userService.setCurrentUser(null);
-
-        assertThatThrownBy(() -> userService.changePassword("NewPassword123"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Пользователь не авторизован");
-    }
-
-    @Test
     void changePassword_whenPasswordDoesNotMatchRequirements_shouldThrowIllegalArgumentException() {
         String invalidPassword = "short";
 
@@ -151,6 +132,7 @@ class UserServiceTest {
     @Test
     void deleteProfile_whenPasswordIsValid_shouldDeleteProfile() {
         String password = "password123";
+        when(authorizationService.getCurrentUser()).thenReturn(currentUser);
 
         userService.deleteProfile(password);
 
@@ -169,19 +151,11 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteProfile_whenUserIsNotAuthorized_shouldThrowIllegalStateException() {
-        userService.setCurrentUser(null);
-
-        assertThatThrownBy(() -> userService.deleteProfile("Password123"))
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Пользователь не авторизован");
-    }
-
-    @Test
     void deleteProfile_whenPasswordDoesNotMatch_shouldNotDeleteProfile() {
-        String password = "WrongPassword";
+        String wrongPassword = "wrongPassword";
+        when(authorizationService.getCurrentUser()).thenReturn(currentUser);
 
-        userService.deleteProfile(password);
+        userService.deleteProfile(wrongPassword);
 
         verify(userRepository, never()).deleteById(currentUser.getId());
     }

@@ -19,9 +19,9 @@ public class Application {
         HabitService habitService = ServiceFactory.getInstance().getHabitService();
 
         User user = authorizationService.register("admin", "admin@ylab.ru", "admin123");
-        habitService.createHabit(new HabitInfoDto("Анжумания", "", Period.ofDays(1)), user);
-        habitService.createHabit(new HabitInfoDto("Прес качат", "", Period.ofDays(1)), user);
-        Habit habit = habitService.createHabit(new HabitInfoDto("Бегит", "", Period.ofDays(1)), user);
+        habitService.createHabit(new HabitInfoDto("Анжумания", "", Period.ofDays(1), UserService.userToUserInfoDto(user)));
+        habitService.createHabit(new HabitInfoDto("Прес качат", "", Period.ofDays(1), UserService.userToUserInfoDto(user)));
+        Habit habit = habitService.createHabit(new HabitInfoDto("Бегит", "", Period.ofDays(1), UserService.userToUserInfoDto(user)));
         habit.setActive(false);
         habitService.disableHabit(habit);
 

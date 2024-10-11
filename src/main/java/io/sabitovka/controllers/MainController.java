@@ -9,19 +9,15 @@ import java.util.Scanner;
 
 public class MainController extends BaseController {
     private final AuthorizationService authorizationService;
-    private final UserService userService;
-    private final HabitService habitService;
     private final UserController userController;
     private final HabitController habitController;
 
     public MainController(AuthorizationService authorizationService, UserService userService, HabitService habitService) {
         super(new Scanner(System.in));
         this.authorizationService = authorizationService;
-        this.userService = userService;
-        this.habitService = habitService;
 
-        this.userController = new UserController(scanner, userService);
-        this.habitController = new HabitController(scanner, habitService, userService);
+        this.userController = new UserController(scanner, userService, authorizationService);
+        this.habitController = new HabitController(scanner, habitService, userService, authorizationService);
     }
 
     @Override
@@ -37,7 +33,7 @@ public class MainController extends BaseController {
             switch (choice) {
                 case "1" -> {
                     if (login()) {
-                        System.out.println("Здравствуйте, " + userService.getCurrentUser().getName());
+                        System.out.println("Здравствуйте, " + authorizationService.getCurrentUser().getName());
                         showMainMenu();
                     }
                 }
@@ -57,7 +53,8 @@ public class MainController extends BaseController {
             String email = prompt("Введите email: ", Constants.EMAIL_REGEX);
             String password = prompt("Введите пароль: ", Constants.PASSWORD_REGEX);
 
-            if (authorizationService.login(email, password)) {
+            authorizationService.login(email, password);
+            if (authorizationService.isLoggedIn()) {
                 System.out.println("Вход успешен! Добро пожаловать.\n");
                 return true;
             }  else {
@@ -96,7 +93,7 @@ public class MainController extends BaseController {
                 case "1" -> userController.showMenu();
                 case "2" -> habitController.showMenu();
                 case "3" -> {
-                    userService.setCurrentUser(null);
+                    authorizationService.logout();
                     System.out.println("Выход на главный экран.");
                     return;
                 }

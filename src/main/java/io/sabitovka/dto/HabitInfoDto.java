@@ -12,20 +12,21 @@ public class HabitInfoDto {
     private Period frequency;
     private LocalDate createdAt;
     private boolean isActive;
-    private User owner; // TODO: 11.10.2024 Заменить на UserDto
+    private UserInfoDto owner;
 
-    public HabitInfoDto(String name, String description, Period frequency) {
-        this(null, name, description, frequency);
+    public HabitInfoDto(String name, String description, Period frequency, UserInfoDto owner) {
+        this(null, name, description, frequency, owner);
     }
 
-    public HabitInfoDto(Long id, String name, String description, Period frequency) {
+    public HabitInfoDto(Long id, String name, String description, Period frequency, UserInfoDto owner) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
+        this.owner = owner;
     }
 
-    public HabitInfoDto(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, User owner) {
+    public HabitInfoDto(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, UserInfoDto owner) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -83,11 +84,11 @@ public class HabitInfoDto {
         isActive = active;
     }
 
-    public User getOwner() {
+    public UserInfoDto getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(UserInfoDto owner) {
         this.owner = owner;
     }
 
