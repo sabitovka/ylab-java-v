@@ -88,6 +88,9 @@ public class HabitService {
         validateHabitOwnership(habit, currentUserId);
 
         habitRepository.deleteById(habitId);
+        fulfilledHabitRepository.findAll().stream()
+                .filter(fulfilledHabit -> fulfilledHabit.getHabitId().equals(habitId))
+                .forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
     }
 
     public void markHabitAsFulfilled(Long habitId, LocalDate date, Long currentUserId) {

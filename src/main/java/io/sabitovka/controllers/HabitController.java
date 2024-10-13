@@ -2,6 +2,7 @@ package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
 import io.sabitovka.dto.HabitInfoDto;
+import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
@@ -63,9 +64,9 @@ public class HabitController extends BaseController {
         String description = prompt("Введите описание привычки: ", ".{0,255}");
         System.out.println("Введите частоту привычки: 1. Ежедневно, 2. Еженедельно");
         String frequencyChoice = prompt(" -> ", "^[1-2]$");
-        Period frequency = switch (frequencyChoice) {
-            case "1" -> Period.ofDays(1);
-            case "2" -> Period.ofWeeks(1);
+        HabitFrequency frequency = switch (frequencyChoice) {
+            case "1" -> HabitFrequency.DAILY;
+            case "2" -> HabitFrequency.WEEKLY;
             default -> throw new IllegalStateException("Unexpected value: " + frequencyChoice);
         };
 

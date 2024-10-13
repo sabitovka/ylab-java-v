@@ -5,6 +5,7 @@ import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.util.PasswordHasher;
 
@@ -14,9 +15,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final HabitRepository habitRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, HabitRepository habitRepository) {
         this.userRepository = userRepository;
+        this.habitRepository = habitRepository;
     }
 
     public UserInfoDto mapUserToUserInfoDto(User user) {
@@ -25,8 +28,8 @@ public class UserService {
         userInfoDto.setName(user.getName());
         userInfoDto.setEmail(user.getEmail());
         userInfoDto.setPassword(user.getPassword());
-        userInfoDto.setIsAdmin(userInfoDto.isAdmin());
-        userInfoDto.setActive(userInfoDto.isActive());
+        userInfoDto.setIsAdmin(user.isAdmin());
+        userInfoDto.setActive(user.isActive());
         return userInfoDto;
     }
 
@@ -42,6 +45,10 @@ public class UserService {
     }
 
     private void validateRegistrationInput(UserInfoDto userInfoDto) {
+        if (userInfoDto == null) {
+            throw new IllegalArgumentException("Userinfo in null");
+        }
+
         if (userInfoDto.getName() == null || userInfoDto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя не может быть пустым");
         }
@@ -95,6 +102,7 @@ public class UserService {
         User user = userRepository.findById(profileId).orElseThrow();
         if (PasswordHasher.verify(password, user.getPassword())) {
             userRepository.deleteById(profileId);
+            habitRepository.findAllByUser(user).forEach(habit -> habitRepository.deleteById(habit.getId()));
         }
     }
 

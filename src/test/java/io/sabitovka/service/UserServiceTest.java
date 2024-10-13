@@ -1,6 +1,12 @@
 package io.sabitovka.service;
 
+import io.sabitovka.dto.UserInfoDto;
+import io.sabitovka.enums.HabitFrequency;
+import io.sabitovka.exception.EntityAlreadyExistsException;
+import io.sabitovka.exception.EntityNotFoundException;
+import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.util.PasswordHasher;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +30,8 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private HabitRepository habitRepository;
+    @Mock
     private AuthorizationService authorizationService;
     @InjectMocks
     private UserService userService;
@@ -30,133 +40,263 @@ class UserServiceTest {
 
     @BeforeEach
     public void setUp() {
-        String email = "user@example.com";
         String password = PasswordHasher.hash("password123");
-        currentUser = new User(1L, "user", email, password);
+        currentUser = new User(1L, "user", "user@example.com", password, false, true);
         lenient().when(authorizationService.getCurrentUser()).thenReturn(currentUser);
     }
 
     @Test
-    public void changeName_whenNameIsValid_shouldChangeNameAndCallUpdate() {
-        String newName = "newUser";
+    public void mapUserToUserInfoDto_shouldReturnCorrectObj() {
+        User user = new User(1L, "mock", "mock@example.com", "password", false, true);
+        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(user);
 
-        userService.changeName(newName);
-
-        assertThat(currentUser.getName()).isEqualTo(newName.trim());
-        verify(userRepository, times(1)).update(currentUser);
+        assertThat(userInfoDto.getId()).isEqualTo(user.getId());
+        assertThat(userInfoDto.getName()).isEqualTo(user.getName());
+        assertThat(userInfoDto.getEmail()).isEqualTo(user.getEmail());
+        assertThat(userInfoDto.getPassword()).isEqualTo(user.getPassword());
+        assertThat(userInfoDto.isAdmin()).isEqualTo(user.isAdmin());
+        assertThat(userInfoDto.isActive()).isEqualTo(user.isActive());
     }
 
     @Test
-    void changeName_whenNameIsNullOrBlank_shouldThrowException() {
-        assertThatThrownBy(() -> userService.changeName(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новое имя пользователя не может быть пустым");
+    public void mapUserInfoDtoToUser_shouldReturnCorrectObj() {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setId(1L);
+        userInfoDto.setName("mock");
+        userInfoDto.setEmail("mock@example.com");
+        userInfoDto.setPassword("password");
+        userInfoDto.setIsAdmin(false);
+        userInfoDto.setActive(true);
 
-        assertThatThrownBy(() -> userService.changeName("   "))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новое имя пользователя не может быть пустым");
+        User user = userService.mapUserInfoDtoToUser(userInfoDto);
+
+        assertThat(user.getId()).isEqualTo(userInfoDto.getId());
+        assertThat(user.getName()).isEqualTo(userInfoDto.getName());
+        assertThat(user.getEmail()).isEqualTo(userInfoDto.getEmail());
+        assertThat(user.getPassword()).isEqualTo(userInfoDto.getPassword());
+        assertThat(user.isAdmin()).isEqualTo(userInfoDto.isAdmin());
+        assertThat(user.isActive()).isEqualTo(userInfoDto.isActive());
     }
 
     @Test
-    void changeEmail_whenEmailIsValid_shouldChangeEmailAndCallUpdate() {
-        String newEmail = "newuser@example.com";
-        when(userRepository.findUserByEmail(newEmail)).thenReturn(Optional.empty());
+    public void createUser_whenRegistrationInputIncorrect_shouldThrowException() {
+        String name = "mock";
+        String email = "mock@example.com";
+        String password = "password";
 
-        userService.changeEmail(newEmail);
+        UserInfoDto userInfoDto1 = new UserInfoDto();
+        userInfoDto1.setName(" ");
+        userInfoDto1.setEmail(email);
+        userInfoDto1.setPassword(password);
 
-        assertThat(currentUser.getEmail()).isEqualTo(newEmail.trim());
-        verify(userRepository, times(1)).update(any(User.class));
+        UserInfoDto userInfoDto2 = new UserInfoDto();
+        userInfoDto2.setName(name);
+        userInfoDto2.setEmail("sssdd");
+        userInfoDto2.setPassword(password);
+
+        UserInfoDto userInfoDto3 = new UserInfoDto();
+        userInfoDto3.setName(name);
+        userInfoDto3.setEmail(email);
+        userInfoDto3.setPassword("123");
+
+        assertThatThrownBy(() -> userService.createUser(userInfoDto1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Имя не может быть пустым");
+
+        assertThatThrownBy(() -> userService.createUser(userInfoDto2))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Неправильный формат email");
+
+        assertThatThrownBy(() -> userService.createUser(userInfoDto3))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Пароль не соответствует требованиям");
     }
 
     @Test
-    void changeEmail_whenEmailIsNullOrBlank_shouldThrowException() {
-        assertThatThrownBy(() -> userService.changeEmail(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новый email не может быть пустым");
+    public void createUser_whenEmailAlreadyExists_shouldThrowException() {
+        String email = "mock@example.com";
+        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(new User()));
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setName("mock");
+        userInfoDto.setEmail(email);
+        userInfoDto.setPassword("password");
 
-        assertThatThrownBy(() -> userService.changeEmail("   "))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новый email не может быть пустым");
+        assertThatThrownBy(() -> userService.createUser(userInfoDto))
+                .isInstanceOf(EntityAlreadyExistsException.class)
+                .hasMessageContaining("Данный email уже занят");
+        verify(userRepository, times(0)).create(any(User.class));
     }
 
     @Test
-    void changeEmail_whenEmailIsInvalidFormat_shouldThrowException() {
-        String invalidEmail = "invalid-email";
+    void createUser_whenUserIsCorrect_shouldCreateSuccessfully() {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setName("mock");
+        userInfoDto.setEmail("mock@example.com");
+        userInfoDto.setPassword("password");
 
-        assertThatThrownBy(() -> userService.changeEmail(invalidEmail))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Некорректный формат email");
+        when(userRepository.create(any(User.class))).thenReturn(any(User.class));
+
+        userService.createUser(userInfoDto);
+
+        verify(userRepository, times(1)).create(any(User.class));
     }
 
     @Test
-    void changeEmail_whenEmailAlreadyExists_shouldThrowException() {
-        String existingEmail = "user@example.com";
-        when(userRepository.findUserByEmail(existingEmail)).thenReturn(Optional.of(new User("user", existingEmail, "password123")));
-
-        assertThatThrownBy(() -> userService.changeEmail(existingEmail))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Пользователь с таким email уже существует");
+    void updateUser_whenUserInfoIsNull_shouldThrowException() {
+        assertThatThrownBy(() -> userService.updateUser(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void changePassword_whenPasswordIsValid_shouldChangePasswordAndCallUpdate() {
-        String newPassword = "NewPassword123";
-        String hashedPassword = PasswordHasher.hash(newPassword);
+    void updateUser_whenUserInfoIsCorrect_shouldCreateSuccessfully() {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setId(1L);
+        userInfoDto.setName("updatedMock");
+        userInfoDto.setEmail("updatedMock@example.com");
+        userInfoDto.setPassword("password");
+        when(userRepository.update(any(User.class))).thenReturn(true);
 
-        userService.changePassword(newPassword);
+        userService.updateUser(userInfoDto);
 
-        assertThat(currentUser.getPassword()).isEqualTo(hashedPassword);
-        verify(userRepository, times(1)).update(any(User.class));
+        verify(userRepository).update(any(User.class));
     }
 
     @Test
-    void changePassword_whenPasswordIsNullOrBlank_shouldThrowException() {
-        assertThatThrownBy(() -> userService.changePassword(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новый пароль не может быть пустым");
+    void changePassword_shouldChangeSuccessfully() {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setId(1L);
+        userInfoDto.setName("mock");
+        userInfoDto.setEmail("mock@example.com");
+        userInfoDto.setPassword("newPassword123");
 
-        assertThatThrownBy(() -> userService.changePassword("   "))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новый пароль не может быть пустым");
+        User existingUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        when(userRepository.update(any(User.class))).thenReturn(true);
+
+        userService.changePassword(userInfoDto, "oldPassword123");
+
+        verify(userRepository).update(any(User.class));
     }
 
     @Test
-    void changePassword_whenPasswordDoesNotMatchRequirements_shouldThrowIllegalArgumentException() {
-        String invalidPassword = "short";
+    void changePassword_whenOldPasswordIsIncorrect_shouldThrowException() {
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setId(1L);
+        userInfoDto.setName("mock");
+        userInfoDto.setEmail("mock@example.com");
+        userInfoDto.setPassword("newPassword123");
 
-        assertThatThrownBy(() -> userService.changePassword(invalidPassword))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Новый пароль не соответствует требованиям");
+        User existingUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+
+        assertThatThrownBy(() -> userService.changePassword(userInfoDto, "wrongOldPassword"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void deleteProfile_whenPasswordIsValid_shouldDeleteProfile() {
-        String password = "password123";
-        when(authorizationService.getCurrentUser()).thenReturn(currentUser);
+    void changePassword_shouldThrowExceptionWhenValidationFails() {
+        UserInfoDto userInfoDto = new UserInfoDto();
 
-        userService.deleteProfile(password);
-
-        verify(userRepository, times(1)).deleteById(currentUser.getId());
+        assertThatThrownBy(() -> userService.changePassword(userInfoDto, "oldPassword123"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void deleteProfile_whenPasswordIsNullOrBlank_shouldThrowIllegalArgumentException() {
-        assertThatThrownBy(() -> userService.deleteProfile(null))
+    void deleteProfile_whenPasswordDoesNotMatch_shouldThrowException() {
+        assertThatThrownBy(() -> userService.deleteProfile(1L, "123"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Пароль не может быть пустым");
-
-        assertThatThrownBy(() -> userService.deleteProfile("   "))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Пароль не может быть пустым");
+                .hasMessageContaining("Пароль не соответствует требованиям");
     }
 
     @Test
-    void deleteProfile_whenPasswordDoesNotMatch_shouldNotDeleteProfile() {
-        String wrongPassword = "wrongPassword";
-        when(authorizationService.getCurrentUser()).thenReturn(currentUser);
+    void deleteProfile_whenPasswordIsNotEqualToStoredPassword_shouldDoNothing() {
+        User user = new User(1L, "mock", "mock@example.ru", "password", false, true);
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
-        userService.deleteProfile(wrongPassword);
+        userService.deleteProfile(user.getId(), "wrongPassword");
 
-        verify(userRepository, never()).deleteById(currentUser.getId());
+        verify(userRepository, times(0)).deleteById(anyLong());
+        verify(habitRepository, times(0)).deleteById(anyLong());
+    }
+
+    @Test
+    void deleteProfile_whenPasswordCorrect_shouldDeleteUserAndHabits() {
+        User user1 = new User(1L, "mock", "mock@example.ru", PasswordHasher.hash("password"), false, true);
+
+        Habit habit1 = new Habit(1L, "name", "description", HabitFrequency.DAILY, 1L);
+        Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, 1L);
+
+        when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
+        when(habitRepository.findAllByUser(user1)).thenReturn(List.of(habit1, habit2));
+        when(habitRepository.findAllByUser(user1)).thenReturn(List.of(habit1, habit2));
+
+        userService.deleteProfile(user1.getId(), "password");
+
+        verify(userRepository).deleteById(user1.getId());
+        verify(habitRepository).deleteById(habit1.getId());
+        verify(habitRepository).deleteById(habit2.getId());
+    }
+
+    @Test
+    void blockUser_whenUserExists_shouldBlockUser() {
+        User user = new User(1L, "mock", "mock@example.ru", "password", false, true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.blockUser(1L);
+
+        assertThat(user.isActive()).isFalse();
+        verify(userRepository).update(user);
+    }
+
+    @Test
+    void findById_whenUserExists_shouldReturnUserInfoDto() {
+        User user = new User(1L, "mock", "mock@example.ru", "password", false, true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        UserInfoDto result = userService.findById(1L);
+
+        assertThat(result.getId()).isEqualTo(user.getId());
+        assertThat(result.getName()).isEqualTo(user.getName());
+        assertThat(result.getEmail()).isEqualTo(user.getEmail());
+        verify(userRepository).findById(1L);
+    }
+
+    @Test
+    void findById_whenUserDoesNotExist_shouldThrowException() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.findById(1L))
+                .isInstanceOf(EntityNotFoundException.class);
+        verify(userRepository).findById(1L);
+    }
+
+    @Test
+    void getBlockedUsers_shouldReturnOnlyBlockedUsers() {
+        User activeUser = new User(1L, "Active", "active@example.ru", "password", false, true);
+        User blockedUser1 = new User(2L, "Blocked1", "blocked1@example.ru", "password", false, false);
+        User blockedUser2 = new User(3L, "Blocked2", "blocked2@example.ru", "password", false, false);
+        when(userRepository.findAll()).thenReturn(List.of(activeUser, blockedUser1, blockedUser2));
+
+        List<UserInfoDto> blockedUsers = userService.getBlockedUsers();
+
+        assertThat(blockedUsers).hasSize(2);
+        assertThat(blockedUsers).extracting(UserInfoDto::getId).containsExactly(2L, 3L);
+        verify(userRepository).findAll();
+    }
+
+    @Test
+    void getActiveUsers_shouldReturnOnlyActiveUsers() {
+        User activeUser1 = new User(1L, "Active1", "active1@example.ru", "password", false, true);
+        User activeUser2 = new User(2L, "Active2", "active2@example.ru", "password", false, true);
+        User blockedUser = new User(3L, "Blocked", "blocked@example.ru", "password", false, false);
+        when(userRepository.findAll()).thenReturn(List.of(activeUser1, activeUser2, blockedUser));
+
+        List<UserInfoDto> activeUsers = userService.getActiveUsers();
+
+        assertThat(activeUsers).hasSize(2);
+        assertThat(activeUsers).extracting(UserInfoDto::getId).containsExactly(1L, 2L);
+        verify(userRepository).findAll();
     }
 }

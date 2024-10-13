@@ -4,6 +4,7 @@ import io.sabitovka.controllers.BaseController;
 import io.sabitovka.controllers.MainController;
 import io.sabitovka.dto.HabitInfoDto;
 import io.sabitovka.dto.UserInfoDto;
+import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -36,10 +37,10 @@ public class Application {
         adminUserInfo.setIsAdmin(true);
         User adminUser = userService.createUser(adminUserInfo);
 
-        Habit adminHabit1 = habitService.createHabit(new HabitInfoDto("Анжумания", "Прокачиваем Анжумания", Period.ofDays(1), adminUser.getId()));
-        Habit adminHabit2 = habitService.createHabit(new HabitInfoDto("Пресс качат", "Привычка для ежедневной тренировки пресса", Period.ofDays(1), adminUser.getId()));
+        Habit adminHabit1 = habitService.createHabit(new HabitInfoDto("Анжумания", "Прокачиваем Анжумания", HabitFrequency.DAILY, adminUser.getId()));
+        Habit adminHabit2 = habitService.createHabit(new HabitInfoDto("Пресс качат", "Привычка для ежедневной тренировки пресса", HabitFrequency.DAILY, adminUser.getId()));
 
-        Habit disabledHabit = habitService.createHabit(new HabitInfoDto("Бегит", "Ежедневные утренние пробежки", Period.ofDays(1), adminUser.getId()));
+        Habit disabledHabit = habitService.createHabit(new HabitInfoDto("Бегит", "Ежедневные утренние пробежки", HabitFrequency.DAILY, adminUser.getId()));
         habitService.disableHabit(disabledHabit);
 
         habitService.markHabitAsFulfilled(adminHabit1.getId(), LocalDate.now().minusDays(2), adminUser.getId());
@@ -52,8 +53,8 @@ public class Application {
         ivanUserInfo.setPassword("ivanpassword");
         User ivanUser = userService.createUser(ivanUserInfo);
 
-        Habit ivanHabit1 = habitService.createHabit(new HabitInfoDto("Читаем буки", "Привычка читать книги каждый день", Period.ofDays(1), ivanUser.getId()));
-        Habit ivanHabit2 = habitService.createHabit(new HabitInfoDto("Учить английский", "Изучать английский язык 3 раза в неделю", Period.ofWeeks(1).withDays(3), ivanUser.getId()));
+        Habit ivanHabit1 = habitService.createHabit(new HabitInfoDto("Читаем буки", "Привычка читать книги каждый день", HabitFrequency.DAILY, ivanUser.getId()));
+        Habit ivanHabit2 = habitService.createHabit(new HabitInfoDto("Учить английский", "Изучать английский язык раз в неделю", HabitFrequency.WEEKLY, ivanUser.getId()));
 
         // Отмечаем выполнение привычек для "Ивана"
         habitService.markHabitAsFulfilled(ivanHabit1.getId(), LocalDate.now().minusDays(3),  ivanUser.getId());
@@ -69,9 +70,9 @@ public class Application {
         User mariaUser = userService.createUser(mariaUserInfo);
 
         // Создание привычек для "Марии"
-        Habit mariaHabit1 = habitService.createHabit(new HabitInfoDto("Медитация", "Медитировать каждое утро", Period.ofDays(1), mariaUser.getId()));
-        Habit mariaHabit2 = habitService.createHabit(new HabitInfoDto("Йога", "Заниматься йогой по понедельникам и средам", Period.ofWeeks(1).withDays(2), mariaUser.getId()));
-        Habit mariaHabit3 = habitService.createHabit(new HabitInfoDto("Бегать по вечерам", "Ежедневные пробежки вечером", Period.ofDays(1), mariaUser.getId()));
+        Habit mariaHabit1 = habitService.createHabit(new HabitInfoDto("Медитация", "Медитировать каждое утро", HabitFrequency.DAILY, mariaUser.getId()));
+        Habit mariaHabit2 = habitService.createHabit(new HabitInfoDto("Йога", "Заниматься йогой по понедельникам", HabitFrequency.WEEKLY, mariaUser.getId()));
+        Habit mariaHabit3 = habitService.createHabit(new HabitInfoDto("Бегать по вечерам", "Ежедневные пробежки вечером", HabitFrequency.DAILY, mariaUser.getId()));
 
         // Отмечаем выполнение привычек для "Марии"
         habitService.markHabitAsFulfilled(mariaHabit1.getId(), LocalDate.now().minusDays(4), mariaUser.getId());

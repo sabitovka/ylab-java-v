@@ -25,80 +25,104 @@ class AuthorizationServiceTest {
     private AuthorizationService authorizationService;
 
     @Test
-    public void register_whenEmailIsAlreadyExists_shouldThrowException() {
-        String email = "existing@example.com";
-        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(new User("user1", email, "password")));
+    public void login_withValidCredentials_shouldSetCurrentUser() {
+        User user = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, true);
+        when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
 
-        assertThatThrownBy(() -> authorizationService.register("user2", email, "password123"))
-                .isInstanceOf(EntityAlreadyExistsException.class)
-                .hasMessageContaining("Данный email уже занят");
-
-        verify(userRepository, never()).create(any(User.class));
-    }
-
-    @Test
-    public void register_whenEmailIsUnique_shouldRegisterUser() {
-        String email = "user1@example.com";
-        when(userRepository.findUserByEmail(email)).thenReturn(Optional.empty());
-
-        authorizationService.register("mockName", email, "password123");
-
-        verify(userRepository, times(1)).create(any(User.class));
-    }
-
-    @Test
-    public void login_whenEmailNotFound_shouldNotSetCurrentUser() {
-        String email = "user1@example.com";
-        when(userRepository.findUserByEmail(email)).thenReturn(Optional.empty());
-
-        authorizationService.login(email, "password123");
-
-        assertThat(authorizationService.isLoggedIn()).isFalse();
-    }
-
-    @Test
-    public void login_whenPasswordIsIncorrect_shouldNotSetUser() {
-        String email = "user@example.com";
-        String password = "wrongPassword";
-        User user = new User("user", email, PasswordHasher.hash("correctPassword"));
-        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
-
-        authorizationService.login(email, password);
-
-        assertThat(authorizationService.isLoggedIn()).isFalse();
-    }
-
-    @Test
-    public void login_whenCredentialsAreCorrect_shouldSetCurrentUser() {
-        String email = "user@example.com";
-        String password = "correctPassword";
-        User user = new User("user", email, PasswordHasher.hash(password));
-        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
-
-        authorizationService.login(email, password);
+        authorizationService.login("mock@example.com", "password");
 
         assertThat(authorizationService.isLoggedIn()).isTrue();
-        assertThat(authorizationService.getCurrentUser()).isEqualTo(user);
+        assertThat(authorizationService.getCurrentUserId()).isEqualTo(user.getId());
     }
 
     @Test
-    public void logout_whenLogout_shouldUnsetCurrentUser() {
-        String email = "user@example.com";
-        String password = "correctPassword";
-        User user = new User("user", email, PasswordHasher.hash(password));
-        when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(user));
+    public void login_withInvalidPassword_shouldNotSetCurrentUser() {
+        User user = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, true);
+        when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
 
-        authorizationService.login(email, password);
-        assertThat(authorizationService.isLoggedIn()).isTrue();
+        authorizationService.login("mock@example.com", "wrongPassword");
 
-        authorizationService.logout();
         assertThat(authorizationService.isLoggedIn()).isFalse();
+        assertThat(authorizationService.getCurrentUserId()).isNull();
     }
 
     @Test
-    public void getCurrentUser_whenNoUserLoggedIn_shouldThrowException() {
+    public void login_withNonExistentUser_shouldNotSetCurrentUser() {
+        when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.empty());
+
+        authorizationService.login("mock@example.com", "password");
+
+        assertThat(authorizationService.isLoggedIn()).isFalse();
+        assertThat(authorizationService.getCurrentUserId()).isNull();
+    }
+
+    @Test
+    public void login_withBlockedUser_shouldThrowException() {
+        User blockedUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, false);
+        when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(blockedUser));
+
+        assertThatThrownBy(() -> authorizationService.login("mock@example.com", "password"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Ваша учетная запись была заблокирована");
+    }
+
+    @Test
+    public void getCurrentUser_whenLoggedIn_shouldReturnCurrentUser() {
+        User user = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, true);
+        when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        authorizationService.login("mock@example.com", "password");
+
+        User currentUser = authorizationService.getCurrentUser();
+
+        assertThat(currentUser).isEqualTo(user);
+    }
+
+    @Test
+    public void getCurrentUser_whenNotLoggedIn_shouldThrowException() {
         assertThatThrownBy(() -> authorizationService.getCurrentUser())
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Нет авторизованного пользователя");
+                .hasMessage("Ошибка авторизации. Выполните вход");
+    }
+
+    @Test
+    public void isAdmin_whenUserIsAdmin_shouldReturnTrue() {
+        User adminUser = new User(1L, "admin", "admin@example.com", PasswordHasher.hash("password"), true, true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(adminUser));
+        when(userRepository.findUserByEmail("admin@example.com")).thenReturn(Optional.of(adminUser));
+        authorizationService.login("admin@example.com", "password");
+
+        boolean isAdmin = authorizationService.isAdmin();
+
+        assertThat(isAdmin).isTrue();
+    }
+
+    @Test
+    public void isAdmin_whenUserIsNotAdmin_shouldReturnFalse() {
+        User normalUser = new User(1L, "user", "user@example.com", PasswordHasher.hash("password"), false, true);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(normalUser));
+        when(userRepository.findUserByEmail("user@example.com")).thenReturn(Optional.of(normalUser));
+        authorizationService.login("user@example.com", "password");
+
+        boolean isAdmin = authorizationService.isAdmin();
+
+        assertThat(isAdmin).isFalse();
+    }
+
+    @Test
+    public void logout_shouldClearCurrentUserId() {
+        User user = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, true);
+        when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
+        authorizationService.login("mock@example.com", "password");
+
+        authorizationService.logout();
+
+        assertThat(authorizationService.isLoggedIn()).isFalse();
+        assertThat(authorizationService.getCurrentUserId()).isNull();
+    }
+
+    @Test
+    public void isLoggedIn_whenNotLoggedIn_shouldReturnFalse() {
+        assertThat(authorizationService.isLoggedIn()).isFalse();
     }
 }

@@ -20,7 +20,7 @@ public final class ServiceFactory {
         HabitRepository habitRepository = new HabitRepositoryImpl();
         FulfilledHabitRepository fulfilledHabitRepository = new FulfilledHabitRepositoryImpl();
 
-        userService = new UserService(userRepository);
+        userService = new UserService(userRepository, habitRepository);
         authorizationService = new AuthorizationService(userRepository);
         habitService = new HabitService(habitRepository, userRepository, fulfilledHabitRepository, userService);
         statisticService = new StatisticService(habitRepository, fulfilledHabitRepository);

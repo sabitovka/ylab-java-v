@@ -1,14 +1,15 @@
 package io.sabitovka.model;
 
+import io.sabitovka.enums.HabitFrequency;
+
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Objects;
 
 public class Habit {
     private Long id;
     private String name;
     private String description;
-    private Period frequency;
+    private HabitFrequency frequency;
     private LocalDate createdAt;
     private boolean isActive;
     private Long ownerId;
@@ -19,15 +20,15 @@ public class Habit {
         this(habit.id, habit.name, habit.description, habit.frequency, habit.createdAt, habit.isActive, habit.ownerId);
     }
 
-    public Habit(String name, String description, Period frequency, Long ownerId) {
+    public Habit(String name, String description, HabitFrequency frequency, Long ownerId) {
         this(null, name, description, frequency, ownerId);
     }
 
-    public Habit(Long id, String name, String description, Period frequency, Long ownerId) {
+    public Habit(Long id, String name, String description, HabitFrequency frequency, Long ownerId) {
         this(id, name, description, frequency, LocalDate.now(), true, ownerId);
     }
 
-    private Habit(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, Long ownerId) {
+    public Habit(Long id, String name, String description, HabitFrequency frequency, LocalDate createdAt, boolean isActive, Long ownerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -61,11 +62,11 @@ public class Habit {
         this.description = description;
     }
 
-    public Period getFrequency() {
+    public HabitFrequency getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(Period frequency) {
+    public void setFrequency(HabitFrequency frequency) {
         this.frequency = frequency;
     }
 

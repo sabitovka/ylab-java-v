@@ -90,8 +90,8 @@ public class HabitRepositoryImpl implements HabitRepository {
     public List<Habit> filterByUserAndTimeAndStatus(User owner, LocalDate startDate, LocalDate endDate, Boolean isActive) {
         return habits.values().stream()
                 .filter(habit -> habit.getOwnerId().equals(owner.getId()))
-                .filter(habit -> startDate == null || habit.getCreatedAt().isAfter(startDate))
-                .filter(habit -> endDate == null || habit.getCreatedAt().isBefore(endDate))
+                .filter(habit -> startDate == null || !habit.getCreatedAt().isBefore(startDate))
+                .filter(habit -> endDate == null || !habit.getCreatedAt().isAfter(endDate))
                 .filter(habit -> isActive == null || habit.isActive() == isActive)
                 .map(Habit::new)
                 .collect(Collectors.toList());

@@ -40,7 +40,7 @@ class UserRepositoryImplTest {
         User firstUser = new User("mock", "mock@example.com", "password123");
         userRepository.create(firstUser);
 
-        User user = new User(1L,"mock", "mock@example.com", "password123");
+        User user = new User(1L,"mock", "mock@example.com", "password123", false, true);
         assertThatThrownBy(() -> userRepository.create(user))
                 .isInstanceOf(EntityAlreadyExistsException.class)
                 .hasMessageContaining("Пользователь уже существует в системе");
@@ -131,7 +131,7 @@ class UserRepositoryImplTest {
 
     @Test
     public void update_whenUserIsNotExist_shouldThrowException() {
-        User user1 = new User(1L, "mock1", "mock1@example.com", "password1231");
+        User user1 = new User(1L, "mock1", "mock1@example.com", "password1231", false, true);
         User user2 = new User( "mock1", "mock1@example.com", "password1231");
 
         assertThatThrownBy(() -> userRepository.update(user1))
@@ -223,17 +223,21 @@ class UserRepositoryImplTest {
     public void findById_whenUserWasUpdated_shouldReturnSuccessfully() {
         User user1 = new User("mock", "mock@example.com", "password123");
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+
+        User user2 = new User("mock1", "mock1@example.com", "password1231");
         User createdUser2 = userRepository.create(user2);
+
         createdUser2.setName("mock");
         createdUser2.setEmail("mock2@example.com");
         createdUser2.setPassword("123password");
         userRepository.update(createdUser2);
 
-        Optional<User> foundUser = userRepository.findUserByEmail("mock1@example.com");
+        Optional<User> foundUser = userRepository.findUserByEmail("mock2@example.com");
 
         assertThat(foundUser.isPresent()).isTrue();
         assertThat(foundUser.get().getEmail()).isEqualTo("mock2@example.com");
+        assertThat(foundUser.get().getName()).isEqualTo("mock");
+        assertThat(foundUser.get().getPassword()).isEqualTo("123password");
         assertThat(foundUser.get()).isEqualTo(createdUser2);
     }
 }
