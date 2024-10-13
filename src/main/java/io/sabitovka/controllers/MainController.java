@@ -4,23 +4,29 @@ import io.sabitovka.common.Constants;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
+import io.sabitovka.service.StatisticService;
 import io.sabitovka.service.UserService;
 
 import java.util.Scanner;
 
 public class MainController extends BaseController {
     private final AuthorizationService authorizationService;
+    private final UserService userService;
+    private final StatisticService statisticService;
     private final UserController userController;
     private final HabitController habitController;
-    private final UserService userService;
+    private final StatisticController statisticController;
 
-    public MainController(AuthorizationService authorizationService, UserService userService, HabitService habitService) {
+    public MainController(AuthorizationService authorizationService, UserService userService, StatisticService statisticService, HabitService habitService) {
         super(new Scanner(System.in));
         this.authorizationService = authorizationService;
         this.userService = userService;
+        this.statisticService = statisticService;
+
 
         this.userController = new UserController(scanner, userService, authorizationService);
-        this.habitController = new HabitController(scanner, habitService, userService, authorizationService);
+        this.habitController = new HabitController(scanner, habitService, userService, authorizationService, statisticService);
+        this.statisticController = new StatisticController(scanner, statisticService);
     }
 
     @Override
@@ -94,13 +100,15 @@ public class MainController extends BaseController {
             System.out.println("Выберите действие из меню");
             System.out.println("1. Управление пользователем");
             System.out.println("2. Управление привычками");
-            System.out.println("3. Выход из профиля");
+            System.out.println("3. Статистика и аналитика");
+            System.out.println("4. Выход из профиля");
 
-            String choice = prompt(" -> ", "^[1-3]$");
+            String choice = prompt(" -> ", "^[1-4]$");
             switch (choice) {
                 case "1" -> userController.showMenu();
                 case "2" -> habitController.showMenu();
-                case "3" -> {
+                case "3" -> statisticController.showMenu();
+                case "4" -> {
                     authorizationService.logout();
                     System.out.println("Выход на главный экран.");
                     return;

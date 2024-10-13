@@ -45,7 +45,7 @@ public class UserService {
         }
     }
 
-    public void createUser(UserInfoDto userInfoDto) {
+    public User createUser(UserInfoDto userInfoDto) {
         validateRegistrationInput(userInfoDto);
 
         if (userRepository.findUserByEmail(userInfoDto.getEmail()).isPresent()) {
@@ -56,7 +56,7 @@ public class UserService {
         userInfoDto.setPassword(hashedPassword);
 
         User user = mapUserInfoDtoToUser(userInfoDto);
-        userRepository.create(user);
+        return userRepository.create(user);
     }
 
     public void updateUser(UserInfoDto userInfoDto) {

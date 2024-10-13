@@ -1,10 +1,11 @@
 package io.sabitovka.service;
 
 import io.sabitovka.dto.HabitInfoDto;
-import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.exception.EntityNotFoundException;
+import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 
@@ -16,11 +17,13 @@ public class HabitService {
 
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
+    private final FulfilledHabitRepository fulfilledHabitRepository;
     private final UserService userService;
 
-    public HabitService(HabitRepository habitRepository, UserRepository userRepository, UserService userService) {
+    public HabitService(HabitRepository habitRepository, UserRepository userRepository, FulfilledHabitRepository fulfilledHabitRepository, UserService userService) {
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
+        this.fulfilledHabitRepository = fulfilledHabitRepository;
         this.userService = userService;
     }
 
@@ -73,6 +76,18 @@ public class HabitService {
 
     public void delete(Long habitId) {
         habitRepository.deleteById(habitId);
+    }
+
+    public void markHabitAsFulfilled(Long habitId, LocalDate date) {
+        if (!habitRepository.existsById(habitId)) {
+            throw new EntityNotFoundException("Не удалось найти привычку с id=" + habitId);
+        }
+
+        FulfilledHabit fulfilledHabit = new FulfilledHabit();
+        fulfilledHabit.setHabitId(habitId);
+        fulfilledHabit.setFulfillDate(date);
+
+        fulfilledHabitRepository.create(fulfilledHabit);
     }
 
     public HabitInfoDto mapHabitToHabitInfoDto(Habit habit) {

@@ -2,9 +2,9 @@ package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
 import io.sabitovka.dto.HabitInfoDto;
-import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
+import io.sabitovka.service.StatisticService;
 import io.sabitovka.service.UserService;
 
 import java.time.LocalDate;
@@ -17,12 +17,14 @@ public class HabitController extends BaseController {
     private final HabitService habitService;
     private final UserService userService;
     private final AuthorizationService authorizationService;
+    private final StatisticService statisticService;
 
-    public HabitController(Scanner scanner, HabitService habitService, UserService userService, AuthorizationService authorizationService) {
+    public HabitController(Scanner scanner, HabitService habitService, UserService userService, AuthorizationService authorizationService, StatisticService statisticService) {
         super(scanner);
         this.habitService = habitService;
         this.userService = userService;
         this.authorizationService = authorizationService;
+        this.statisticService = statisticService;
     }
 
     @Override
@@ -34,16 +36,20 @@ public class HabitController extends BaseController {
             System.out.println("2. Изменить привычку");
             System.out.println("3. Удалить привычку");
             System.out.println("4. Просмотреть привычки");
-            System.out.println("5. Назад");
+            System.out.println("5. Отметить выполнение привычки");
+            System.out.println("6. Получить подробный отчет о выполнении привычки");
+            System.out.println("7. Назад");
 
-            String choice = prompt(" -> ", "^[1-5]$");
+            String choice = prompt(" -> ", "^[1-7]$");
             try {
                 switch (choice) {
                     case "1" -> createHabit();
                     case "2" -> changeHabit();
                     case "3" -> deleteHabit();
                     case "4" -> printAllHabits();
-                    case "5" -> {
+                    case "5" -> markHabitAsFulfilled();
+                    case "6" -> fulfillingReport();
+                    case "7" -> {
                         System.out.println("Выход в главное меню");
                         return;
                     }
@@ -124,6 +130,31 @@ public class HabitController extends BaseController {
         if (isSure.equals("1")) {
             habitService.delete(habit.getId());
         }
+    }
+
+    private void markHabitAsFulfilled() {
+
+    }
+
+    private void fulfillingReport() {
+        String habitId = prompt("Введите ID привычки: ", "\\d+");
+
+        System.out.println("Введите период статистики:");
+        System.out.println("1. День");
+        System.out.println("2. Неделя");
+        System.out.println("3. Месяц");
+
+        String choice = prompt(" -> ", "^[1-3]$");
+        LocalDate startDate = switch (choice) {
+            case "1" -> LocalDate.now().minusDays(1);
+            case "2" -> LocalDate.now().minusWeeks(1);
+            case "3" -> LocalDate.now().minusMonths(1);
+            default -> throw new UnsupportedOperationException("Опция не поддерживается");
+        };
+        LocalDate endDate = LocalDate.now();
+
+        String report = statisticService.generateHabitReportString(Long.parseLong(habitId), startDate, endDate);
+        System.out.println(report);
     }
 
 }
