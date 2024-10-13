@@ -27,6 +27,17 @@ public class HabitService {
         this.userService = userService;
     }
 
+    private Habit getHabitById(Long habitId) {
+        return habitRepository.findById(habitId).orElseThrow(() -> new EntityNotFoundException("Привычка не найдена"));
+    }
+
+    private void validateHabitOwnership(Habit habit, Long ownerId) {
+        User owner = userRepository.findById(ownerId).orElseThrow(() -> new EntityNotFoundException("Указанный пользователь не найден"));
+        if (!habit.getOwnerId().equals(owner.getId()) && !owner.isAdmin()) {
+            throw new IllegalArgumentException("У пользователя нет прав на эту привычку");
+        }
+    }
+
     public Habit createHabit(HabitInfoDto habitInfoDto) {
         if (habitInfoDto.getName() == null || habitInfoDto.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Название привычки не может быть пустым");
@@ -55,33 +66,33 @@ public class HabitService {
         habitRepository.update(habit);
     }
 
-    public HabitInfoDto getHabitById(Long id) {
-        Habit habit = habitRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Привычка не найдена"));
+    public HabitInfoDto getHabitById(Long id, Long userId) {
+        Habit habit = getHabitById(id);
+        validateHabitOwnership(habit, userId);
         return mapHabitToHabitInfoDto(habit);
     }
 
-    public void updateHabit(HabitInfoDto updatedHabit) {
-        User owner = userRepository.findById(updatedHabit.getOwnerId())
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь привычки не найден"));
+    public void updateHabit(HabitInfoDto updatedHabit, Long currentUserId) {
+        Habit habit = getHabitById(updatedHabit.getId());
+        validateHabitOwnership(habit, currentUserId);
 
-        Habit habit = new Habit(
-                updatedHabit.getId(),
-                updatedHabit.getName(),
-                updatedHabit.getDescription(),
-                updatedHabit.getFrequency(),
-                owner.getId()
-        );
+        habit.setName(updatedHabit.getName());
+        habit.setDescription(updatedHabit.getDescription());
+        habit.setFrequency(updatedHabit.getFrequency());
+
         habitRepository.update(habit);
     }
 
-    public void delete(Long habitId) {
+    public void delete(Long habitId, Long currentUserId) {
+        Habit habit = getHabitById(habitId);
+        validateHabitOwnership(habit, currentUserId);
+
         habitRepository.deleteById(habitId);
     }
 
-    public void markHabitAsFulfilled(Long habitId, LocalDate date) {
-        if (!habitRepository.existsById(habitId)) {
-            throw new EntityNotFoundException("Не удалось найти привычку с id=" + habitId);
-        }
+    public void markHabitAsFulfilled(Long habitId, LocalDate date, Long currentUserId) {
+        Habit habit = habitRepository.findById(habitId).orElseThrow(() -> new IllegalArgumentException("Не удалось найти привычку с id=" + habitId));
+        validateHabitOwnership(habit, currentUserId);
 
         FulfilledHabit fulfilledHabit = new FulfilledHabit();
         fulfilledHabit.setHabitId(habitId);

@@ -41,10 +41,13 @@ public class UserRepositoryImpl implements UserRepository {
         checkEmailIndexConstraint(user.getEmail());
 
         long userId = usersCounter.incrementAndGet();
+
         User newUser = new User(user);
         newUser.setId(userId);
+
         users.put(userId, newUser);
         emailIndex.put(newUser.getEmail(), userId);
+
         return new User(newUser);
     }
 
@@ -83,6 +86,7 @@ public class UserRepositoryImpl implements UserRepository {
         existedUser.setName(user.getName());
         existedUser.setEmail(user.getEmail());
         existedUser.setPassword(user.getPassword());
+        existedUser.setActive(user.isActive());
         return true;
     }
 

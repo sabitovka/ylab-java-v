@@ -7,24 +7,28 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private boolean isAdmin;
+    private boolean isActive = true;
 
     public User() {
 
     }
 
     public User(User user) {
-        this(user.id, user.name, user.email, user.password);
+        this(user.id, user.name, user.email, user.password, user.isAdmin, user.isActive);
     }
 
     public User(String name, String email, String password) {
-        this(null, name, email, password);
+        this(null, name, email, password, false, true);
     }
 
-    public User(Long id, String name, String email, String password) {
+    public User(Long id, String name, String email, String password, boolean isAdmin, boolean isActive) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
+        this.setAdmin(isAdmin);
+        this.setActive(isActive);
     }
 
     public Long getId() {
@@ -80,5 +84,21 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, email, password);
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

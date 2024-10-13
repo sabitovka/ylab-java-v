@@ -12,21 +12,18 @@ import java.util.Scanner;
 public class MainController extends BaseController {
     private final AuthorizationService authorizationService;
     private final UserService userService;
-    private final StatisticService statisticService;
     private final UserController userController;
     private final HabitController habitController;
-    private final StatisticController statisticController;
+    private final AdminController adminController;
 
     public MainController(AuthorizationService authorizationService, UserService userService, StatisticService statisticService, HabitService habitService) {
         super(new Scanner(System.in));
         this.authorizationService = authorizationService;
         this.userService = userService;
-        this.statisticService = statisticService;
-
 
         this.userController = new UserController(scanner, userService, authorizationService);
-        this.habitController = new HabitController(scanner, habitService, userService, authorizationService, statisticService);
-        this.statisticController = new StatisticController(scanner, statisticService);
+        this.habitController = new HabitController(scanner, habitService, authorizationService, statisticService);
+        this.adminController = new AdminController(scanner, userService);
     }
 
     @Override
@@ -100,19 +97,23 @@ public class MainController extends BaseController {
             System.out.println("Выберите действие из меню");
             System.out.println("1. Управление пользователем");
             System.out.println("2. Управление привычками");
-            System.out.println("3. Статистика и аналитика");
-            System.out.println("4. Выход из профиля");
+            System.out.println("3. Выход из профиля");
+            String choiceRegex = "^[1-3]$";
+            if (authorizationService.isAdmin()) {
+                System.out.println("4. Администрирование");
+                choiceRegex = "^[1-4]$";
+            }
 
-            String choice = prompt(" -> ", "^[1-4]$");
+            String choice = prompt(" -> ", choiceRegex);
             switch (choice) {
                 case "1" -> userController.showMenu();
                 case "2" -> habitController.showMenu();
-                case "3" -> statisticController.showMenu();
-                case "4" -> {
+                case "3" -> {
                     authorizationService.logout();
                     System.out.println("Выход на главный экран.");
                     return;
                 }
+                case "4" -> adminController.showMenu();
                 default -> System.out.println("Неверный выбор, попробуйте снова.");
             }
         }

@@ -5,6 +5,8 @@ public class UserInfoDto {
     private String name;
     private String email;
     private String password;
+    private boolean isAdmin;
+    private boolean isActive = true;
 
     public Long getId() {
         return id;
@@ -43,5 +45,21 @@ public class UserInfoDto {
         return "Пользователь #" + id +
                 " Имя: " + name +
                 " Email " + email;
+    }
+
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

@@ -21,6 +21,10 @@ public class AuthorizationService {
         return userRepository.findById(currentUserId).orElseThrow(() -> new IllegalStateException("Ошибка авторизации. Повторите вход"));
     }
 
+    public boolean isAdmin() {
+        return getCurrentUser().isAdmin();
+    }
+
     public Long getCurrentUserId() {
         return currentUserId;
     }
@@ -30,6 +34,11 @@ public class AuthorizationService {
         if (user.isEmpty() || !PasswordHasher.verify(password, user.get().getPassword())) {
             return;
         }
+
+        if (!user.get().isActive()) {
+            throw new IllegalStateException("Ваша учетная запись была заблокирована");
+        }
+
         this.currentUserId = user.get().getId();
     }
 

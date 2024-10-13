@@ -3,9 +3,13 @@ package io.sabitovka.service;
 import io.sabitovka.common.Constants;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.exception.EntityAlreadyExistsException;
+import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.util.PasswordHasher;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserService {
 
@@ -21,6 +25,8 @@ public class UserService {
         userInfoDto.setName(user.getName());
         userInfoDto.setEmail(user.getEmail());
         userInfoDto.setPassword(user.getPassword());
+        userInfoDto.setIsAdmin(userInfoDto.isAdmin());
+        userInfoDto.setActive(userInfoDto.isActive());
         return userInfoDto;
     }
 
@@ -30,6 +36,8 @@ public class UserService {
         user.setName(userInfoDto.getName());
         user.setEmail(userInfoDto.getEmail());
         user.setPassword(userInfoDto.getPassword());
+        user.setAdmin(userInfoDto.isAdmin());
+        user.setActive(userInfoDto.isActive());
         return user;
     }
 
@@ -88,5 +96,30 @@ public class UserService {
         if (PasswordHasher.verify(password, user.getPassword())) {
             userRepository.deleteById(profileId);
         }
+    }
+
+    public void blockUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти пользователя"));
+        user.setActive(false);
+        userRepository.update(user);
+    }
+
+    public UserInfoDto findById(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти пользователя"));
+        return mapUserToUserInfoDto(user);
+    }
+
+    public List<UserInfoDto> getBlockedUsers() {
+        return userRepository.findAll().stream()
+                .filter(user -> !user.isActive())
+                .map(this::mapUserToUserInfoDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserInfoDto> getActiveUsers() {
+        return userRepository.findAll().stream()
+                .filter(User::isActive)
+                .map(this::mapUserToUserInfoDto)
+                .collect(Collectors.toList());
     }
 }

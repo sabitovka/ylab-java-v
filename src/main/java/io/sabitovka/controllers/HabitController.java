@@ -5,7 +5,6 @@ import io.sabitovka.dto.HabitInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
-import io.sabitovka.service.UserService;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -15,14 +14,12 @@ import java.util.Scanner;
 public class HabitController extends BaseController {
 
     private final HabitService habitService;
-    private final UserService userService;
     private final AuthorizationService authorizationService;
     private final StatisticService statisticService;
 
-    public HabitController(Scanner scanner, HabitService habitService, UserService userService, AuthorizationService authorizationService, StatisticService statisticService) {
+    public HabitController(Scanner scanner, HabitService habitService, AuthorizationService authorizationService, StatisticService statisticService) {
         super(scanner);
         this.habitService = habitService;
-        this.userService = userService;
         this.authorizationService = authorizationService;
         this.statisticService = statisticService;
     }
@@ -76,6 +73,11 @@ public class HabitController extends BaseController {
         return new HabitInfoDto(name, description, frequency, ownerId);
     }
 
+    private HabitInfoDto promptForHabit() {
+        String habitId = prompt("Введите ID привычки: ", "\\d+");
+        return habitService.getHabitById(Long.parseLong(habitId), authorizationService.getCurrentUserId());
+    }
+
     private void createHabit() {
         System.out.println("Добавление привычки");
         HabitInfoDto habitInfoDto = promptHabitInfo();
@@ -111,33 +113,38 @@ public class HabitController extends BaseController {
 
     private void changeHabit() {
         System.out.println("Изменить привычку");
-        String habitId = prompt("Введите ID привычки: ", "\\d+");
-        HabitInfoDto habit = habitService.getHabitById(Long.parseLong(habitId));
+        HabitInfoDto habit = promptForHabit();
+
         System.out.println(habit);
         System.out.println("Введите данные новой привычки");
+
         HabitInfoDto updatedHabit = promptHabitInfo();
         updatedHabit.setId(habit.getId());
-        habitService.updateHabit(updatedHabit);
+        habitService.updateHabit(updatedHabit, authorizationService.getCurrentUserId());
+
         System.out.println("Привычка обновлена");
     }
 
     private void deleteHabit() {
         System.out.println("Удалить привычку");
-        String habitId = prompt("Введите ID привычки: ", "\\d+");
-        HabitInfoDto habit = habitService.getHabitById(Long.parseLong(habitId));
+        HabitInfoDto habit = promptForHabit();
+
         System.out.println(habit);
         String isSure = prompt("Удалить привычку? (1 - Да, 2 - Нет): ", "^[1-2]$");
         if (isSure.equals("1")) {
-            habitService.delete(habit.getId());
+            habitService.delete(habit.getId(), authorizationService.getCurrentUserId());
         }
     }
 
     private void markHabitAsFulfilled() {
-
+        HabitInfoDto habitInfoDto = promptForHabit();
+        System.out.println(habitInfoDto);
+        habitService.markHabitAsFulfilled(habitInfoDto.getId(), LocalDate.now(), authorizationService.getCurrentUserId());
+        System.out.println("Отметка о выполнении добавлена");
     }
 
     private void fulfillingReport() {
-        String habitId = prompt("Введите ID привычки: ", "\\d+");
+        HabitInfoDto habit = promptForHabit();
 
         System.out.println("Введите период статистики:");
         System.out.println("1. День");
@@ -153,7 +160,7 @@ public class HabitController extends BaseController {
         };
         LocalDate endDate = LocalDate.now();
 
-        String report = statisticService.generateHabitReportString(Long.parseLong(habitId), startDate, endDate);
+        String report = statisticService.generateHabitReportString(habit.getId(), startDate, endDate);
         System.out.println(report);
     }
 
