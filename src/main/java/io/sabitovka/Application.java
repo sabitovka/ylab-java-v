@@ -3,6 +3,7 @@ package io.sabitovka;
 import io.sabitovka.controllers.BaseController;
 import io.sabitovka.controllers.MainController;
 import io.sabitovka.dto.HabitInfoDto;
+import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -18,11 +19,15 @@ public class Application {
         UserService userService = ServiceFactory.getInstance().getUserService();
         HabitService habitService = ServiceFactory.getInstance().getHabitService();
 
-        User user = authorizationService.register("admin", "admin@ylab.ru", "admin123");
-        habitService.createHabit(new HabitInfoDto("Анжумания", "", Period.ofDays(1), UserService.userToUserInfoDto(user)));
-        habitService.createHabit(new HabitInfoDto("Прес качат", "", Period.ofDays(1), UserService.userToUserInfoDto(user)));
-        Habit habit = habitService.createHabit(new HabitInfoDto("Бегит", "", Period.ofDays(1), UserService.userToUserInfoDto(user)));
-        habit.setActive(false);
+        UserInfoDto userInfoDto = new UserInfoDto();
+        userInfoDto.setName("admin");
+        userInfoDto.setEmail("admin@ylab.ru");
+        userInfoDto.setPassword("admin123");
+        userService.createUser(userInfoDto);
+
+        habitService.createHabit(new HabitInfoDto("Анжумания", "", Period.ofDays(1), 1L));
+        habitService.createHabit(new HabitInfoDto("Прес качат", "", Period.ofDays(1), 1L));
+        Habit habit = habitService.createHabit(new HabitInfoDto("Бегит", "", Period.ofDays(1), 1L));
         habitService.disableHabit(habit);
 
         BaseController mainController = new MainController(authorizationService, userService, habitService);

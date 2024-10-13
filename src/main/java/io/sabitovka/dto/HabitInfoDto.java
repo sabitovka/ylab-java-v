@@ -1,7 +1,5 @@
 package io.sabitovka.dto;
 
-import io.sabitovka.model.User;
-
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -12,28 +10,30 @@ public class HabitInfoDto {
     private Period frequency;
     private LocalDate createdAt;
     private boolean isActive;
-    private UserInfoDto owner;
+    private Long ownerId;
 
-    public HabitInfoDto(String name, String description, Period frequency, UserInfoDto owner) {
-        this(null, name, description, frequency, owner);
+    public HabitInfoDto() {}
+
+    public HabitInfoDto(String name, String description, Period frequency, Long ownerId) {
+        this(null, name, description, frequency, ownerId);
     }
 
-    public HabitInfoDto(Long id, String name, String description, Period frequency, UserInfoDto owner) {
+    public HabitInfoDto(Long id, String name, String description, Period frequency, Long ownerId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
-        this.owner = owner;
+        this.ownerId = ownerId;
     }
 
-    public HabitInfoDto(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, UserInfoDto owner) {
+    public HabitInfoDto(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, Long ownerId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
         this.createdAt = createdAt;
         this.isActive = isActive;
-        this.owner = owner;
+        this.ownerId = ownerId;
     }
 
     public Long getId() {
@@ -84,12 +84,12 @@ public class HabitInfoDto {
         isActive = active;
     }
 
-    public UserInfoDto getOwner() {
-        return owner;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setOwner(UserInfoDto owner) {
-        this.owner = owner;
+    public void setOwnerId(UserInfoDto owner) {
+        this.ownerId = ownerId;
     }
 
     @Override

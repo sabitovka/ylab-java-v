@@ -13,26 +13,30 @@ public class Habit {
     private Period frequency;
     private LocalDate createdAt;
     private boolean isActive;
-    private User owner;
+    private Long ownerId;
 
-    public Habit(String name, String description, Period frequency, User owner) {
-        this(null, name, description, frequency, owner);
-    }
+    public Habit() {}
 
     public Habit(Habit habit) {
-        this(habit.id, habit.name, habit.description, habit.frequency, habit.owner);
-        this.setActive(habit.isActive());
-        this.setCreatedAt(habit.getCreatedAt());
+        this(habit.id, habit.name, habit.description, habit.frequency, habit.createdAt, habit.isActive, habit.ownerId);
     }
 
-    public Habit(Long id, String name, String description, Period frequency, User owner) {
+    public Habit(String name, String description, Period frequency, Long ownerId) {
+        this(null, name, description, frequency, ownerId);
+    }
+
+    public Habit(Long id, String name, String description, Period frequency, Long ownerId) {
+        this(id, name, description, frequency, LocalDate.now(), true, ownerId);
+    }
+
+    private Habit(Long id, String name, String description, Period frequency, LocalDate createdAt, boolean isActive, Long ownerId) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
-        this.createdAt = LocalDate.now();
-        this.isActive = true;
-        this.owner = owner;
+        this.createdAt = createdAt;
+        this.isActive = isActive;
+        this.ownerId = ownerId;
     }
 
     public Long getId() {
@@ -83,12 +87,12 @@ public class Habit {
         isActive = active;
     }
 
-    public User getOwner() {
-        return owner;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     @Override
@@ -100,7 +104,7 @@ public class Habit {
                 ", frequency=" + frequency +
                 ", createdAt=" + createdAt +
                 ", isActive=" + isActive +
-                ", owner=" + owner +
+                ", ownerId=" + ownerId +
                 '}';
     }
 
@@ -109,11 +113,11 @@ public class Habit {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Habit habit = (Habit) o;
-        return isActive == habit.isActive && Objects.equals(id, habit.id) && Objects.equals(name, habit.name) && Objects.equals(description, habit.description) && Objects.equals(frequency, habit.frequency) && Objects.equals(createdAt, habit.createdAt) && Objects.equals(owner, habit.owner);
+        return isActive == habit.isActive && Objects.equals(id, habit.id) && Objects.equals(name, habit.name) && Objects.equals(description, habit.description) && Objects.equals(frequency, habit.frequency) && Objects.equals(createdAt, habit.createdAt) && Objects.equals(ownerId, habit.ownerId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, frequency, createdAt, isActive, owner);
+        return Objects.hash(id, name, description, frequency, createdAt, isActive, ownerId);
     }
 }

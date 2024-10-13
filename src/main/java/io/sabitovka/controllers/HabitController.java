@@ -66,8 +66,8 @@ public class HabitController extends BaseController {
             default -> throw new IllegalStateException("Unexpected value: " + frequencyChoice);
         };
 
-        UserInfoDto ownerDto = UserService.userToUserInfoDto(authorizationService.getCurrentUser());
-        return new HabitInfoDto(name, description, frequency, ownerDto);
+        Long ownerId = authorizationService.getCurrentUser().getId();
+        return new HabitInfoDto(name, description, frequency, ownerId);
     }
 
     private void createHabit() {

@@ -1,6 +1,7 @@
 package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
+import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.UserService;
@@ -11,10 +12,12 @@ public class MainController extends BaseController {
     private final AuthorizationService authorizationService;
     private final UserController userController;
     private final HabitController habitController;
+    private final UserService userService;
 
     public MainController(AuthorizationService authorizationService, UserService userService, HabitService habitService) {
         super(new Scanner(System.in));
         this.authorizationService = authorizationService;
+        this.userService = userService;
 
         this.userController = new UserController(scanner, userService, authorizationService);
         this.habitController = new HabitController(scanner, habitService, userService, authorizationService);
@@ -74,7 +77,12 @@ public class MainController extends BaseController {
             String email = prompt("Введите email: ", Constants.EMAIL_REGEX);
             String password = prompt("Введите пароль: ", Constants.PASSWORD_REGEX);
 
-            authorizationService.register(name, email, password);
+            UserInfoDto userInfoDto = new UserInfoDto();
+            userInfoDto.setName(name);
+            userInfoDto.setEmail(email);
+            userInfoDto.setPassword(password);
+
+            userService.createUser(userInfoDto);
         } catch (Exception e) {
             System.err.println("Произошла ошибка: " + e.getMessage());
         }

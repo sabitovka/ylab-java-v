@@ -30,10 +30,13 @@ public class HabitRepositoryImpl implements HabitRepository {
             throw new EntityAlreadyExistsException("Привычка уже существует в системе");
         }
 
-        long userId = habitCounter.incrementAndGet();
+        long habitId = habitCounter.incrementAndGet();
+
         Habit newHabit = new Habit(obj);
-        newHabit.setId(userId);
-        habits.put(userId, newHabit);
+        newHabit.setId(habitId);
+
+        habits.put(habitId, newHabit);
+
         return new Habit(newHabit);
     }
 
@@ -78,7 +81,7 @@ public class HabitRepositoryImpl implements HabitRepository {
     @Override
     public List<Habit> findAllByUser(User owner) {
         return habits.values().stream()
-                .filter(habit -> Objects.equals(habit.getOwner().getId(), owner.getId()))
+                .filter(habit -> Objects.equals(habit.getOwnerId(), owner.getId()))
                 .map(Habit::new)
                 .collect(Collectors.toList());
     }
@@ -86,7 +89,7 @@ public class HabitRepositoryImpl implements HabitRepository {
     @Override
     public List<Habit> filterByUserAndTimeAndStatus(User owner, LocalDate startDate, LocalDate endDate, Boolean isActive) {
         return habits.values().stream()
-                .filter(habit -> habit.getOwner().getId().equals(owner.getId()))
+                .filter(habit -> habit.getOwnerId().equals(owner.getId()))
                 .filter(habit -> startDate == null || habit.getCreatedAt().isAfter(startDate))
                 .filter(habit -> endDate == null || habit.getCreatedAt().isBefore(endDate))
                 .filter(habit -> isActive == null || habit.isActive() == isActive)

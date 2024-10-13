@@ -75,6 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
 
         if (!existedUser.getEmail().equalsIgnoreCase(user.getEmail())) {
             checkEmailIndexConstraint(user.getEmail());
+            emailIndex.remove(existedUser.getEmail());
         }
 
         emailIndex.put(user.getEmail(), existedUser.getId());

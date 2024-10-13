@@ -1,7 +1,5 @@
 package io.sabitovka.service;
 
-import io.sabitovka.common.Constants;
-import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.util.PasswordHasher;
@@ -11,41 +9,20 @@ import java.util.Optional;
 public class AuthorizationService {
 
     private final UserRepository userRepository;
-    private User currentUser;
+    private Long currentUserId;
     public AuthorizationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public User getCurrentUser() {
-        if (currentUser == null) {
-            throw new IllegalStateException("Нет авторизованного пользователя");
+        if (currentUserId == null) {
+            throw new IllegalStateException("Ошибка авторизации. Выполните вход");
         }
-        return currentUser;
+        return userRepository.findById(currentUserId).orElseThrow(() -> new IllegalStateException("Ошибка авторизации. Повторите вход"));
     }
 
-    private void validateRegistrationInput(String name, String email, String password) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может быть пустым");
-        }
-        if (email == null || !email.matches(Constants.EMAIL_REGEX)) {
-            throw new IllegalArgumentException("Неправильный формат email");
-        }
-        if (password == null || !password.matches(Constants.PASSWORD_REGEX)) {
-            throw new IllegalArgumentException("Пароль не соответствует требованиям");
-        }
-    }
-
-    public User register(String name, String email, String password) {
-        validateRegistrationInput(name, email, password);
-
-        if (userRepository.findUserByEmail(email).isPresent()) {
-            throw new EntityAlreadyExistsException("Данный email уже занят");
-        }
-
-        String hashedPassword = PasswordHasher.hash(password);
-        User user = new User(name, email, hashedPassword);
-
-        return userRepository.create(user);
+    public Long getCurrentUserId() {
+        return currentUserId;
     }
 
     public void login(String email, String password) {
@@ -53,14 +30,14 @@ public class AuthorizationService {
         if (user.isEmpty() || !PasswordHasher.verify(password, user.get().getPassword())) {
             return;
         }
-        this.currentUser = user.get();
+        this.currentUserId = user.get().getId();
     }
 
     public void logout() {
-        this.currentUser = null;
+        this.currentUserId = null;
     }
 
     public boolean isLoggedIn() {
-        return currentUser != null;
+        return currentUserId != null;
     }
 }

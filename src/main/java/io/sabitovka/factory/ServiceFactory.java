@@ -19,9 +19,9 @@ public final class ServiceFactory {
         UserRepository userRepository = new UserRepositoryImpl();
         HabitRepository habitRepository = new HabitRepositoryImpl();
 
-        userService = new UserService(userRepository, authorizationService);
+        userService = new UserService(userRepository);
         authorizationService = new AuthorizationService(userRepository);
-        habitService = new HabitService(habitRepository, userRepository);
+        habitService = new HabitService(habitRepository, userRepository, userService);
     }
 
     public static synchronized ServiceFactory getInstance() {

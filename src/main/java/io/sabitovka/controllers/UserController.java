@@ -1,6 +1,7 @@
 package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
+import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
 
@@ -21,7 +22,7 @@ public class UserController extends BaseController {
     public void showMenu() {
         while (true) {
             System.out.println("=== Редактирование профиля пользователя ===");
-            System.out.println("Текущие параметры пользователя: " + UserService.userToUserInfoDto(authorizationService.getCurrentUser()));
+            System.out.println("Текущие параметры пользователя: " + userService.mapUserToUserInfoDto(authorizationService.getCurrentUser()));
             System.out.println("Выберите действие из меню");
             System.out.println("1. Изменить имя");
             System.out.println("2. Изменить email");
@@ -53,33 +54,45 @@ public class UserController extends BaseController {
     }
 
     private void changeName() {
-        System.out.println("Введите новое имя");
-        String newName = prompt(" -> ", Constants.USERNAME_REGEX);
-        userService.changeName(newName);
+        String newName = prompt("Введите новое имя: ", Constants.USERNAME_REGEX);
+
+        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(authorizationService.getCurrentUser());
+        userInfoDto.setName(newName);
+
+        userService.updateUser(userInfoDto);
         System.out.println("Имя пользователя успешно изменено на: " + newName.trim());
     }
 
     private void changeEmail() {
-        System.out.println("Введите новый email");
-        String newEmail = prompt(" -> ", Constants.EMAIL_REGEX);
-        userService.changeEmail(newEmail);
+        String newEmail = prompt("Введите новый email: ", Constants.EMAIL_REGEX);
+
+        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(authorizationService.getCurrentUser());
+        userInfoDto.setEmail(newEmail);
+
+        userService.updateUser(userInfoDto);
+
         System.out.println("Email успешно изменен на: " + newEmail.trim());
     }
 
     private void changePassword() {
-        System.out.println("Введите новый пароль");
-        String newPassword = prompt(" -> ", Constants.PASSWORD_REGEX);
-        userService.changePassword(newPassword);
+        String oldPassword = prompt("Введите старый пароль: ", Constants.PASSWORD_REGEX);
+        String newPassword = prompt("Введите новый пароль: ", Constants.PASSWORD_REGEX);
+
+        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(authorizationService.getCurrentUser());
+        userInfoDto.setPassword(newPassword);
+
+        userService.changePassword(userInfoDto, oldPassword);
+
         System.out.println("Пароль успешно изменен");
     }
 
     private boolean deleteProfile() {
-        System.out.println("Вы действительно хотите удалить профиль? (Y/N)");
-        String answer = prompt(" -> ", "^[Y,N]$");
-        if (answer.equalsIgnoreCase("Y")) {
-            System.out.print("Введите пароль от аккаунта: ");
-            String password = prompt("", Constants.PASSWORD_REGEX);
-            userService.deleteProfile(password);
+        String answer = prompt("Вы действительно хотите удалить профиль? (Y/N): ", "^[YNyn]$");
+        if (answer.equalsIgnoreCase("y")) {
+            String password = prompt("Введите пароль от аккаунта: ", Constants.PASSWORD_REGEX);
+
+            userService.deleteProfile(authorizationService.getCurrentUserId(), password);
+
             System.out.println("Профиль удален. Надеемся увидеть Вас снова!");
             return true;
         }

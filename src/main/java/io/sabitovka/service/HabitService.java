@@ -16,10 +16,12 @@ public class HabitService {
 
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public HabitService(HabitRepository habitRepository, UserRepository userRepository) {
+    public HabitService(HabitRepository habitRepository, UserRepository userRepository, UserService userService) {
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public Habit createHabit(HabitInfoDto habitInfoDto) {
@@ -27,23 +29,22 @@ public class HabitService {
             throw new IllegalArgumentException("Название привычки не может быть пустым");
         }
 
-        if (habitInfoDto.getOwner() == null || !userRepository.existsById(habitInfoDto.getOwner().getId())) {
+        if (habitInfoDto.getOwnerId() == null || !userRepository.existsById(habitInfoDto.getOwnerId())) {
             throw new IllegalArgumentException("Владелец привычки должен быть валидным пользователем");
         }
 
-        User owner = userRepository.findById(habitInfoDto.getOwner().getId()).orElseThrow();
-        Habit newHabit = new Habit(habitInfoDto.getName(), habitInfoDto.getDescription(), habitInfoDto.getFrequency(), owner);
+        Habit newHabit = new Habit(habitInfoDto.getName(), habitInfoDto.getDescription(), habitInfoDto.getFrequency(), habitInfoDto.getOwnerId());
         return habitRepository.create(newHabit);
     }
 
     public List<HabitInfoDto> getHabitsByFilters(User currentUser, LocalDate startDate, LocalDate endDate, Boolean isActive) {
         List<Habit> habits = habitRepository.filterByUserAndTimeAndStatus(currentUser, startDate, endDate, isActive);
-        return habits.stream().map(HabitService::mapHabitToDto).collect(Collectors.toList());
+        return habits.stream().map(this::mapHabitToHabitInfoDto).collect(Collectors.toList());
     }
 
     public List<HabitInfoDto> getAllByOwner(User currentUser) {
         List<Habit> habits = habitRepository.findAllByUser(currentUser);
-        return habits.stream().map(HabitService::mapHabitToDto).collect(Collectors.toList());
+        return habits.stream().map(this::mapHabitToHabitInfoDto).collect(Collectors.toList());
     }
 
     public void disableHabit(Habit habit) {
@@ -53,19 +54,19 @@ public class HabitService {
 
     public HabitInfoDto getHabitById(Long id) {
         Habit habit = habitRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Привычка не найдена"));
-        return mapHabitToDto(habit);
+        return mapHabitToHabitInfoDto(habit);
     }
 
     public void updateHabit(HabitInfoDto updatedHabit) {
-        User owner = userRepository.findById(updatedHabit.getOwner().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        User owner = userRepository.findById(updatedHabit.getOwnerId())
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь привычки не найден"));
 
         Habit habit = new Habit(
                 updatedHabit.getId(),
                 updatedHabit.getName(),
                 updatedHabit.getDescription(),
                 updatedHabit.getFrequency(),
-                owner
+                owner.getId()
         );
         habitRepository.update(habit);
     }
@@ -74,8 +75,7 @@ public class HabitService {
         habitRepository.deleteById(habitId);
     }
 
-    public static HabitInfoDto mapHabitToDto(Habit habit) {
-        UserInfoDto ownerDto = UserService.userToUserInfoDto(habit.getOwner());
+    public HabitInfoDto mapHabitToHabitInfoDto(Habit habit) {
         return new HabitInfoDto(
                 habit.getId(),
                 habit.getName(),
@@ -83,7 +83,7 @@ public class HabitService {
                 habit.getFrequency(),
                 habit.getCreatedAt(),
                 habit.isActive(),
-                ownerDto
+                habit.getOwnerId()
         );
     }
 }
