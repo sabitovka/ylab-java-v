@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="habit-tracker (1)" />
+        <module name="habit-tracker" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="habit-tracker" target="17" />
+      <module name="habit-tracker (1)" target="17" />
       <module name="habit-tracker (2)" target="17" />
       <module name="homework-1" target="17" />
       <module name="homework-2" target="17" />
