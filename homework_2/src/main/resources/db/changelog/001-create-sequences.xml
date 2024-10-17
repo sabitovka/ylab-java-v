@@ -9,4 +9,5 @@
         <createSequence sequenceName="habit_sequence" />
         <createSequence sequenceName="fulfilled_habit_sequence" />
     </changeSet>
+
 </databaseChangeLog>

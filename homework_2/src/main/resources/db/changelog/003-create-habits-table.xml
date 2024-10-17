@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="003-create-habits-table" author="sabitovka">
+        <sql>CREATE TYPE frequency AS ENUM('daily', 'weekly');</sql>
+
+        <createTable tableName="habits">
+            <column name="id" type="bigint" defaultValueSequenceNext="habit_sequence">
+                <constraints primaryKey="true" primaryKeyName="pk_habits" nullable="false" />
+            </column>
+            <column name="name" type="varchar(30)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="varchar" />
+            <column name="frequency" type="frequency" defaultValue="daily" >
+            </column>
+            <column name="created_at" type="date" defaultValueComputed="CURRENT_DATE" />
+            <column name="is_active" type="boolean" defaultValueBoolean="true" />
+            <column name="owner_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+
+        <createIndex tableName="habits" indexName="idx_habits_id">
+            <column name="id" />
+        </createIndex>
+
+        <addForeignKeyConstraint
+                baseTableName="habits" baseColumnNames="owner_id"
+                constraintName="fk_habits_owner_id_user_id"
+                referencedTableName="users"
+                referencedColumnNames="id" />
+
+    </changeSet>
+
+</databaseChangeLog>
