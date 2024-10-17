@@ -1,4 +1,4 @@
-package io.sabitovka.util;
+package io.sabitovka.utils;
 
 import io.sabitovka.common.Constants;
 

@@ -12,6 +12,7 @@ import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
 import io.sabitovka.service.UserService;
+import io.sabitovka.utils.MigrationManager;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -22,6 +23,8 @@ public class Application {
         UserService userService = ServiceFactory.getInstance().getUserService();
         HabitService habitService = ServiceFactory.getInstance().getHabitService();
         StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();
+
+        MigrationManager.migrate();
 
         initData(userService, habitService);
 

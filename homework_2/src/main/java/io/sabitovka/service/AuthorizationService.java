@@ -2,7 +2,7 @@ package io.sabitovka.service;
 
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.utils.PasswordHasher;
 
 import java.util.Optional;
 

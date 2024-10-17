@@ -42,6 +42,13 @@
       <version>42.7.4</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <version>4.29.2</version>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -52,6 +59,15 @@
         <version>1.4.0</version>
         <configuration>
           <mainClass>io.sabitovka.Application</mainClass>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
+        <version>3.6.2</version>
+        <configuration>
+          <propertyFile>liquibase.properties</propertyFile>
+          <changeLogFile>db/changelog/changelog.xml</changeLogFile>
         </configuration>
       </plugin>
     </plugins>

@@ -7,7 +7,7 @@ import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.utils.PasswordHasher;
 
 import java.util.List;
 import java.util.stream.Collectors;

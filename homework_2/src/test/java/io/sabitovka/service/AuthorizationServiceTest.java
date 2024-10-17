@@ -1,9 +1,8 @@
 package io.sabitovka.service;
 
-import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.utils.PasswordHasher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
