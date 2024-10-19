@@ -7,6 +7,7 @@ import io.sabitovka.model.Habit;
 import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.service.impl.StatisticServiceImpl;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,8 +24,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("Тест сервиса StatisticServiceImpl")
 class StatisticServiceTest {
-
     @Mock
     private HabitRepository habitRepository;
     @Mock
@@ -33,6 +34,7 @@ class StatisticServiceTest {
     private StatisticServiceImpl statisticService;
 
     @Test
+    @DisplayName("[getHabitCompletionStats] Должен вернуть статистику выполнения")
     public void getHabitCompletionStats_whenValidHabit_shouldReturnCompletionStats() {
         Habit habit = new Habit();
         habit.setFrequency(HabitFrequency.DAILY);
@@ -51,6 +53,7 @@ class StatisticServiceTest {
     }
 
     @Test
+    @DisplayName("[getStreakCount] Должен вернуть текущий streak")
     public void getStreakCount_whenValidHabit_shouldReturnCorrectStreak() {
         Habit habit = new Habit();
         habit.setFrequency(HabitFrequency.DAILY);
@@ -66,6 +69,7 @@ class StatisticServiceTest {
     }
 
     @Test
+    @DisplayName("[getHabitSuccessRate] Должен вернуть корректный процент выполнения")
     public void getHabitSuccessRate_whenValidHabit_shouldReturnCorrectRate() {
         Habit habit = new Habit();
         habit.setFrequency(HabitFrequency.DAILY);
@@ -81,6 +85,7 @@ class StatisticServiceTest {
     }
 
     @Test
+    @DisplayName("[getHabitSuccessRate] Когда привычки нет, должен выбросить исключение")
     public void getHabitSuccessRate_whenHabitDoesNotExist_shouldThrowException() {
         when(habitRepository.existsById(1L)).thenReturn(false);
 
@@ -89,6 +94,7 @@ class StatisticServiceTest {
     }
 
     @Test
+    @DisplayName("[generateHabitReportString] Должен создать отчет о выполнении")
     public void generateHabitReportString_shouldReturnFormattedReport() {
         Habit habit = new Habit(1L, "Test Habit", "description", HabitFrequency.DAILY, LocalDate.now(), false, 1L);
         when(habitRepository.findById(1L)).thenReturn(Optional.of(habit));

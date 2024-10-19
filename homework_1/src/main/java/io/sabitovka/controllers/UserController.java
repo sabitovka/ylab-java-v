@@ -4,8 +4,6 @@ import io.sabitovka.common.Constants;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
-import io.sabitovka.service.impl.AuthorizationServiceImpl;
-import io.sabitovka.service.impl.UserServiceImpl;
 
 import java.util.Scanner;
 

@@ -1,6 +1,8 @@
 package io.sabitovka.factory;
 
-import io.sabitovka.repository.*;
+import io.sabitovka.repository.FulfilledHabitRepository;
+import io.sabitovka.repository.HabitRepository;
+import io.sabitovka.repository.UserRepository;
 import io.sabitovka.repository.impl.FulfilledHabitRepositoryImpl;
 import io.sabitovka.repository.impl.HabitRepositoryImpl;
 import io.sabitovka.repository.impl.UserRepositoryImpl;

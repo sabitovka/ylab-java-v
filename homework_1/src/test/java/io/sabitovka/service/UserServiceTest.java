@@ -12,6 +12,7 @@ import io.sabitovka.service.impl.AuthorizationServiceImpl;
 import io.sabitovka.service.impl.UserServiceImpl;
 import io.sabitovka.util.PasswordHasher;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,8 +28,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("Тест userServiceImpl")
 class UserServiceTest {
-
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -37,7 +38,6 @@ class UserServiceTest {
     private AuthorizationServiceImpl authorizationService;
     @InjectMocks
     private UserServiceImpl userService;
-
     private User currentUser;
 
     @BeforeEach
@@ -48,6 +48,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[mapUserToUserInfoDto] Должен успешно отработать")
     public void mapUserToUserInfoDto_shouldReturnCorrectObj() {
         User user = new User(1L, "mock", "mock@example.com", "password", false, true);
         UserInfoDto userInfoDto = userService.mapUserToUserInfo(user);
@@ -61,6 +62,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[mapUserInfoDtoToUser] Должен успешно отработать")
     public void mapUserInfoDtoToUser_shouldReturnCorrectObj() {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setId(1L);
@@ -81,6 +83,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[createUser] Когда регистрационные данные неверные, должен выбросить исключение")
     public void createUser_whenRegistrationInputIncorrect_shouldThrowException() {
         String name = "mock";
         String email = "mock@example.com";
@@ -115,6 +118,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[createUser] Когда email же есть, выбросить исключение")
     public void createUser_whenEmailAlreadyExists_shouldThrowException() {
         String email = "mock@example.com";
         when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(new User()));
@@ -130,6 +134,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[createUser] Должен создать пользователя")
     void createUser_whenUserIsCorrect_shouldCreateSuccessfully() {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setName("mock");
@@ -144,12 +149,14 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[updateUser] Должен выбросить исключение")
     void updateUser_whenUserInfoIsNull_shouldThrowException() {
         assertThatThrownBy(() -> userService.updateUser(null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
+    @DisplayName("[updateUser] Должен обновить")
     void updateUser_whenUserInfoIsCorrect_shouldCreateSuccessfully() {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setId(1L);
@@ -164,6 +171,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[changePassword] Должен обновить пароль")
     void changePassword_shouldChangeSuccessfully() {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setId(1L);
@@ -182,6 +190,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[changePassword] Должен выбросить исключение, когда пароли не совпадают")
     void changePassword_whenOldPasswordIsIncorrect_shouldThrowException() {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setId(1L);
@@ -198,6 +207,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[changePassword] Должен выбросить исключение при валидации")
     void changePassword_shouldThrowExceptionWhenValidationFails() {
         UserInfoDto userInfoDto = new UserInfoDto();
 
@@ -206,6 +216,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[deleteProfile] Проверка пароля требованиям")
     void deleteProfile_whenPasswordDoesNotMatch_shouldThrowException() {
         assertThatThrownBy(() -> userService.deleteProfile(1L, "123"))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -213,6 +224,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[deleteProfile] Когда пароль не совпадает, ничего не делать")
     void deleteProfile_whenPasswordIsNotEqualToStoredPassword_shouldDoNothing() {
         User user = new User(1L, "mock", "mock@example.ru", "password", false, true);
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
@@ -224,6 +236,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[deleteProfile] Удалить пользователя и привычки")
     void deleteProfile_whenPasswordCorrect_shouldDeleteUserAndHabits() {
         User user1 = new User(1L, "mock", "mock@example.ru", PasswordHasher.hash("password"), false, true);
 
@@ -242,6 +255,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[blockUser] Должен заблокировать пользователя")
     void blockUser_whenUserExists_shouldBlockUser() {
         User user = new User(1L, "mock", "mock@example.ru", "password", false, true);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -253,6 +267,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[findById] Должен вернуть инфо")
     void findById_whenUserExists_shouldReturnUserInfoDto() {
         User user = new User(1L, "mock", "mock@example.ru", "password", false, true);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -266,6 +281,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[findById] Должен выбросить исключение")
     void findById_whenUserDoesNotExist_shouldThrowException() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -275,6 +291,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[getBlockedUsers] Должен вернуть только заблокированных пользователей")
     void getBlockedUsers_shouldReturnOnlyBlockedUsers() {
         User activeUser = new User(1L, "Active", "active@example.ru", "password", false, true);
         User blockedUser1 = new User(2L, "Blocked1", "blocked1@example.ru", "password", false, false);
@@ -289,6 +306,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("[getActiveUsers] Должен вернуть только активных пользователей")
     void getActiveUsers_shouldReturnOnlyActiveUsers() {
         User activeUser1 = new User(1L, "Active1", "active1@example.ru", "password", false, true);
         User activeUser2 = new User(2L, "Active2", "active2@example.ru", "password", false, true);

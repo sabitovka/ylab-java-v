@@ -1,7 +1,5 @@
 package io.sabitovka.service;
 
-import io.sabitovka.enums.HabitFrequency;
-
 import java.time.LocalDate;
 import java.util.Map;
 
