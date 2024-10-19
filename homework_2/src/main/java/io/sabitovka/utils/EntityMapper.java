@@ -1,5 +1,7 @@
 package io.sabitovka.utils;
 
+import io.sabitovka.exception.DatabaseException;
+
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +31,7 @@ public final class EntityMapper {
             return entity;
 
         } catch (Exception e) {
-            throw new SQLException("Ошибка при маппинге ResultSet в сущность " + entityType.getName(), e);
+            throw new DatabaseException("Ошибка при маппинге ResultSet в сущность " + entityType.getName());
         }
     }
 }

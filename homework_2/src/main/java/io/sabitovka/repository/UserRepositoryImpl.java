@@ -3,22 +3,28 @@ package io.sabitovka.repository;
 import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityConstraintException;
 import io.sabitovka.exception.EntityNotFoundException;
+import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.model.User;
+import io.sabitovka.persistence.PersistenceRepository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryImpl extends PersistenceRepository<Long, User> implements UserRepository {
     private final AtomicLong usersCounter = new AtomicLong(0);
     private final HashMap<Long, User> users = new HashMap<>();
     private final HashMap<String, Long> emailIndex = new HashMap<>();
 
+    public UserRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, User.class);
+    }
+
     @Override
     public boolean existsById(Long id) {
+        String sql = "select exists(select 1 from users where id = ?";
         return users.containsKey(id);
     }
 
@@ -49,15 +55,6 @@ public class UserRepositoryImpl implements UserRepository {
         emailIndex.put(newUser.getEmail(), userId);
 
         return new User(newUser);
-    }
-
-    @Override
-    public Optional<User> findById(Long id) {
-        User user = users.get(id);
-        if (user == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new User(user));
     }
 
     @Override

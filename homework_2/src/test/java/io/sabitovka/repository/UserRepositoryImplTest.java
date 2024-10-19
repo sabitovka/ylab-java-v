@@ -20,7 +20,7 @@ class UserRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        userRepository = new UserRepositoryImpl();
+        userRepository = new UserRepositoryImpl(jdbcTemplate);
     }
 
     @Test

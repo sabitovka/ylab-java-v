@@ -1,10 +1,14 @@
 package io.sabitovka.factory;
 
+import io.sabitovka.common.DataSource;
+import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.repository.*;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
 import io.sabitovka.service.UserService;
+
+import java.sql.SQLException;
 
 public final class ServiceFactory {
     private static final ServiceFactory serviceFactory = new ServiceFactory();
@@ -16,7 +20,13 @@ public final class ServiceFactory {
     private final StatisticService statisticService;
 
     private ServiceFactory() {
-        UserRepository userRepository = new UserRepositoryImpl();
+        JdbcTemplate jdbcTemplate = null;
+        try {
+            jdbcTemplate = new JdbcTemplate(DataSource.getConnection());
+        } catch (SQLException e) {
+            System.err.println("Не удалось подключиться к базе данных: " + e.getMessage());
+        }
+        UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate);
         HabitRepository habitRepository = new HabitRepositoryImpl();
         FulfilledHabitRepository fulfilledHabitRepository = new FulfilledHabitRepositoryImpl();
 
