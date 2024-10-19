@@ -5,15 +5,15 @@ import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
-import io.sabitovka.service.impl.HabitServiceImpl;
-import io.sabitovka.service.impl.UserServiceImpl;
+import io.sabitovka.service.HabitService;
+import io.sabitovka.service.UserService;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDate;
 
 @UtilityClass
 public class DataMocker {
-    public static void mockData(UserServiceImpl userService, HabitServiceImpl habitService) {
+    public static void mockData(UserService userService, HabitService habitService) {
         UserInfoDto adminUserInfo = new UserInfoDto();
         adminUserInfo.setName("admin");
         adminUserInfo.setEmail("admin@ylab.ru");

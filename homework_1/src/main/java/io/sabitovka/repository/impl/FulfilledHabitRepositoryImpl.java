@@ -10,16 +10,39 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Реализация интерфейса {@link FulfilledHabitRepository} для управления выполненными привычками в памяти с использованием {@link HashMap}.
+ */
 public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
+    /**
+     * Счётчик для генерации уникальных идентификаторов выполненных привычек.
+     */
     private final AtomicLong fulfilledHabitsCounter = new AtomicLong(0);
 
+    /**
+     * Хранилище выполненных привычек, где ключ — это ID привычки, а значение — {@link FulfilledHabit}
+     */
     private final Map<Long, FulfilledHabit> fulfilledHabits = new HashMap<>();
 
+    /**
+     * Проверяет, существует ли выполненная привычка по её идентификатору.
+     *
+     * @param id идентификатор выполненной привычки
+     * @return true, если привычка существует, иначе false
+     */
     @Override
     public boolean existsById(Long id) {
         return fulfilledHabits.containsKey(id);
     }
 
+    /**
+     * Создаёт новую выполненную привычку и сохраняет её.
+     *
+     * @param obj объект {@link FulfilledHabit}, который нужно создать
+     * @return созданная выполненная привычка
+     * @throws IllegalArgumentException если объект привычки null
+     * @throws EntityAlreadyExistsException если привычка с таким ID уже существует
+     */
     @Override
     public FulfilledHabit create(FulfilledHabit obj) {
         if (obj == null) {
@@ -40,6 +63,12 @@ public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
         return newFulfilledHabit.toBuilder().build();
     }
 
+    /**
+     * Ищет выполненную привычку по её идентификатору.
+     *
+     * @param id идентификатор выполненной привычки
+     * @return {@link Optional}, содержащий найденную привычку, или пустой, если привычка не найдена
+     */
     @Override
     public Optional<FulfilledHabit> findById(Long id) {
         FulfilledHabit fulfilledHabit = fulfilledHabits.get(id);
@@ -49,6 +78,11 @@ public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
         return Optional.of(fulfilledHabit.toBuilder().build());
     }
 
+    /**
+     * Возвращает список всех выполненных привычек.
+     *
+     * @return список выполненных привычек
+     */
     @Override
     public List<FulfilledHabit> findAll() {
         return fulfilledHabits.values().stream()
@@ -56,11 +90,23 @@ public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
                 .toList();
     }
 
+    /**
+     * Обновление выполненной привычки не поддерживается.
+     *
+     * @param obj объект {@link FulfilledHabit}, который нужно обновить
+     * @return всегда выбрасывает {@link UnsupportedOperationException}
+     */
     @Override
     public boolean update(FulfilledHabit obj) {
         throw new UnsupportedOperationException("Обновление привычки не поддерживается");
     }
 
+    /**
+     * Удаляет выполненную привычку по её идентификатору.
+     *
+     * @param id идентификатор выполненной привычки
+     * @return true, если привычка была успешно удалена, иначе false
+     */
     @Override
     public boolean deleteById(Long id) {
         return fulfilledHabits.remove(id) != null;

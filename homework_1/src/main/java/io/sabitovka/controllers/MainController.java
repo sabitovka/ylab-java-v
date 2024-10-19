@@ -2,21 +2,21 @@ package io.sabitovka.controllers;
 
 import io.sabitovka.common.Constants;
 import io.sabitovka.dto.UserInfoDto;
-import io.sabitovka.service.impl.AuthorizationServiceImpl;
-import io.sabitovka.service.impl.HabitServiceImpl;
-import io.sabitovka.service.impl.StatisticServiceImpl;
-import io.sabitovka.service.impl.UserServiceImpl;
+import io.sabitovka.service.AuthorizationService;
+import io.sabitovka.service.HabitService;
+import io.sabitovka.service.StatisticService;
+import io.sabitovka.service.UserService;
 
 import java.util.Scanner;
 
 public class MainController extends BaseController {
-    private final AuthorizationServiceImpl authorizationService;
-    private final UserServiceImpl userService;
+    private final AuthorizationService authorizationService;
+    private final UserService userService;
     private final UserController userController;
     private final HabitController habitController;
     private final AdminController adminController;
 
-    public MainController(AuthorizationServiceImpl authorizationService, UserServiceImpl userService, StatisticServiceImpl statisticService, HabitServiceImpl habitService) {
+    public MainController(AuthorizationService authorizationService, UserService userService, StatisticService statisticService, HabitService habitService) {
         super(new Scanner(System.in));
         this.authorizationService = authorizationService;
         this.userService = userService;

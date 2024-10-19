@@ -7,6 +7,9 @@ import io.sabitovka.util.PasswordHasher;
 
 import java.util.Optional;
 
+/**
+ *
+ */
 public class AuthorizationServiceImpl implements AuthorizationService {
     private final UserRepository userRepository;
     private Long currentUserId;
