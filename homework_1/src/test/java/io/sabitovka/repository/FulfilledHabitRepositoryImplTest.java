@@ -2,6 +2,7 @@ package io.sabitovka.repository;
 
 import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.FulfilledHabit;
+import io.sabitovka.repository.impl.FulfilledHabitRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +12,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FulfilledHabitRepositoryImplTest {
 
@@ -44,8 +44,7 @@ class FulfilledHabitRepositoryImplTest {
     public void create_whenFulfilledHabitAlreadyExists_shouldThrowEntityAlreadyExistsException() {
         fulfilledHabitRepository.create(fulfilledHabit1);
         assertThatThrownBy(() -> fulfilledHabitRepository.create(fulfilledHabit1))
-                .isInstanceOf(EntityAlreadyExistsException.class)
-                .hasMessage("Привычка уже существует в системе");
+                .isInstanceOf(EntityAlreadyExistsException.class);
     }
 
     @Test

@@ -8,6 +8,8 @@ import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
+import io.sabitovka.service.impl.AuthorizationServiceImpl;
+import io.sabitovka.service.impl.UserServiceImpl;
 import io.sabitovka.util.PasswordHasher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,9 +34,9 @@ class UserServiceTest {
     @Mock
     private HabitRepository habitRepository;
     @Mock
-    private AuthorizationService authorizationService;
+    private AuthorizationServiceImpl authorizationService;
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     private User currentUser;
 
@@ -48,7 +50,7 @@ class UserServiceTest {
     @Test
     public void mapUserToUserInfoDto_shouldReturnCorrectObj() {
         User user = new User(1L, "mock", "mock@example.com", "password", false, true);
-        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(user);
+        UserInfoDto userInfoDto = userService.mapUserToUserInfo(user);
 
         assertThat(userInfoDto.getId()).isEqualTo(user.getId());
         assertThat(userInfoDto.getName()).isEqualTo(user.getName());
@@ -65,10 +67,10 @@ class UserServiceTest {
         userInfoDto.setName("mock");
         userInfoDto.setEmail("mock@example.com");
         userInfoDto.setPassword("password");
-        userInfoDto.setIsAdmin(false);
+        userInfoDto.setAdmin(false);
         userInfoDto.setActive(true);
 
-        User user = userService.mapUserInfoDtoToUser(userInfoDto);
+        User user = userService.mapUserInfoToUser(userInfoDto);
 
         assertThat(user.getId()).isEqualTo(userInfoDto.getId());
         assertThat(user.getName()).isEqualTo(userInfoDto.getName());
@@ -122,7 +124,7 @@ class UserServiceTest {
         userInfoDto.setPassword("password");
 
         assertThatThrownBy(() -> userService.createUser(userInfoDto))
-                .isInstanceOf(EntityAlreadyExistsException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Данный email уже занят");
         verify(userRepository, times(0)).create(any(User.class));
     }
@@ -225,8 +227,8 @@ class UserServiceTest {
     void deleteProfile_whenPasswordCorrect_shouldDeleteUserAndHabits() {
         User user1 = new User(1L, "mock", "mock@example.ru", PasswordHasher.hash("password"), false, true);
 
-        Habit habit1 = new Habit(1L, "name", "description", HabitFrequency.DAILY, 1L);
-        Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, 1L);
+        Habit habit1 = new Habit(1L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
+        Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
 
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         when(habitRepository.findAllByUser(user1)).thenReturn(List.of(habit1, habit2));

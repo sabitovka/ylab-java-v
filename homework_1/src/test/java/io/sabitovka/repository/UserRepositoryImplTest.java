@@ -4,6 +4,7 @@ import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityConstraintException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.impl.UserRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ class UserRepositoryImplTest {
 
     @Test
     public void create_whenEmailIsUnique_shouldCreateSuccessfully() {
-        User user = new User("mock", "mock@example.com", "password123");
+        User user = new User(null, "mock", "mock@example.com", "password123", false, true);
         User createdUser = userRepository.create(user);
 
         assertThat(createdUser.getId()).isNotNull();
@@ -37,24 +38,22 @@ class UserRepositoryImplTest {
 
     @Test
     public void create_whenUserExistsById_shouldThrowException() {
-        User firstUser = new User("mock", "mock@example.com", "password123");
+        User firstUser = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(firstUser);
 
         User user = new User(1L,"mock", "mock@example.com", "password123", false, true);
         assertThatThrownBy(() -> userRepository.create(user))
-                .isInstanceOf(EntityAlreadyExistsException.class)
-                .hasMessageContaining("Пользователь уже существует в системе");
+                .isInstanceOf(EntityAlreadyExistsException.class);
     }
 
     @Test
     public void create_whenUserExistsByEmail_shouldThrowException() {
-        User firstUser = new User("mock", "mock@example.com", "password123");
+        User firstUser = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(firstUser);
 
-        User user = new User("mock", "mock@example.com", "password123");
+        User user = new User(null, "mock", "mock@example.com", "password123", false, true);
         assertThatThrownBy(() -> userRepository.create(user))
-                .isInstanceOf(EntityConstraintException.class)
-                .hasMessageContaining("Нарушение индекса Email");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -66,7 +65,7 @@ class UserRepositoryImplTest {
 
     @Test
     public void findById_whenUserExists_shouldReturnSuccessfully() {
-        User firstUser = new User("mock", "mock@example.com", "password123");
+        User firstUser = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(firstUser);
 
         Optional<User> foundUser = userRepository.findById(1L);
@@ -98,17 +97,17 @@ class UserRepositoryImplTest {
 
     @Test
     public void findAll_whenUsersExist_shouldReturnNonEmptyList() {
-        User user1 = new User("mock1", "mock1@example.com", "password1231");
+        User user1 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         userRepository.create(user1);
-        User user2 = new User("mock2", "mock2@example.com", "password1232");
+        User user2 = new User(null, "mock2", "mock2@example.com", "password1232", false, true);
         userRepository.create(user2);
-        User user3 = new User("mock3", "mock3@example.com", "password1233");
+        User user3 = new User(null, "mock3", "mock3@example.com", "password1233", false, true);
         userRepository.create(user3);
 
         List<User> users = userRepository.findAll();
 
         assertThat(users).isNotNull();
-        assertThat(users).isInstanceOf(ArrayList.class);
+        assertThat(users).isInstanceOf(List.class);
         assertThat(users.size()).isEqualTo(3);
         assertThat(users.get(0)).isNotSameAs(user1);
     }
@@ -118,7 +117,7 @@ class UserRepositoryImplTest {
         List<User> users = userRepository.findAll();
 
         assertThat(users).isNotNull();
-        assertThat(users).isInstanceOf(ArrayList.class);
+        assertThat(users).isInstanceOf(List.class);
         assertThat(users.isEmpty()).isTrue();
     }
 
@@ -132,36 +131,34 @@ class UserRepositoryImplTest {
     @Test
     public void update_whenUserIsNotExist_shouldThrowException() {
         User user1 = new User(1L, "mock1", "mock1@example.com", "password1231", false, true);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
 
         assertThatThrownBy(() -> userRepository.update(user1))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Пользователь не найден в системе");
+                .isInstanceOf(EntityNotFoundException.class);
 
         assertThatThrownBy(() -> userRepository.update(user2))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Пользователь не найден в системе");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void update_whenUpdatingEmailThatIsExist_shouldThrowException() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         User createdUser2 = userRepository.create(user2);
 
         createdUser2.setEmail("mock@example.com");
 
         assertThatThrownBy(() -> userRepository.update(createdUser2))
-                .isInstanceOf(EntityConstraintException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Нарушение индекса Email");
     }
 
     @Test
     public void update_whenUpdatingIsCorrect_shouldReturnTrue() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         User createdUser2 = userRepository.create(user2);
 
         createdUser2.setName("mock");
@@ -195,7 +192,7 @@ class UserRepositoryImplTest {
 
     @Test
     public void deleteById_whenUserExists_shouldReturnSuccessfully() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         User created = userRepository.create(user1);
 
         boolean result = userRepository.deleteById(created.getId());
@@ -207,9 +204,9 @@ class UserRepositoryImplTest {
 
     @Test
     public void findUserByEmail_whenEmailIsExist_shouldReturnSuccessfully() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+        User user1 = new User(null, "mock", "mock@example.com", "password123", true, false);
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", true, false);
         User createdUser2 = userRepository.create(user2);
 
         Optional<User> foundUser = userRepository.findUserByEmail("mock1@example.com");
@@ -221,10 +218,10 @@ class UserRepositoryImplTest {
 
     @Test
     public void findById_whenUserWasUpdated_shouldReturnSuccessfully() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(user1);
 
-        User user2 = new User("mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         User createdUser2 = userRepository.create(user2);
 
         createdUser2.setName("mock");

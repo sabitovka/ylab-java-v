@@ -1,16 +1,14 @@
-package io.sabitovka.repository;
+package io.sabitovka.repository.impl;
 
 import io.sabitovka.exception.EntityAlreadyExistsException;
-import io.sabitovka.exception.EntityConstraintException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 public class UserRepositoryImpl implements UserRepository {
     private final AtomicLong usersCounter = new AtomicLong(0);
@@ -24,7 +22,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private void checkEmailIndexConstraint(String email) {
         if (emailIndex.containsKey(email)) {
-            throw new EntityConstraintException("Нарушение индекса Email");
+            throw new IllegalArgumentException("Нарушение индекса Email");
         }
     }
 
@@ -35,20 +33,20 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
         if (existsById(user.getId())) {
-            throw new EntityAlreadyExistsException("Пользователь уже существует в системе");
+            throw new EntityAlreadyExistsException(user.getId());
         }
 
         checkEmailIndexConstraint(user.getEmail());
 
         long userId = usersCounter.incrementAndGet();
 
-        User newUser = new User(user);
+        User newUser = user.toBuilder().build();
         newUser.setId(userId);
 
         users.put(userId, newUser);
         emailIndex.put(newUser.getEmail(), userId);
 
-        return new User(newUser);
+        return newUser.toBuilder().build();
     }
 
     @Override
@@ -57,23 +55,25 @@ public class UserRepositoryImpl implements UserRepository {
         if (user == null) {
             return Optional.empty();
         }
-        return Optional.of(new User(user));
+        return Optional.of(user.toBuilder().build());
     }
 
     @Override
     public List<User> findAll() {
-        return users.values().stream().map(User::new).collect(Collectors.toList());
+        return users.values().stream()
+                .map(user -> user.toBuilder().build())
+                .toList();
     }
 
     @Override
     public boolean update(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User is null");
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User is null or user.id is null");
         }
 
         User existedUser = users.get(user.getId());
         if (existedUser == null) {
-            throw new EntityNotFoundException("Пользователь не найден в системе");
+            throw new EntityNotFoundException(user.getId());
         }
 
         if (!existedUser.getEmail().equalsIgnoreCase(user.getEmail())) {

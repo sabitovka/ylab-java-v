@@ -1,7 +1,7 @@
 package io.sabitovka.exception;
 
 public class EntityNotFoundException extends RuntimeException {
-    public EntityNotFoundException(String message) {
-        super(message);
+    public EntityNotFoundException(Long id) {
+        super("Сущность с id %d не найдена в системе");
     }
 }

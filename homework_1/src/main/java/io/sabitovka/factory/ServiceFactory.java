@@ -1,48 +1,51 @@
 package io.sabitovka.factory;
 
 import io.sabitovka.repository.*;
-import io.sabitovka.service.AuthorizationService;
-import io.sabitovka.service.HabitService;
-import io.sabitovka.service.StatisticService;
-import io.sabitovka.service.UserService;
+import io.sabitovka.repository.impl.FulfilledHabitRepositoryImpl;
+import io.sabitovka.repository.impl.HabitRepositoryImpl;
+import io.sabitovka.repository.impl.UserRepositoryImpl;
+import io.sabitovka.service.impl.AuthorizationServiceImpl;
+import io.sabitovka.service.impl.HabitServiceImpl;
+import io.sabitovka.service.impl.StatisticServiceImpl;
+import io.sabitovka.service.impl.UserServiceImpl;
 
 public final class ServiceFactory {
     private static final ServiceFactory serviceFactory = new ServiceFactory();
 
-    private final UserService userService;
-    private final AuthorizationService authorizationService;
-    private final HabitService habitService;
+    private final UserServiceImpl userService;
+    private final AuthorizationServiceImpl authorizationService;
+    private final HabitServiceImpl habitService;
 
-    private final StatisticService statisticService;
+    private final StatisticServiceImpl statisticService;
 
     private ServiceFactory() {
         UserRepository userRepository = new UserRepositoryImpl();
         HabitRepository habitRepository = new HabitRepositoryImpl();
         FulfilledHabitRepository fulfilledHabitRepository = new FulfilledHabitRepositoryImpl();
 
-        userService = new UserService(userRepository, habitRepository);
-        authorizationService = new AuthorizationService(userRepository);
-        habitService = new HabitService(habitRepository, userRepository, fulfilledHabitRepository, userService);
-        statisticService = new StatisticService(habitRepository, fulfilledHabitRepository);
+        userService = new UserServiceImpl(userRepository, habitRepository);
+        authorizationService = new AuthorizationServiceImpl(userRepository);
+        habitService = new HabitServiceImpl(habitRepository, userRepository, fulfilledHabitRepository);
+        statisticService = new StatisticServiceImpl(habitRepository, fulfilledHabitRepository);
     }
 
     public static synchronized ServiceFactory getInstance() {
         return serviceFactory;
     }
 
-    public UserService getUserService() {
+    public UserServiceImpl getUserService() {
         return userService;
     }
 
-    public AuthorizationService getAuthorizationService() {
+    public AuthorizationServiceImpl getAuthorizationService() {
         return authorizationService;
     }
 
-    public HabitService getHabitService() {
+    public HabitServiceImpl getHabitService() {
         return habitService;
     }
 
-    public StatisticService getStatisticService() {
+    public StatisticServiceImpl getStatisticService() {
         return statisticService;
     }
 }

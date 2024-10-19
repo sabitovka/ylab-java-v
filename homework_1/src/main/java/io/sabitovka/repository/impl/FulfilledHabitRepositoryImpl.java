@@ -1,7 +1,8 @@
-package io.sabitovka.repository;
+package io.sabitovka.repository.impl;
 
 import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.FulfilledHabit;
+import io.sabitovka.repository.FulfilledHabitRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
-
     private final AtomicLong fulfilledHabitsCounter = new AtomicLong(0);
 
     private final Map<Long, FulfilledHabit> fulfilledHabits = new HashMap<>();
@@ -28,17 +28,17 @@ public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
         }
 
         if (existsById(obj.getId())) {
-            throw new EntityAlreadyExistsException("Привычка уже существует в системе");
+            throw new EntityAlreadyExistsException(obj.getId());
         }
 
         long objId = fulfilledHabitsCounter.incrementAndGet();
 
-        FulfilledHabit newFulfilledHabit = new FulfilledHabit(obj);
+        FulfilledHabit newFulfilledHabit = obj.toBuilder().build();
         newFulfilledHabit.setId(objId);
 
         fulfilledHabits.put(objId, newFulfilledHabit);
 
-        return new FulfilledHabit(newFulfilledHabit);
+        return newFulfilledHabit.toBuilder().build();
     }
 
     @Override
@@ -47,12 +47,14 @@ public class FulfilledHabitRepositoryImpl implements FulfilledHabitRepository {
         if (fulfilledHabit == null) {
             return Optional.empty();
         }
-        return Optional.of(new FulfilledHabit(fulfilledHabit));
+        return Optional.of(fulfilledHabit.toBuilder().build());
     }
 
     @Override
     public List<FulfilledHabit> findAll() {
-        return fulfilledHabits.values().stream().map(FulfilledHabit::new).collect(Collectors.toList());
+        return fulfilledHabits.values().stream()
+                .map(fulfilledHabit -> fulfilledHabit.toBuilder().build())
+                .toList();
     }
 
     @Override

@@ -4,11 +4,12 @@ import io.sabitovka.common.Constants;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
+import io.sabitovka.service.impl.AuthorizationServiceImpl;
+import io.sabitovka.service.impl.UserServiceImpl;
 
 import java.util.Scanner;
 
 public class UserController extends BaseController {
-
     private final UserService userService;
     private final AuthorizationService authorizationService;
 
@@ -21,14 +22,16 @@ public class UserController extends BaseController {
     @Override
     public void showMenu() {
         while (true) {
-            System.out.println("=== Редактирование профиля пользователя ===");
-            System.out.println("Текущие параметры пользователя: " + userService.mapUserToUserInfoDto(authorizationService.getCurrentUser()));
-            System.out.println("Выберите действие из меню");
-            System.out.println("1. Изменить имя");
-            System.out.println("2. Изменить email");
-            System.out.println("3. Изменить пароль");
-            System.out.println("4. Удалить профиль");
-            System.out.println("5. Назад");
+            System.out.printf("""
+                    === Редактирование профиля пользователя ===
+                    Текущие параметры пользователя: %s
+                    Выберите действие из меню
+                    1. Изменить имя
+                    2. Изменить email
+                    3. Изменить пароль
+                    4. Удалить профиль
+                    5. Назад
+                    """, userService.mapUserToUserInfo(authorizationService.getCurrentUser()));
 
             String choice = prompt(" -> ", "^[1-5]$");
             try {
@@ -56,7 +59,7 @@ public class UserController extends BaseController {
     private void changeName() {
         String newName = prompt("Введите новое имя: ", Constants.USERNAME_REGEX);
 
-        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(authorizationService.getCurrentUser());
+        UserInfoDto userInfoDto = userService.mapUserToUserInfo(authorizationService.getCurrentUser());
         userInfoDto.setName(newName);
 
         userService.updateUser(userInfoDto);
@@ -66,7 +69,7 @@ public class UserController extends BaseController {
     private void changeEmail() {
         String newEmail = prompt("Введите новый email: ", Constants.EMAIL_REGEX);
 
-        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(authorizationService.getCurrentUser());
+        UserInfoDto userInfoDto = userService.mapUserToUserInfo(authorizationService.getCurrentUser());
         userInfoDto.setEmail(newEmail);
 
         userService.updateUser(userInfoDto);
@@ -78,7 +81,7 @@ public class UserController extends BaseController {
         String oldPassword = prompt("Введите старый пароль: ", Constants.PASSWORD_REGEX);
         String newPassword = prompt("Введите новый пароль: ", Constants.PASSWORD_REGEX);
 
-        UserInfoDto userInfoDto = userService.mapUserToUserInfoDto(authorizationService.getCurrentUser());
+        UserInfoDto userInfoDto = userService.mapUserToUserInfo(authorizationService.getCurrentUser());
         userInfoDto.setPassword(newPassword);
 
         userService.changePassword(userInfoDto, oldPassword);

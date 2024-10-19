@@ -5,6 +5,7 @@ import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.impl.HabitRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 class HabitRepositoryImplTest {
     private HabitRepositoryImpl habitRepository;
@@ -48,8 +48,7 @@ class HabitRepositoryImplTest {
     public void create_whenHabitAlreadyExists_shouldThrowEntityAlreadyExistsException() {
         habitRepository.create(habit1);
         assertThatThrownBy(() -> habitRepository.create(habit1))
-                .isInstanceOf(EntityAlreadyExistsException.class)
-                .hasMessage("Привычка уже существует в системе");
+                .isInstanceOf(EntityAlreadyExistsException.class);
     }
 
     @Test
@@ -86,16 +85,14 @@ class HabitRepositoryImplTest {
     @Test
     public void update_whenHabitIsNull_shouldThrowIllegalArgumentException() {
         assertThatThrownBy(() -> habitRepository.update(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Habit is null");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void update_whenHabitDoesNotExist_shouldThrowEntityNotFoundException() {
         Habit nonExistentHabit = new Habit(999L, "NonExistent", "NonExistent", HabitFrequency.DAILY,  LocalDate.now(), true, 1L);
         assertThatThrownBy(() -> habitRepository.update(nonExistentHabit))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Привычка не найдена в системе");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test

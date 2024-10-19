@@ -8,12 +8,10 @@ import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Scanner;
 
 public class HabitController extends BaseController {
-
     private final HabitService habitService;
     private final AuthorizationService authorizationService;
     private final StatisticService statisticService;
@@ -28,15 +26,16 @@ public class HabitController extends BaseController {
     @Override
     public void showMenu() {
         while (true) {
-            System.out.println("=== Редактирование привычек ===");
-            System.out.println("Выберите действие из меню");
-            System.out.println("1. Добавить привычку");
-            System.out.println("2. Изменить привычку");
-            System.out.println("3. Удалить привычку");
-            System.out.println("4. Просмотреть привычки");
-            System.out.println("5. Отметить выполнение привычки");
-            System.out.println("6. Получить подробный отчет о выполнении привычки");
-            System.out.println("7. Назад");
+            System.out.println("""
+                    === Редактирование привычек ===
+                    Выберите действие из меню
+                    1. Добавить привычку
+                    2. Изменить привычку
+                    3. Удалить привычку
+                    4. Просмотреть привычки
+                    5. Отметить выполнение привычки
+                    6. Получить подробный отчет о выполнении привычки
+                    7. Назад""");
 
             String choice = prompt(" -> ", "^[1-7]$");
             try {
@@ -71,7 +70,12 @@ public class HabitController extends BaseController {
         };
 
         Long ownerId = authorizationService.getCurrentUser().getId();
-        return new HabitInfoDto(name, description, frequency, ownerId);
+        HabitInfoDto habitInfoDto = new HabitInfoDto();
+        habitInfoDto.setName(name);
+        habitInfoDto.setDescription(description);
+        habitInfoDto.setFrequency(frequency);
+        habitInfoDto.setOwnerId(ownerId);
+        return habitInfoDto;
     }
 
     private HabitInfoDto promptForHabit() {
@@ -147,10 +151,11 @@ public class HabitController extends BaseController {
     private void fulfillingReport() {
         HabitInfoDto habit = promptForHabit();
 
-        System.out.println("Введите период статистики:");
-        System.out.println("1. День");
-        System.out.println("2. Неделя");
-        System.out.println("3. Месяц");
+        System.out.println("""
+                Введите период статистики:
+                1. День
+                2. Неделя
+                3. Месяц""");
 
         String choice = prompt(" -> ", "^[1-3]$");
         LocalDate startDate = switch (choice) {

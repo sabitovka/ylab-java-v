@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 public abstract class BaseController {
     protected Scanner scanner;
-
     private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     public abstract void showMenu();

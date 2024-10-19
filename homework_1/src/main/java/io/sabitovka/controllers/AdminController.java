@@ -6,7 +6,6 @@ import io.sabitovka.service.UserService;
 import java.util.Scanner;
 
 public class AdminController extends BaseController {
-
     private final UserService userService;
 
     public AdminController(Scanner scanner, UserService userService) {
@@ -17,12 +16,13 @@ public class AdminController extends BaseController {
     @Override
     public void showMenu() {
         while (true) {
-            System.out.println("=== Администрирование ===");
-            System.out.println("1. Получить список активных пользователей");
-            System.out.println("2. Получить список привычек пользователя");
-            System.out.println("3. Заблокировать пользователя");
-            System.out.println("4. Получить список заблокированных пользователей");
-            System.out.println("5. Назад");
+            System.out.println("""
+                    === Администрирование ===
+                    1. Получить список активных пользователей
+                    2. Получить список привычек пользователя
+                    3. Заблокировать пользователя
+                    4. Получить список заблокированных пользователей
+                    5. Назад""");
 
             String choice = prompt(" -> ", "^[1-5]$");
 

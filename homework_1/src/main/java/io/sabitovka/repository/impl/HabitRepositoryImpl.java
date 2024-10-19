@@ -1,9 +1,10 @@
-package io.sabitovka.repository;
+package io.sabitovka.repository.impl;
 
 import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.HabitRepository;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -11,7 +12,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 public class HabitRepositoryImpl implements HabitRepository {
-
     private final AtomicLong habitCounter = new AtomicLong(0);
     private final Map<Long, Habit> habits = new HashMap<>();
 
@@ -27,17 +27,17 @@ public class HabitRepositoryImpl implements HabitRepository {
         }
 
         if (existsById(obj.getId())) {
-            throw new EntityAlreadyExistsException("Привычка уже существует в системе");
+            throw new EntityAlreadyExistsException(obj.getId());
         }
 
         long habitId = habitCounter.incrementAndGet();
 
-        Habit newHabit = new Habit(obj);
+        Habit newHabit = obj.toBuilder().build();
         newHabit.setId(habitId);
 
         habits.put(habitId, newHabit);
 
-        return new Habit(newHabit);
+        return newHabit.toBuilder().build();
     }
 
     @Override
@@ -46,23 +46,25 @@ public class HabitRepositoryImpl implements HabitRepository {
         if (habit == null) {
             return Optional.empty();
         }
-        return Optional.of(new Habit(habit));
+        return Optional.of(habit.toBuilder().build());
     }
 
     @Override
     public List<Habit> findAll() {
-        return habits.values().stream().map(Habit::new).collect(Collectors.toList());
+        return habits.values().stream()
+                .map(habit -> habit.toBuilder().build())
+                .toList();
     }
 
     @Override
     public boolean update(Habit obj) {
-        if (obj == null) {
-            throw new IllegalArgumentException("Habit is null");
+        if (obj == null || obj.getId() == null) {
+            throw new IllegalArgumentException("Habit is null or habit.id is null");
         }
 
         Habit existedHabit = habits.get(obj.getId());
         if (existedHabit == null) {
-            throw new EntityNotFoundException("Привычка не найдена в системе");
+            throw new EntityNotFoundException(obj.getId());
         }
 
         existedHabit.setName(obj.getName());
@@ -82,8 +84,8 @@ public class HabitRepositoryImpl implements HabitRepository {
     public List<Habit> findAllByUser(User owner) {
         return habits.values().stream()
                 .filter(habit -> Objects.equals(habit.getOwnerId(), owner.getId()))
-                .map(Habit::new)
-                .collect(Collectors.toList());
+                .map(habit -> habit.toBuilder().build())
+                .toList();
     }
 
     @Override
@@ -93,7 +95,7 @@ public class HabitRepositoryImpl implements HabitRepository {
                 .filter(habit -> startDate == null || !habit.getCreatedAt().isBefore(startDate))
                 .filter(habit -> endDate == null || !habit.getCreatedAt().isAfter(endDate))
                 .filter(habit -> isActive == null || habit.isActive() == isActive)
-                .map(Habit::new)
+                .map(habit -> habit.toBuilder().build())
                 .collect(Collectors.toList());
 
     }

@@ -1,9 +1,16 @@
 package io.sabitovka.dto;
 
 import io.sabitovka.enums.HabitFrequency;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class HabitInfoDto {
     private Long id;
     private String name;
@@ -12,62 +19,6 @@ public class HabitInfoDto {
     private LocalDate createdAt;
     private boolean isActive;
     private Long ownerId;
-
-    public HabitInfoDto() {}
-
-    public HabitInfoDto(String name, String description, HabitFrequency frequency, Long ownerId) {
-        this(null, name, description, frequency, ownerId);
-    }
-
-    public HabitInfoDto(Long id, String name, String description, HabitFrequency frequency, Long ownerId) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.frequency = frequency;
-        this.ownerId = ownerId;
-    }
-
-    public HabitInfoDto(Long id, String name, String description, HabitFrequency frequency, LocalDate createdAt, boolean isActive, Long ownerId) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.frequency = frequency;
-        this.createdAt = createdAt;
-        this.isActive = isActive;
-        this.ownerId = ownerId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public HabitFrequency getFrequency() {
-        return frequency;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
 
     @Override
     public String toString() {

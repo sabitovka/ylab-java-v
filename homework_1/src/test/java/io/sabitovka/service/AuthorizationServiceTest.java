@@ -1,8 +1,8 @@
 package io.sabitovka.service;
 
-import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
+import io.sabitovka.service.impl.AuthorizationServiceImpl;
 import io.sabitovka.util.PasswordHasher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ class AuthorizationServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private AuthorizationService authorizationService;
+    private AuthorizationServiceImpl authorizationService;
 
     @Test
     public void login_withValidCredentials_shouldSetCurrentUser() {
