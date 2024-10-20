@@ -1,14 +1,18 @@
-package io.sabitovka.utils;
+package io.sabitovka.util;
 
-import io.sabitovka.exception.DatabaseException;
+import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 
-public final class EntityMapper {
-    public static <T> T mapResultSetToEntity(ResultSet resultSet, Class<T> entityType) throws SQLException {
+/**
+ * Утилитарный класс, который позволяет смапить сущность из {@link ResultSet}
+ */
+@UtilityClass
+public class EntityMapper {
+    public static <T> T mapResultSetToEntity(ResultSet resultSet, Class<T> entityType) {
         try {
             T entity = entityType.getDeclaredConstructor().newInstance();
 
@@ -31,7 +35,7 @@ public final class EntityMapper {
             return entity;
 
         } catch (Exception e) {
-            throw new DatabaseException("Ошибка при маппинге ResultSet в сущность " + entityType.getName());
+            throw new RuntimeException("Ошибка при маппинге ResultSet в сущность " + entityType.getName());
         }
     }
 }

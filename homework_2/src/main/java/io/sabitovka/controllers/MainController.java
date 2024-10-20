@@ -30,10 +30,11 @@ public class MainController extends BaseController {
     public void showMenu() {
         System.out.println("Приложение для отслеживания привычек. Задание V-го интенсива по Java разработке.\n");
         while (true) {
-            System.out.println("Для продолжения необходимо выполнить вход в систему или регистрацию:");
-            System.out.println("1. Войти в систему");
-            System.out.println("2. Зарегистрироваться");
-            System.out.println("3. Выйти");
+            System.out.println("""
+                    Для продолжения необходимо выполнить вход в систему или регистрацию:
+                    1. Войти в систему
+                    2. Зарегистрироваться
+                    3. Выйти""");
 
             String choice = prompt(" -> ", "^[1-3]$");
             switch (choice) {
@@ -93,11 +94,13 @@ public class MainController extends BaseController {
 
     private void showMainMenu() {
         while (true) {
-            System.out.println("=== Главное меню  ===");
-            System.out.println("Выберите действие из меню");
-            System.out.println("1. Управление пользователем");
-            System.out.println("2. Управление привычками");
-            System.out.println("3. Выход из профиля");
+            System.out.println("""
+                    === Главное меню  ===
+                    Выберите действие из меню
+                    1. Управление пользователем
+                    2. Управление привычками
+                    3. Выход из профиля""");
+
             String choiceRegex = "^[1-3]$";
             if (authorizationService.isAdmin()) {
                 System.out.println("4. Администрирование");

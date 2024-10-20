@@ -1,20 +1,18 @@
-package io.sabitovka.utils;
+package io.sabitovka.util;
 
 import io.sabitovka.common.Constants;
+import lombok.experimental.UtilityClass;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+@UtilityClass
 public final class PasswordHasher {
-    private static final String salt = Constants.SALT;
-
-    private PasswordHasher() {}
-
     private static MessageDigest getMessageDigest() {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
-            md.update(salt.getBytes());
+            md.update(Constants.SALT.getBytes());
             return md;
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);

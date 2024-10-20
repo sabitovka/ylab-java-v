@@ -1,112 +1,46 @@
 package io.sabitovka.service;
 
-import io.sabitovka.enums.HabitFrequency;
-import io.sabitovka.exception.EntityNotFoundException;
-import io.sabitovka.model.FulfilledHabit;
-import io.sabitovka.model.Habit;
-import io.sabitovka.repository.FulfilledHabitRepository;
-import io.sabitovka.repository.HabitRepository;
-
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class StatisticService {
+/**
+ * Сервис для получения статистики выполнения привычек, отчета по прогрессу выполнения и аналитики
+ */
+public interface StatisticService {
+    /**
+     * Получить статистику выполнения привычки за определенный период
+     * @param habitId Привычка, по которой нужно получить статистику
+     * @param startDate Дата начала отчета
+     * @param endDate Дата окончания отчета
+     * @return {@link Map}, у которой ключ один день в периоде отчета, значение - отметка о выполнении привычки {@code true}
+     */
+    Map<LocalDate, Boolean> getHabitCompletionStats(Long habitId, LocalDate startDate, LocalDate endDate);
 
-    private final HabitRepository habitRepository;
-    private final FulfilledHabitRepository fulfilledHabitRepository;
+    /**
+     * Возвращает текущий streak привычки. Количество подряд выполненных привычек на указанный момент.
+     * Если привычка выполняется раз в неделю, то streak, равный 4 будет считаться, когда привычка выполнялась каждую неделю в месяце
+     * @param habitId Привычка, по которой нужно получить streak
+     * @param currentDate Дата, на какой момент нужно получить streak
+     * @return Количество подряд выполненных привычек
+     */
+    int getStreakCount(Long habitId, LocalDate currentDate);
 
-    public StatisticService(HabitRepository habitRepository, FulfilledHabitRepository fulfilledHabitRepository) {
-        this.habitRepository = habitRepository;
-        this.fulfilledHabitRepository = fulfilledHabitRepository;
-    }
+    /**
+     * Возвращает процент успешно выполненных привычек за определенный период
+     * Процент считается как количество выполненных привычек к количеству невыполненных в рамках указанного периода
+     * @param habitId ID привычки, по которой нужно получить отчет
+     * @param startDate Дата начала отчета
+     * @param endDate Дата конца периода
+     * @return Процент успешного выполнения
+     */
+    double getHabitSuccessRate(Long habitId, LocalDate startDate, LocalDate endDate);
 
-    public LocalDate incDate(HabitFrequency habitFrequency, LocalDate date) {
-        return switch (habitFrequency) {
-            case DAILY -> date.plusDays(1);
-            case WEEKLY -> date.plusWeeks(1);
-        };
-    }
-
-    public LocalDate subDate(HabitFrequency habitFrequency, LocalDate date) {
-        return switch (habitFrequency) {
-            case DAILY -> date.minusDays(1);
-            case WEEKLY -> date.minusWeeks(1);
-        };
-    }
-
-    public Map<LocalDate, Boolean> getHabitCompletionStats(Long habitId, LocalDate startDate, LocalDate endDate) {
-        Habit habit = habitRepository.findById(habitId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти привычку с ID=" + habitId));
-
-        List<FulfilledHabit> fulfilledHabits = fulfilledHabitRepository.findAll().stream()
-                .filter(fulfilledHabit -> fulfilledHabit.getHabitId().equals(habitId))
-                .filter(fulfilledHabit -> !fulfilledHabit.getFulfillDate().isBefore(startDate) && !fulfilledHabit.getFulfillDate().isAfter(endDate))
-                .toList();
-
-        Map<LocalDate, Boolean> completionStats = new HashMap<>();
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = incDate(habit.getFrequency(), date)) {
-            final LocalDate eqDate = date;
-            boolean isFulfilled = fulfilledHabits.stream().anyMatch(fulfilledHabit -> fulfilledHabit.getFulfillDate().equals(eqDate));
-            completionStats.put(date, isFulfilled);
-        }
-
-        return completionStats;
-    }
-
-    public int getStreakCount(Long habitId, LocalDate currentDate) {
-        Habit habit = habitRepository.findById(habitId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти привычку с ID=" + habitId));
-
-        List<FulfilledHabit> fulfilledHabits = fulfilledHabitRepository.findAll().stream()
-                .filter(fulfilledHabit -> fulfilledHabit.getHabitId().equals(habitId))
-                .filter(fulfilledHabit -> !fulfilledHabit.getFulfillDate().isAfter(currentDate))
-                .sorted(Comparator.comparing(FulfilledHabit::getFulfillDate).reversed())
-                .toList();
-
-        int streak = 0;
-        LocalDate date = currentDate;
-        for (FulfilledHabit fulfilledHabit: fulfilledHabits) {
-            if (fulfilledHabit.getFulfillDate().equals(date)) {
-                streak++;
-                date = subDate(habit.getFrequency(), date);
-            } else {
-                break;
-            }
-        }
-
-        return streak;
-    }
-
-    public double getHabitSuccessRate(Long habitId, LocalDate startDate, LocalDate endDate) {
-        if (!habitRepository.existsById(habitId)) {
-            throw new EntityNotFoundException("Не удалось найти привычку с ID=" + habitId);
-        }
-
-        Map<LocalDate, Boolean> stats = getHabitCompletionStats(habitId, startDate, endDate);
-        long successDays = stats.values().stream().filter(Boolean::booleanValue).count();
-        long totalDays = stats.size();
-        return (double) successDays / totalDays * 100;
-    }
-
-    public String generateHabitReportString(Long habitId, LocalDate startDate, LocalDate endDate) {
-        Habit habit = habitRepository.findById(habitId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти привычку с ID=" + habitId));
-
-        int streak = getStreakCount(habitId, endDate);
-        double successRate = getHabitSuccessRate(habitId, startDate, endDate);
-        Map<LocalDate, Boolean> completionStats = getHabitCompletionStats(habitId, startDate, endDate);
-
-        StringBuilder report = new StringBuilder();
-        report.append("Отчет по привычке ").append(habit.getName()).append(":\n");
-        report.append("Период: ").append(startDate).append(" - ").append(endDate).append("\n");
-        report.append("Текущая серия: ").append(streak).append("\n");
-        report.append("Процент успешности: ").append(String.format("%.2f", successRate)).append("%\n");
-        report.append("История выполнения:").append("\n");
-
-        completionStats.forEach((date, completed) -> {
-            report.append(date).append(" - ").append(completed ? "Выполнено" : "Не выполнено").append("\n");
-        });
-
-        return report.toString();
-    }
+    /**
+     * Генерирует отчет о выполнении и прогрессе выполнения привычки
+     * @param habitId ID привычки
+     * @param startDate Дата начала отчета
+     * @param endDate Дата конца отчета
+     * @return Строку с отчетом
+     */
+    String generateHabitReportString(Long habitId, LocalDate startDate, LocalDate endDate);
 }

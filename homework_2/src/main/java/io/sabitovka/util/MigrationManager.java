@@ -1,4 +1,4 @@
-package io.sabitovka.utils;
+package io.sabitovka.util;
 
 import io.sabitovka.common.Constants;
 import io.sabitovka.common.DataSource;
@@ -8,12 +8,19 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import lombok.experimental.UtilityClass;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public final class MigrationManager {
-
+/**
+ * Класс для выполнения миграции базы данных через Liquibase. Описание миграции выполняется в отдельной файле
+ */
+@UtilityClass
+public class MigrationManager {
+    /**
+     * Основной метод, который запускает миграцию базы данных, если это необходимо
+     */
     public static void migrate() {
         try {
             Connection connection = DataSource.getConnection();

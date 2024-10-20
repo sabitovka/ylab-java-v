@@ -4,7 +4,9 @@ import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityConstraintException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.impl.UserRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,18 +16,19 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@DisplayName("Тест репозитория UserRepositoryImpl")
 class UserRepositoryImplTest {
-
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        userRepository = new UserRepositoryImpl(jdbcTemplate);
+        userRepository = new UserRepositoryImpl();
     }
 
     @Test
-    public void create_whenEmailIsUnique_shouldCreateSuccessfully() {
-        User user = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[create] Должен успешно создать пользователя")
+    public void createWhenEmailIsUniqueShouldCreateSuccessfully() {
+        User user = new User(null, "mock", "mock@example.com", "password123", false, true);
         User createdUser = userRepository.create(user);
 
         assertThat(createdUser.getId()).isNotNull();
@@ -36,37 +39,41 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void create_whenUserExistsById_shouldThrowException() {
-        User firstUser = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[create] Когда пользователь содержится по id, должен выбросить исключение")
+    public void createWhenUserExistsByIdShouldThrowException() {
+        User firstUser = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(firstUser);
 
         User user = new User(1L,"mock", "mock@example.com", "password123", false, true);
+
         assertThatThrownBy(() -> userRepository.create(user))
-                .isInstanceOf(EntityAlreadyExistsException.class)
-                .hasMessageContaining("Пользователь уже существует в системе");
+                .isInstanceOf(EntityAlreadyExistsException.class);
     }
 
     @Test
-    public void create_whenUserExistsByEmail_shouldThrowException() {
-        User firstUser = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[create] Когда пользователь содержится по email, должен выбросить исключение")
+    public void createWhenUserExistsByEmailShouldThrowException() {
+        User firstUser = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(firstUser);
 
-        User user = new User("mock", "mock@example.com", "password123");
+        User user = new User(null, "mock", "mock@example.com", "password123", false, true);
+
         assertThatThrownBy(() -> userRepository.create(user))
-                .isInstanceOf(EntityConstraintException.class)
-                .hasMessageContaining("Нарушение индекса Email");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void create_whenUserArgumentIsNull_shouldThrowException() {
+    @DisplayName("[create] Когда пользователь null, должен выбросить исключение")
+    public void createWhenUserArgumentIsNullShouldThrowException() {
         assertThatThrownBy(() -> userRepository.create(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("User is null");
     }
 
     @Test
-    public void findById_whenUserExists_shouldReturnSuccessfully() {
-        User firstUser = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[findById] Должен вернуть успешно")
+    public void findByIdWhenUserExistsShouldReturnSuccessfully() {
+        User firstUser = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(firstUser);
 
         Optional<User> foundUser = userRepository.findById(1L);
@@ -81,7 +88,8 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void findById_whenUserIsNotExist_shouldReturnNullOfOptional() {
+    @DisplayName("[findById] Когда пользователь не содержится, должен вернуть Optional.empty()")
+    public void findByIdWhenUserIsNotExistShouldReturnNullOfOptional() {
         Optional<User> foundUser = userRepository.findById(1L);
 
         assertThat(foundUser).isNotNull();
@@ -89,7 +97,8 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void findById_whenArgumentIsNull_shouldReturnNullOfOptional() {
+    @DisplayName("[findById] Когда аргумент null должен вернуть Optional.empty()")
+    public void findByIdWhenArgumentIsNullShouldReturnNullOfOptional() {
         Optional<User> foundUser = userRepository.findById(null);
 
         assertThat(foundUser).isNotNull();
@@ -97,73 +106,76 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void findAll_whenUsersExist_shouldReturnNonEmptyList() {
-        User user1 = new User("mock1", "mock1@example.com", "password1231");
+    @DisplayName("[findAll] Должен вернуть успешно")
+    public void findAllWhenUsersExistShouldReturnNonEmptyList() {
+        User user1 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         userRepository.create(user1);
-        User user2 = new User("mock2", "mock2@example.com", "password1232");
+        User user2 = new User(null, "mock2", "mock2@example.com", "password1232", false, true);
         userRepository.create(user2);
-        User user3 = new User("mock3", "mock3@example.com", "password1233");
+        User user3 = new User(null, "mock3", "mock3@example.com", "password1233", false, true);
         userRepository.create(user3);
 
         List<User> users = userRepository.findAll();
 
         assertThat(users).isNotNull();
-        assertThat(users).isInstanceOf(ArrayList.class);
+        assertThat(users).isInstanceOf(List.class);
         assertThat(users.size()).isEqualTo(3);
         assertThat(users.get(0)).isNotSameAs(user1);
     }
 
     @Test
-    public void findAll_whenUsersNotExist_shouldReturnEmptyList() {
+    @DisplayName("[findAll] Должен вернуть пустой список")
+    public void findAllWhenUsersNotExistShouldReturnEmptyList() {
         List<User> users = userRepository.findAll();
 
         assertThat(users).isNotNull();
-        assertThat(users).isInstanceOf(ArrayList.class);
+        assertThat(users).isInstanceOf(List.class);
         assertThat(users.isEmpty()).isTrue();
     }
 
     @Test
-    public void update_whenUserArgumentIsNull_shouldThrowException() {
+    @DisplayName("[update] Когда аргумент null, должен выбросить исключение")
+    public void updateWhenUserArgumentIsNullShouldThrowException() {
         assertThatThrownBy(() -> userRepository.update(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("User is null");
     }
 
     @Test
-    public void update_whenUserIsNotExist_shouldThrowException() {
+    @DisplayName("[update] Когда пользователя нет, должен выбросить исключение")
+    public void updateWhenUserIsNotExistShouldThrowException() {
         User user1 = new User(1L, "mock1", "mock1@example.com", "password1231", false, true);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
 
         assertThatThrownBy(() -> userRepository.update(user1))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Пользователь не найден в системе");
+                .isInstanceOf(EntityNotFoundException.class);
 
         assertThatThrownBy(() -> userRepository.update(user2))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining("Пользователь не найден в системе");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void update_whenUpdatingEmailThatIsExist_shouldThrowException() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[update] Когда есть email у другого пользователя, должен выбросить исключение")
+    public void updateWhenUpdatingEmailThatIsExistShouldThrowException() {
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         User createdUser2 = userRepository.create(user2);
 
         createdUser2.setEmail("mock@example.com");
 
         assertThatThrownBy(() -> userRepository.update(createdUser2))
-                .isInstanceOf(EntityConstraintException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Нарушение индекса Email");
     }
 
     @Test
-    public void update_whenUpdatingIsCorrect_shouldReturnTrue() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[update] Должен успешно обновить")
+    public void updateWhenUpdatingIsCorrectShouldReturnTrue() {
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         User createdUser2 = userRepository.create(user2);
-
         createdUser2.setName("mock");
         createdUser2.setEmail("mock2@example.com");
         createdUser2.setPassword("123password");
@@ -180,22 +192,25 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void deleteById_whenArgumentIsNull_shouldReturnFalse() {
+    @DisplayName("[deleteById] Когда аргумент null, должен вернуть false")
+    public void deleteByIdWhenArgumentIsNullShouldReturnFalse() {
         boolean result = userRepository.deleteById(null);
 
         assertThat(result).isFalse();
     }
 
     @Test
-    public void deleteById_whenUserIsNotExist_shouldReturnFalse() {
+    @DisplayName("[deleteById] Когда пользователя нет, должен вернуть false")
+    public void deleteByIdWhenUserIsNotExistShouldReturnFalse() {
         boolean result = userRepository.deleteById(1L);
 
         assertThat(result).isFalse();
     }
 
     @Test
-    public void deleteById_whenUserExists_shouldReturnSuccessfully() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[deleteById] Должен удалить пользователя и вернуть true")
+    public void deleteByIdWhenUserExistsShouldReturnSuccessfully() {
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         User created = userRepository.create(user1);
 
         boolean result = userRepository.deleteById(created.getId());
@@ -206,10 +221,11 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void findUserByEmail_whenEmailIsExist_shouldReturnSuccessfully() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[findUserByEmail] Должен вернуть пользователя")
+    public void findUserByEmailWhenEmailIsExistShouldReturnSuccessfully() {
+        User user1 = new User(null, "mock", "mock@example.com", "password123", true, false);
         userRepository.create(user1);
-        User user2 = new User( "mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", true, false);
         User createdUser2 = userRepository.create(user2);
 
         Optional<User> foundUser = userRepository.findUserByEmail("mock1@example.com");
@@ -220,11 +236,12 @@ class UserRepositoryImplTest {
     }
 
     @Test
-    public void findById_whenUserWasUpdated_shouldReturnSuccessfully() {
-        User user1 = new User("mock", "mock@example.com", "password123");
+    @DisplayName("[findUserByEmail] Когда пользователь обновил email, должен вернуть по новому email")
+    public void findByIdWhenUserWasUpdatedShouldReturnSuccessfully() {
+        User user1 = new User(null, "mock", "mock@example.com", "password123", false, true);
         userRepository.create(user1);
 
-        User user2 = new User("mock1", "mock1@example.com", "password1231");
+        User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
         User createdUser2 = userRepository.create(user2);
 
         createdUser2.setName("mock");

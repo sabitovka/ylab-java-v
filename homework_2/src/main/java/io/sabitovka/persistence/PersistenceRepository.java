@@ -1,9 +1,7 @@
 package io.sabitovka.persistence;
 
-import io.sabitovka.exception.DatabaseException;
-import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.repository.BaseRepository;
-import io.sabitovka.utils.EntityMapper;
+import io.sabitovka.util.EntityMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +29,7 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
 
             return Optional.of(EntityMapper.mapResultSetToEntity(resultSet, modelClass));
         } catch (SQLException e) {
-            throw new DatabaseException("Ошибка при поиске сущности по ID: " + e.getMessage());
+            throw new RuntimeException("Ошибка при поиске сущности по ID: " + e.getMessage());
         }
     }
 }

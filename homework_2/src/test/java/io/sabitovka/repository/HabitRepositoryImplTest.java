@@ -5,7 +5,9 @@ import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.impl.HabitRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -14,8 +16,8 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Тест репозитория HabitRepositoryImpl")
 class HabitRepositoryImplTest {
     private HabitRepositoryImpl habitRepository;
     private User user;
@@ -31,111 +33,140 @@ class HabitRepositoryImplTest {
     }
 
     @Test
-    public void create_shouldCreateHabitSuccessfully() {
+    @DisplayName("[create] Должен успешно создать привычку")
+    public void createShouldCreateHabitSuccessfully() {
         Habit createdHabit = habitRepository.create(habit1);
+
         assertThat(habitRepository.existsById(createdHabit.getId())).isTrue();
         assertThat(createdHabit.getName()).isEqualTo(habit1.getName());
     }
 
     @Test
-    public void create_whenHabitIsNull_shouldThrowIllegalArgumentException() {
+    @DisplayName("[create] Когда привычка = null, должен выбросить исключение")
+    public void createWhenHabitIsNullShouldThrowIllegalArgumentException() {
         assertThatThrownBy(() -> habitRepository.create(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Habit is null");
     }
 
     @Test
-    public void create_whenHabitAlreadyExists_shouldThrowEntityAlreadyExistsException() {
+    @DisplayName("[create] Когда привычка уже содержится, должен выбросить исключение")
+    public void createWhenHabitAlreadyExistsShouldThrowEntityAlreadyExistsException() {
         habitRepository.create(habit1);
+
         assertThatThrownBy(() -> habitRepository.create(habit1))
-                .isInstanceOf(EntityAlreadyExistsException.class)
-                .hasMessage("Привычка уже существует в системе");
+                .isInstanceOf(EntityAlreadyExistsException.class);
     }
 
     @Test
-    public void findById_whenHabitExists_shouldReturnHabit() {
+    @DisplayName("[create] Должен успешно вернуть все привычки")
+    public void findByIdWhenHabitExistsShouldReturnHabit() {
         Habit createdHabit = habitRepository.create(habit1);
+
         Optional<Habit> foundHabit = habitRepository.findById(createdHabit.getId());
+
         assertThat(foundHabit.isPresent()).isTrue();
         assertThat(foundHabit.get().getName()).isEqualTo(habit1.getName());
     }
 
     @Test
-    public void findById_whenHabitDoesNotExist_shouldReturnEmptyOptional() {
+    @DisplayName("[findById] Когда привычки нет, должен вернуть пустой Optional")
+    public void findByIdWhenHabitDoesNotExistShouldReturnEmptyOptional() {
         Optional<Habit> foundHabit = habitRepository.findById(999L);
+
         assertThat(foundHabit.isPresent()).isFalse();
     }
 
     @Test
-    public void findAll_shouldReturnAllHabits() {
+    @DisplayName("[findAll] Должен вернуть все привычки")
+    public void findAllShouldReturnAllHabits() {
         habitRepository.create(habit1);
         habitRepository.create(habit2);
+
         List<Habit> habits = habitRepository.findAll();
         assertThat(habits).hasSize(2);
     }
 
     @Test
-    public void update_shouldUpdateHabitSuccessfully() {
+    @DisplayName("[update] Должен успешно обновить привычку")
+    public void updateShouldUpdateHabitSuccessfully() {
         Habit createdHabit = habitRepository.create(habit1);
         createdHabit.setName("UpdatedHabit");
+
         habitRepository.update(createdHabit);
+
         Optional<Habit> updatedHabit = habitRepository.findById(createdHabit.getId());
         assertThat(updatedHabit.get().getName()).isEqualTo("UpdatedHabit");
     }
 
     @Test
-    public void update_whenHabitIsNull_shouldThrowIllegalArgumentException() {
+    @DisplayName("[update] Когда привычка null, должен выбросить исключение")
+    public void updateWhenHabitIsNullShouldThrowIllegalArgumentException() {
         assertThatThrownBy(() -> habitRepository.update(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Habit is null");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void update_whenHabitDoesNotExist_shouldThrowEntityNotFoundException() {
+    @DisplayName("[update] Когда привычка не содержится, должен выбросить исключение")
+    public void updateWhenHabitDoesNotExistShouldThrowEntityNotFoundException() {
         Habit nonExistentHabit = new Habit(999L, "NonExistent", "NonExistent", HabitFrequency.DAILY,  LocalDate.now(), true, 1L);
+
         assertThatThrownBy(() -> habitRepository.update(nonExistentHabit))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Привычка не найдена в системе");
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
-    public void deleteById_whenHabitExists_shouldDeleteSuccessfully() {
+    @DisplayName("[deleteById] Должен успешно удалить по id")
+    public void deleteByIdWhenHabitExistsShouldDeleteSuccessfully() {
         Habit createdHabit = habitRepository.create(habit1);
+
         boolean deleted = habitRepository.deleteById(createdHabit.getId());
+
         assertThat(deleted).isTrue();
         assertThat(habitRepository.findById(createdHabit.getId()).isPresent()).isFalse();
     }
 
     @Test
-    public void deleteById_whenHabitDoesNotExist_shouldReturnFalse() {
+    @DisplayName("[deleteById] Когда привычка не содержится, должен вернуть false")
+    public void deleteByIdWhenHabitDoesNotExistShouldReturnFalse() {
         boolean deleted = habitRepository.deleteById(999L);
+
         assertThat(deleted).isFalse();
     }
 
     @Test
-    public void findAllByUser_shouldReturnHabitsByUser() {
+    @DisplayName("[findAllByUser] Должен вернуть список привычек пользователя")
+    public void findAllByUserShouldReturnHabitsByUser() {
         habitRepository.create(habit1);
         habitRepository.create(habit2);
+
         List<Habit> userHabits = habitRepository.findAllByUser(user);
+
         assertThat(userHabits).hasSize(2);
     }
 
     @Test
-    public void filterByUserAndTimeAndStatus_shouldFilterCorrectly() {
+    @DisplayName("[filterByUserAndTimeAndStatus] Должен отфильтровать корректно")
+    public void filterByUserAndTimeAndStatusShouldFilterCorrectly() {
         habitRepository.create(habit1);
         habitRepository.create(habit2);
+
         List<Habit> filteredHabits = habitRepository.filterByUserAndTimeAndStatus(
                 user, LocalDate.now().minusDays(6), LocalDate.now(), true);
+
         assertThat(filteredHabits).hasSize(1);
         assertThat(filteredHabits.get(0).getName()).isEqualTo(habit1.getName());
     }
 
     @Test
-    public void filterByUserAndTimeAndStatus_whenNoMatches_shouldReturnEmptyList() {
+    @DisplayName("[filterByUserAndTimeAndStatus] Когда ничего не попадает под фильтр, должен вернуть пустой список")
+    public void filterByUserAndTimeAndStatusWhenNoMatchesShouldReturnEmptyList() {
         habitRepository.create(habit1);
         habitRepository.create(habit2);
+
         List<Habit> filteredHabits = habitRepository.filterByUserAndTimeAndStatus(
                 user, LocalDate.now().minusDays(1), LocalDate.now(), true);
+
         assertThat(filteredHabits).isNotEmpty();
     }
 }

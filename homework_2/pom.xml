@@ -2,59 +2,67 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.sabitovka</groupId>
-  <artifactId>habit-tracker</artifactId>
+  <artifactId>habit-tracker-hw-2</artifactId>
   <packaging>jar</packaging>
+  <version>1.0</version>
+  <name>homework-2</name>
+  <url>http://maven.apache.org</url>
+
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <junit.version>5.11.0-M2</junit.version>
+    <assertj.version>3.25.3</assertj.version>
+    <mockito.version>5.11.0</mockito.version>
+    <lombok.version>1.18.34</lombok.version>
+    <postgresql.version>42.7.4</postgresql.version>
+    <liquibase.version>4.29.2</liquibase.version>
+    <exec.version>1.4.0</exec.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  <version>1.0</version>
-  <name>habit-tracker</name>
-  <url>http://maven.apache.org</url>
 
   <dependencies>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.0-M2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.25.3</version>
+      <version>${assertj.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>5.11.0</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.4</version>
+      <version>${postgresql.version}</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.liquibase/liquibase-core -->
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <version>4.29.2</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>1.18.34</version>
-      <scope>compile</scope>
+      <version>${liquibase.version}</version>
     </dependency>
 
   </dependencies>
@@ -67,13 +75,11 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
         <configuration>
-          <source>17</source>
-          <target>17</target>
           <annotationProcessorPaths>
             <path>
               <groupId>org.projectlombok</groupId>
               <artifactId>lombok</artifactId>
-              <version>1.18.34</version>
+              <version>${lombok.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>
@@ -82,19 +88,9 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.4.0</version>
+        <version>${exec.version}</version>
         <configuration>
           <mainClass>io.sabitovka.Application</mainClass>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.liquibase</groupId>
-        <artifactId>liquibase-maven-plugin</artifactId>
-        <version>3.6.2</version>
-        <configuration>
-          <propertyFile>liquibase.properties</propertyFile>
-          <changeLogFile>db/changelog/changelog.xml</changeLogFile>
         </configuration>
       </plugin>
 

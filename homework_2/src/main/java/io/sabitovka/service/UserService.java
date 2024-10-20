@@ -1,133 +1,77 @@
 package io.sabitovka.service;
 
-import io.sabitovka.common.Constants;
 import io.sabitovka.dto.UserInfoDto;
-import io.sabitovka.exception.EntityAlreadyExistsException;
-import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
-import io.sabitovka.repository.HabitRepository;
-import io.sabitovka.repository.UserRepository;
-import io.sabitovka.utils.PasswordHasher;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class UserService {
+/**
+ * Интерфейс сервиса для управления пользователями {@link User}
+ */
+public interface UserService {
+    /**
+     * Создает нового пользователя по переданным данным от пользователя
+     * @param userInfoDto Данные, по которым будет создан новый пользователь
+     * @return Новый пользователь
+     */
+    User createUser(UserInfoDto userInfoDto);
 
-    private final UserRepository userRepository;
-    private final HabitRepository habitRepository;
+    /**
+     * Обновляет пользователя по переданным данным
+     * @param userInfoDto Информация о пользовтеле
+     */
+    void updateUser(UserInfoDto userInfoDto);
 
-    public UserService(UserRepository userRepository, HabitRepository habitRepository) {
-        this.userRepository = userRepository;
-        this.habitRepository = habitRepository;
-    }
+    /**
+     * Меняет пароль пользователя по переданным данным. Для корректной смены, необходимо ввести старый пароль пользователя
+     * @param userInfoDto Информация о пользователе с новым паролем
+     * @param oldPassword Старый пароль пользователя
+     */
+    void changePassword(UserInfoDto userInfoDto, String oldPassword);
 
-    public UserInfoDto mapUserToUserInfoDto(User user) {
-        UserInfoDto userInfoDto = new UserInfoDto();
-        userInfoDto.setId(user.getId());
-        userInfoDto.setName(user.getName());
-        userInfoDto.setEmail(user.getEmail());
-        userInfoDto.setPassword(user.getPassword());
-        userInfoDto.setIsAdmin(user.isAdmin());
-        userInfoDto.setActive(user.isActive());
-        return userInfoDto;
-    }
+    /**
+     * Удаляет профиль пользователя. Для подтверждения нужно указать действующий пароль пользователя
+     * @param profileId Id профиля пользователя
+     * @param password Пароль пользователя
+     */
+    void deleteProfile(Long profileId, String password);
 
-    public User mapUserInfoDtoToUser(UserInfoDto userInfoDto) {
-        User user = new User();
-        user.setId(userInfoDto.getId());
-        user.setName(userInfoDto.getName());
-        user.setEmail(userInfoDto.getEmail());
-        user.setPassword(userInfoDto.getPassword());
-        user.setAdmin(userInfoDto.isAdmin());
-        user.setActive(userInfoDto.isActive());
-        return user;
-    }
+    /**
+     * Блокирует пользователя по переданному ID
+     * @param userId ID пользователя
+     */
+    void blockUser(Long userId);
 
-    private void validateRegistrationInput(UserInfoDto userInfoDto) {
-        if (userInfoDto == null) {
-            throw new IllegalArgumentException("Userinfo in null");
-        }
+    /**
+     * Находит пользователя по ID. Возвращает информацию о пользователе
+     * @param userId Id пользователя для поиска
+     * @return Информацию о пользователе
+     */
+    UserInfoDto findById(Long userId);
 
-        if (userInfoDto.getName() == null || userInfoDto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может быть пустым");
-        }
-        if (userInfoDto.getEmail() == null || !userInfoDto.getEmail().matches(Constants.EMAIL_REGEX)) {
-            throw new IllegalArgumentException("Неправильный формат email");
-        }
-        if (userInfoDto.getPassword() == null || !userInfoDto.getPassword().matches(Constants.PASSWORD_REGEX)) {
-            throw new IllegalArgumentException("Пароль не соответствует требованиям");
-        }
-    }
+    /**
+     * Возвращает список заблокированных пользователей
+     * @return Список неактивных пользователей
+     */
+    List<UserInfoDto> getBlockedUsers();
 
-    public User createUser(UserInfoDto userInfoDto) {
-        validateRegistrationInput(userInfoDto);
+    /**
+     * Возвращает Список активных пользователей
+     * @return Список активных пользователей
+     */
+    List<UserInfoDto> getActiveUsers();
 
-        if (userRepository.findUserByEmail(userInfoDto.getEmail()).isPresent()) {
-            throw new EntityAlreadyExistsException("Данный email уже занят");
-        }
+    /**
+     * Преобразует информацию о пользователе {@link UserInfoDto} в модель {@link User}
+     * @param userInfoDto Информация о пользователе
+     * @return Модель пользователя
+     */
+    User mapUserInfoToUser(UserInfoDto userInfoDto);
 
-        String hashedPassword = PasswordHasher.hash(userInfoDto.getPassword());
-        userInfoDto.setPassword(hashedPassword);
-
-        User user = mapUserInfoDtoToUser(userInfoDto);
-        return userRepository.create(user);
-    }
-
-    public void updateUser(UserInfoDto userInfoDto) {
-        validateRegistrationInput(userInfoDto);
-
-        User user = mapUserInfoDtoToUser(userInfoDto);
-        userRepository.update(user);
-    }
-
-    public void changePassword(UserInfoDto userInfoDto, String oldPassword) {
-        validateRegistrationInput(userInfoDto);
-
-        User user = userRepository.findById(userInfoDto.getId()).orElseThrow();
-        if (!PasswordHasher.verify(oldPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Старый пароль не совпадает");
-        }
-
-        User updatedUser = mapUserInfoDtoToUser(userInfoDto);
-        updatedUser.setPassword(PasswordHasher.hash(updatedUser.getPassword()));
-        userRepository.update(updatedUser);
-    }
-
-    public void deleteProfile(Long profileId, String password) {
-        if (!password.matches(Constants.PASSWORD_REGEX)) {
-            throw new IllegalArgumentException("Пароль не соответствует требованиям");
-        }
-
-        User user = userRepository.findById(profileId).orElseThrow();
-        if (PasswordHasher.verify(password, user.getPassword())) {
-            userRepository.deleteById(profileId);
-            habitRepository.findAllByUser(user).forEach(habit -> habitRepository.deleteById(habit.getId()));
-        }
-    }
-
-    public void blockUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти пользователя"));
-        user.setActive(false);
-        userRepository.update(user);
-    }
-
-    public UserInfoDto findById(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("Не удалось найти пользователя"));
-        return mapUserToUserInfoDto(user);
-    }
-
-    public List<UserInfoDto> getBlockedUsers() {
-        return userRepository.findAll().stream()
-                .filter(user -> !user.isActive())
-                .map(this::mapUserToUserInfoDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<UserInfoDto> getActiveUsers() {
-        return userRepository.findAll().stream()
-                .filter(User::isActive)
-                .map(this::mapUserToUserInfoDto)
-                .collect(Collectors.toList());
-    }
+    /**
+     * Преобразует модель пользователя {@link User} в информацию о пользователе {@link UserInfoDto}
+     * @param user Модель пользователя
+     * @return Информация о пользователе
+     */
+    UserInfoDto mapUserToUserInfo(User user);
 }

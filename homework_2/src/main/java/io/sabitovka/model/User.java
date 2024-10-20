@@ -1,17 +1,19 @@
 package io.sabitovka.model;
 
-import io.sabitovka.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@Table()
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class User {
     private Long id;
     private String name;
     private String email;
     private String password;
-    private boolean isAdmin;
+    private boolean isAdmin = false;
     private boolean isActive = true;
 }

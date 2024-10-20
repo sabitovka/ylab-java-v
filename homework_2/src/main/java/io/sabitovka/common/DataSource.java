@@ -1,11 +1,17 @@
 package io.sabitovka.common;
 
+import lombok.experimental.UtilityClass;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Утилитарный класс, который предоставляет подключение к базе данных
+ */
+@UtilityClass
 public class DataSource {
-
+    // TODO: 20.10.2024 Перевести на application.properties
     private static String url = "jdbc:postgresql://localhost:5432/habit-tracker";
     private static String username = "postgres";
     private static String password = "password";
