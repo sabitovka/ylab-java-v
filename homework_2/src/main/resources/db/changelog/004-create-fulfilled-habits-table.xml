@@ -12,7 +12,7 @@
             <column name="habit_id" type="bigint">
                 <constraints nullable="false" />
             </column>
-            <column name="fulfillDate" type="date">
+            <column name="fulfill_date" type="date">
                 <constraints nullable="false" />
             </column>
         </createTable>

@@ -2,6 +2,7 @@ package io.sabitovka.factory;
 
 import io.sabitovka.common.DataSource;
 import io.sabitovka.persistence.JdbcTemplate;
+import io.sabitovka.persistence.rowmapper.HabitRowMapper;
 import io.sabitovka.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
@@ -49,7 +50,7 @@ public final class ServiceFactory {
     private ServiceFactory() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
         UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
-        HabitRepository habitRepository = new HabitRepositoryImpl();
+        HabitRepository habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
         FulfilledHabitRepository fulfilledHabitRepository = new FulfilledHabitRepositoryImpl();
 
         userService = new UserServiceImpl(userRepository, habitRepository);
