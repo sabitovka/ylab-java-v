@@ -1,7 +1,6 @@
 package io.sabitovka.service;
 
 import io.sabitovka.enums.HabitFrequency;
-import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
 import io.sabitovka.repository.FulfilledHabitRepository;

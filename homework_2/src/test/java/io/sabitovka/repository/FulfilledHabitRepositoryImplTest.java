@@ -1,7 +1,6 @@
 package io.sabitovka.repository;
 
 import io.sabitovka.enums.HabitFrequency;
-import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;

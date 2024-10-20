@@ -2,7 +2,6 @@ package io.sabitovka.service;
 
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.enums.HabitFrequency;
-import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;

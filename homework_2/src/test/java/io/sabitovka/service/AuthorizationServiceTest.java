@@ -4,7 +4,6 @@ import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.impl.AuthorizationServiceImpl;
 import io.sabitovka.util.PasswordHasher;
-import lombok.Data;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Тест сервиса авторизации")

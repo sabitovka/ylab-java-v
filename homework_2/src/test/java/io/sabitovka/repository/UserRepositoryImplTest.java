@@ -1,7 +1,5 @@
 package io.sabitovka.repository;
 
-import io.sabitovka.exception.EntityAlreadyExistsException;
-import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.rowmapper.UserRowMapper;
@@ -10,7 +8,6 @@ import io.sabitovka.util.MigrationManager;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

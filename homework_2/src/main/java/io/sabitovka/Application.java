@@ -7,7 +7,6 @@ import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
 import io.sabitovka.service.UserService;
-import io.sabitovka.util.DataMocker;
 import io.sabitovka.util.MigrationManager;
 
 public class Application {

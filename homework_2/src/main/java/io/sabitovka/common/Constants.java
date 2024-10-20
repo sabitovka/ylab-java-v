@@ -2,7 +2,6 @@ package io.sabitovka.common;
 
 import lombok.experimental.UtilityClass;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
