@@ -1,7 +1,5 @@
 package io.sabitovka.repository.impl;
 
-import io.sabitovka.exception.EntityAlreadyExistsException;
-import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
@@ -10,9 +8,9 @@ import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.HabitRepository;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * Реализация интерфейса {@link HabitRepository} для управления привычками в памяти.
@@ -26,24 +24,28 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
 
     @Override
     public List<Habit> findAllByUser(User owner) {
-        return Collections.emptyList();
-//        String sql = "";
-//        return habits.values().stream()
-//                .filter(habit -> Objects.equals(habit.getOwnerId(), owner.getId()))
-//                .map(habit -> habit.toBuilder().build())
-//                .toList();
+        String sql = "select * from habits where owner_id = ?";
+        return jdbcTemplate.queryForList(sql, rowMapper, owner.getId());
     }
 
     @Override
     public List<Habit> filterByUserAndTimeAndStatus(User owner, LocalDate startDate, LocalDate endDate, Boolean isActive) {
-        return Collections.emptyList();
-//        return habits.values().stream()
-//                .filter(habit -> habit.getOwnerId().equals(owner.getId()))
-//                .filter(habit -> startDate == null || !habit.getCreatedAt().isBefore(startDate))
-//                .filter(habit -> endDate == null || !habit.getCreatedAt().isAfter(endDate))
-//                .filter(habit -> isActive == null || habit.isActive() == isActive)
-//                .map(habit -> habit.toBuilder().build())
-//                .collect(Collectors.toList());
+        String sql = """
+            select * from habits where owner_id = ?
+                and (? is null or created_at >= ?)
+                and (? is null or created_at <= ?)
+                and (? is null or is_active = ?""";
+        return jdbcTemplate.queryForList(
+                sql,
+                rowMapper,
+                owner.getId(),
+                startDate,
+                startDate,
+                endDate,
+                endDate,
+                isActive,
+                isActive
+        );
     }
 }
 

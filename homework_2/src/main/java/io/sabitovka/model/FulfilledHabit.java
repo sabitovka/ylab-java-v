@@ -1,5 +1,6 @@
 package io.sabitovka.model;
 
+import io.sabitovka.persistence.annotation.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class FulfilledHabit {
+    @Column(name = "id")
     Long id;
+
+    @Column(name = "habit_id")
     Long habitId;
+
+    @Column(name = "fulfill_date")
     LocalDate fulfillDate;
 }
