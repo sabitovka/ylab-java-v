@@ -8,6 +8,7 @@ import io.sabitovka.service.HabitService;
 import io.sabitovka.service.StatisticService;
 import io.sabitovka.service.UserService;
 import io.sabitovka.util.DataMocker;
+import io.sabitovka.util.MigrationManager;
 
 public class Application {
     public static void main(String[] args) {
@@ -16,7 +17,8 @@ public class Application {
         HabitService habitService = ServiceFactory.getInstance().getHabitService();
         StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();
 
-        DataMocker.mockData(userService, habitService);
+        // DataMocker.mockData(userService, habitService);
+        MigrationManager.migrate();
 
         BaseController mainController = new MainController(authorizationService, userService, statisticService, habitService);
         mainController.showMenu();

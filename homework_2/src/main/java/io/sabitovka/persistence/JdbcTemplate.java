@@ -1,14 +1,16 @@
 package io.sabitovka.persistence;
 
-import io.sabitovka.exception.DatabaseException;
+import io.sabitovka.persistence.rowmapper.RowMapper;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class JdbcTemplate {
-
+/**
+ * Класс, который позволяет работать с подключением к БД.
+ * Запрашивать данные, выполнять SQL запросы
+ */
+public class JdbcTemplate implements AutoCloseable {
     private final Connection connection;
 
     public JdbcTemplate(Connection connection) {
@@ -19,28 +21,69 @@ public class JdbcTemplate {
         try (PreparedStatement statement = prepareStatement(sql, params)) {
             return statement.executeUpdate();
         } catch (SQLException e) {
-            throw new DatabaseException("Ошибка выполнения обновления БД: " + e.getMessage());
+            throw new RuntimeException("Ошибка выполнения обновления БД: " + e.getMessage());
         }
     }
 
-    public ResultSet queryForObject(String sql, Object ...params) {
+    public List<Long> executeInsert(String sql, Object ...params) {
         try (PreparedStatement statement = prepareStatement(sql, params)) {
-            ResultSet resultSet = statement.executeQuery();
+            int affectedRows = statement.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new RuntimeException("Создание сущности не выполнено, строки не были затронуты.");
+            }
+
+            List<Long> generatedKeys = new ArrayList<>();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                while (keys.next()) {
+                    generatedKeys.add(keys.getLong(1));
+                }
+            }
+
+            return generatedKeys;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при вставке данных в БД: " + e.getMessage(), e);
+        }
+    }
+
+    public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object ...params) {
+        try (PreparedStatement statement = prepareStatement(sql, params);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            List<T> results = new ArrayList<>();
+            while (resultSet.next()) {
+                results.add(rowMapper.mapRow(resultSet, resultSet.getRow()));
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка при выполнении SQL-запроса", e);
+        }
+    }
+
+    public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object ...params) {
+        try (PreparedStatement statement = prepareStatement(sql, params);
+             ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
-                return resultSet;
+                return rowMapper.mapRow(resultSet, resultSet.getRow());
             } else {
                 return null;
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Ошибка выполнения запроса к БД: " + e.getMessage());
+            throw new RuntimeException("Ошибка выполнения запроса к БД: " + e.getMessage());
         }
     }
 
     private PreparedStatement prepareStatement(String sql, Object ...params) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         for (int i = 0; i < params.length; i++) {
             preparedStatement.setObject(i + 1, params[i]);
         }
         return preparedStatement;
+    }
+
+    @Override
+    public void close() throws Exception {
+        connection.close();
     }
 }

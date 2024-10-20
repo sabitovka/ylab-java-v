@@ -12,7 +12,7 @@ import java.sql.SQLException;
 @UtilityClass
 public class DataSource {
     // TODO: 20.10.2024 Перевести на application.properties
-    private static String url = "jdbc:postgresql://localhost:5432/habit-tracker";
+    private static String url = "jdbc:postgresql://localhost:5433/habit-tracker?currentSchema=%s".formatted(Constants.MODEL_SCHEMA);
     private static String username = "postgres";
     private static String password = "password";
     private static String driverClassName = "org.postgresql.Driver";

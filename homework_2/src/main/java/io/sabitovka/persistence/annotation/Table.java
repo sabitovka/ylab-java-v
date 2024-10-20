@@ -1,4 +1,4 @@
-package io.sabitovka.persistence;
+package io.sabitovka.persistence.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

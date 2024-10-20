@@ -1,5 +1,8 @@
 package io.sabitovka.factory;
 
+import io.sabitovka.common.DataSource;
+import io.sabitovka.persistence.JdbcTemplate;
+import io.sabitovka.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
@@ -16,12 +19,16 @@ import io.sabitovka.service.impl.StatisticServiceImpl;
 import io.sabitovka.service.impl.UserServiceImpl;
 import lombok.Getter;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 /**
  * Класс, который устанавливает корректно зависимости сервисного и слоя данных.
  * Реализует паттерн Singleton
  */
 public final class ServiceFactory {
-    private static final ServiceFactory serviceFactory = new ServiceFactory();
+    private static final Connection connection;
+    private static ServiceFactory serviceFactory;
     @Getter
     private final UserService userService;
     @Getter
@@ -31,8 +38,17 @@ public final class ServiceFactory {
     @Getter
     private final StatisticService statisticService;
 
+    static {
+        try {
+            connection = DataSource.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private ServiceFactory() {
-        UserRepository userRepository = new UserRepositoryImpl();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
+        UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
         HabitRepository habitRepository = new HabitRepositoryImpl();
         FulfilledHabitRepository fulfilledHabitRepository = new FulfilledHabitRepositoryImpl();
 
@@ -43,6 +59,9 @@ public final class ServiceFactory {
     }
 
     public static synchronized ServiceFactory getInstance() {
+        if (serviceFactory == null) {
+            serviceFactory = new ServiceFactory();
+        }
         return serviceFactory;
     }
 }

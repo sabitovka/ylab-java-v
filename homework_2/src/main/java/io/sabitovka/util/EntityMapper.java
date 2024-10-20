@@ -1,10 +1,10 @@
 package io.sabitovka.util;
 
+import io.sabitovka.persistence.annotation.Column;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 
 /**
@@ -19,17 +19,20 @@ public class EntityMapper {
             for (Field field : entityType.getDeclaredFields()) {
                 field.setAccessible(true);
 
-                String columnName = field.getName();
-                Class<?> fieldType = field.getType();
+                Column columnAnnotation = field.getAnnotation(Column.class);
+                if (columnAnnotation != null) {
+                    String columnName = columnAnnotation.name();
+                    Class<?> fieldType = field.getType();
 
-                if (fieldType == String.class) {
-                    field.set(entity, resultSet.getString(columnName));
-                } else if (fieldType == int.class || fieldType == Integer.class) {
-                    field.set(entity, resultSet.getInt(columnName));
-                } else if (fieldType == long.class || fieldType == Long.class) {
-                    field.set(entity, resultSet.getLong(columnName));
-                } else if (fieldType == LocalDate.class) {
-                    field.set(entity, resultSet.getDate(columnName).toLocalDate());
+                    if (fieldType == String.class) {
+                        field.set(entity, resultSet.getString(columnName));
+                    } else if (fieldType == int.class || fieldType == Integer.class) {
+                        field.set(entity, resultSet.getInt(columnName));
+                    } else if (fieldType == long.class || fieldType == Long.class) {
+                        field.set(entity, resultSet.getLong(columnName));
+                    } else if (fieldType == LocalDate.class) {
+                        field.set(entity, resultSet.getDate(columnName).toLocalDate());
+                    }
                 }
             }
             return entity;
