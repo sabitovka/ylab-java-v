@@ -34,7 +34,7 @@ public class MigrationManager {
         try {
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(connection));
             database.setDefaultSchemaName(Constants.MODEL_SCHEMA);
-            database.setLiquibaseSchemaName("public");
+            database.setLiquibaseSchemaName(Constants.SERVICE_SCHEMA);
             Liquibase liquibase = new Liquibase(changelogFile, new ClassLoaderResourceAccessor(), database);
             liquibase.update();
         } catch (LiquibaseException e) {

@@ -15,7 +15,7 @@
                 <constraints nullable="false" />
             </column>
             <column name="description" type="varchar" />
-            <column name="frequency" type="frequency" defaultValue="daily" >
+            <column name="frequency" type="frequency" defaultValue="DAILY" >
             </column>
             <column name="created_at" type="date" defaultValueComputed="CURRENT_DATE" />
             <column name="is_active" type="boolean" defaultValueBoolean="true" />
