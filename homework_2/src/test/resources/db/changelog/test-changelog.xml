@@ -4,11 +4,9 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="001-create-sequences" author="sabitovka">
-        <sql>create schema model</sql>
-        <createSequence sequenceName="users_sequence" />
-        <createSequence sequenceName="habit_sequence" />
-        <createSequence sequenceName="fulfilled_habit_sequence" />
-    </changeSet>
+    <include file="001-test-create-sequences.xml" relativeToChangelogFile="true" />
+    <include file="002-test-create-users-table.xml" relativeToChangelogFile="true" />
+    <include file="003-test-create-habits-table.xml" relativeToChangelogFile="true" />
+    <include file="004-test-create-fulfilled-habits-table.xml" relativeToChangelogFile="true" />
 
 </databaseChangeLog>

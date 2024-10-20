@@ -17,7 +17,6 @@ public class Application {
         HabitService habitService = ServiceFactory.getInstance().getHabitService();
         StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();
 
-        // DataMocker.mockData(userService, habitService);
         MigrationManager.migrate();
 
         BaseController mainController = new MainController(authorizationService, userService, statisticService, habitService);

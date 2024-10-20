@@ -27,6 +27,10 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
 
     @Override
     public M create(M obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException();
+        }
+
         String tableName = getEntityTableName();
         Map<String, Object> columns = new HashMap<>();
 
@@ -50,7 +54,7 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
         String sql = "insert into %s (%s) values (%s)".formatted(
                 tableName,
                 String.join(", ", columns.keySet()),
-                columns.values().stream().map(o -> "?").collect(Collectors.joining(", "))
+                columns.keySet().stream().map(o -> "?").collect(Collectors.joining(", "))
         );
 
         List<Long> generatedKeys = jdbcTemplate.executeInsert(sql, columns.values().toArray());
@@ -73,7 +77,7 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
     @Override
     public Optional<M> findById(I id) {
         String sql = "select * from %s where id = ?".formatted(getEntityTableName());
-        return Optional.of(jdbcTemplate.queryForObject(sql, rowMapper, id));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, id));
     }
 
     @Override
@@ -89,6 +93,10 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
 
     @Override
     public boolean update(M obj) {
+        if (obj == null) {
+            throw new IllegalArgumentException();
+        }
+
         String tableName = getEntityTableName();
         Field[] fields = modelClass.getDeclaredFields();
 
@@ -121,12 +129,13 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
 
         String sql = "UPDATE %s SET %s WHERE id = ?".formatted(
                 tableName,
-                columns.values().stream().map(name -> name + " = ?").collect(Collectors.joining(", "))
+                columns.keySet().stream().map(name -> name + " = ?").collect(Collectors.joining(", "))
         );
 
-        columns.values().add(idValue);
+        List<Object> columnValues = new ArrayList<>(columns.values());
+        columnValues.add(idValue);
 
-        int rowsAffected = jdbcTemplate.executeUpdate(sql, columns.values());
+        int rowsAffected = jdbcTemplate.executeUpdate(sql, columnValues.toArray());
         return rowsAffected > 0;
     }
 

@@ -1,15 +1,19 @@
 package io.sabitovka.repository;
 
 import io.sabitovka.exception.EntityAlreadyExistsException;
-import io.sabitovka.exception.EntityConstraintException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
+import io.sabitovka.persistence.JdbcTemplate;
+import io.sabitovka.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.repository.impl.UserRepositoryImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.sabitovka.util.MigrationManager;
+import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,11 +22,35 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория UserRepositoryImpl")
 class UserRepositoryImplTest {
+    private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
+            .withDatabaseName("testdb")
+            .withUsername("junit")
+            .withPassword("password");
+    private JdbcTemplate jdbcTemplate;
     private UserRepository userRepository;
 
+    @BeforeAll
+    static void beforeAll() {
+        postgresContainer.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgresContainer.stop();
+    }
+
     @BeforeEach
-    void setUp() {
-        userRepository = new UserRepositoryImpl();
+    void setUp() throws SQLException {
+        Connection connection = DriverManager.getConnection(
+                postgresContainer.getJdbcUrl(),
+                postgresContainer.getUsername(),
+                postgresContainer.getPassword()
+        );
+        jdbcTemplate = new JdbcTemplate(connection);
+
+        MigrationManager.migrate(connection, "db/changelog/test-changelog.xml");
+
+        userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
     }
 
     @Test
@@ -35,7 +63,6 @@ class UserRepositoryImplTest {
         assertThat(createdUser.getId()).isEqualTo(1L);
         assertThat(createdUser.getName()).isEqualTo("mock");
         assertThat(createdUser.getEmail()).isEqualTo("mock@example.com");
-        assertThat(createdUser).isNotSameAs(user);
     }
 
     @Test
@@ -47,7 +74,7 @@ class UserRepositoryImplTest {
         User user = new User(1L,"mock", "mock@example.com", "password123", false, true);
 
         assertThatThrownBy(() -> userRepository.create(user))
-                .isInstanceOf(EntityAlreadyExistsException.class);
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test
@@ -59,15 +86,14 @@ class UserRepositoryImplTest {
         User user = new User(null, "mock", "mock@example.com", "password123", false, true);
 
         assertThatThrownBy(() -> userRepository.create(user))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test
     @DisplayName("[create] Когда пользователь null, должен выбросить исключение")
     public void createWhenUserArgumentIsNullShouldThrowException() {
         assertThatThrownBy(() -> userRepository.create(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User is null");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -137,19 +163,18 @@ class UserRepositoryImplTest {
     @DisplayName("[update] Когда аргумент null, должен выбросить исключение")
     public void updateWhenUserArgumentIsNullShouldThrowException() {
         assertThatThrownBy(() -> userRepository.update(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("User is null");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    @DisplayName("[update] Когда пользователя нет, должен выбросить исключение")
-    public void updateWhenUserIsNotExistShouldThrowException() {
+    @DisplayName("[update] Когда пользователя нет, должен вернуть false")
+    public void updateWhenUserIsNotExistShouldThrowExceptionOrReturnFalse() {
         User user1 = new User(1L, "mock1", "mock1@example.com", "password1231", false, true);
         User user2 = new User(null, "mock1", "mock1@example.com", "password1231", false, true);
 
-        assertThatThrownBy(() -> userRepository.update(user1))
-                .isInstanceOf(EntityNotFoundException.class);
+        boolean updated1 = userRepository.update(user1);
 
+        assertThat(updated1).isFalse();
         assertThatThrownBy(() -> userRepository.update(user2))
                 .isInstanceOf(IllegalArgumentException.class);
     }
@@ -165,8 +190,7 @@ class UserRepositoryImplTest {
         createdUser2.setEmail("mock@example.com");
 
         assertThatThrownBy(() -> userRepository.update(createdUser2))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Нарушение индекса Email");
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test

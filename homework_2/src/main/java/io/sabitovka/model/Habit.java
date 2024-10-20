@@ -2,6 +2,7 @@ package io.sabitovka.model;
 
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.persistence.annotation.Column;
+import io.sabitovka.persistence.annotation.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
+@Table(name = "habits")
 public class Habit {
     @Column(name = "id")
     private Long id;

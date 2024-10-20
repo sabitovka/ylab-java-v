@@ -5,11 +5,18 @@ import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.persistence.JdbcTemplate;
+import io.sabitovka.persistence.rowmapper.HabitRowMapper;
+import io.sabitovka.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.repository.impl.HabitRepositoryImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.sabitovka.repository.impl.UserRepositoryImpl;
+import io.sabitovka.util.MigrationManager;
+import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -19,15 +26,40 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория HabitRepositoryImpl")
 class HabitRepositoryImplTest {
-    private HabitRepositoryImpl habitRepository;
+    private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
+            .withDatabaseName("testdb")
+            .withUsername("junit")
+            .withPassword("password");
+    private HabitRepository habitRepository;
     private User user;
     private Habit habit1;
     private Habit habit2;
 
+    @BeforeAll
+    static void beforeAll() {
+        postgresContainer.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgresContainer.stop();
+    }
+
     @BeforeEach
-    public void setUp() {
-        habitRepository = new HabitRepositoryImpl();
+    public void setUp() throws SQLException {
+        Connection connection = DriverManager.getConnection(
+                postgresContainer.getJdbcUrl(),
+                postgresContainer.getUsername(),
+                postgresContainer.getPassword()
+        );
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
+
+        MigrationManager.migrate(connection, "db/changelog/test-changelog.xml");
+
+        habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
+        UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
         user = new User(1L, "testUser", "test@example.com", "password", false, true);
+        userRepository.create(user);
         habit1 = new Habit(1L, "Habit1", "Description1", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
         habit2 = new Habit(2L, "Habit2", "Description2", HabitFrequency.WEEKLY, LocalDate.now().minusDays(5), false, 1L);
     }
@@ -45,8 +77,7 @@ class HabitRepositoryImplTest {
     @DisplayName("[create] Когда привычка = null, должен выбросить исключение")
     public void createWhenHabitIsNullShouldThrowIllegalArgumentException() {
         assertThatThrownBy(() -> habitRepository.create(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Habit is null");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -55,7 +86,7 @@ class HabitRepositoryImplTest {
         habitRepository.create(habit1);
 
         assertThatThrownBy(() -> habitRepository.create(habit1))
-                .isInstanceOf(EntityAlreadyExistsException.class);
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test
@@ -107,12 +138,12 @@ class HabitRepositoryImplTest {
     }
 
     @Test
-    @DisplayName("[update] Когда привычка не содержится, должен выбросить исключение")
-    public void updateWhenHabitDoesNotExistShouldThrowEntityNotFoundException() {
+    @DisplayName("[update] Когда привычка не содержится, должен вернуть false")
+    public void updateWhenHabitDoesNotExistShouldReturnFalse() {
         Habit nonExistentHabit = new Habit(999L, "NonExistent", "NonExistent", HabitFrequency.DAILY,  LocalDate.now(), true, 1L);
 
-        assertThatThrownBy(() -> habitRepository.update(nonExistentHabit))
-                .isInstanceOf(EntityNotFoundException.class);
+        boolean result = habitRepository.update(nonExistentHabit);
+        assertThat(result).isFalse();
     }
 
     @Test

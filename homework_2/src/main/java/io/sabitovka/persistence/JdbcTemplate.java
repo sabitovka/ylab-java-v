@@ -75,9 +75,13 @@ public class JdbcTemplate implements AutoCloseable {
     }
 
     private PreparedStatement prepareStatement(String sql, Object ...params) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement preparedStatement = connection.prepareStatement(sql.trim().replace("\n", " "), Statement.RETURN_GENERATED_KEYS);
         for (int i = 0; i < params.length; i++) {
-            preparedStatement.setObject(i + 1, params[i]);
+            if (params[i] instanceof Enum) {
+                preparedStatement.setObject(i + 1, params[i], Types.OTHER);
+            } else {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
         }
         return preparedStatement;
     }

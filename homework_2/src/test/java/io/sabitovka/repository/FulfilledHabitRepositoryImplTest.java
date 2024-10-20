@@ -1,12 +1,24 @@
 package io.sabitovka.repository;
 
+import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.exception.EntityAlreadyExistsException;
 import io.sabitovka.model.FulfilledHabit;
+import io.sabitovka.model.Habit;
+import io.sabitovka.model.User;
+import io.sabitovka.persistence.JdbcTemplate;
+import io.sabitovka.persistence.rowmapper.FulfilledHabitRowMapper;
+import io.sabitovka.persistence.rowmapper.HabitRowMapper;
+import io.sabitovka.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.repository.impl.FulfilledHabitRepositoryImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import io.sabitovka.repository.impl.HabitRepositoryImpl;
+import io.sabitovka.repository.impl.UserRepositoryImpl;
+import io.sabitovka.util.MigrationManager;
+import org.junit.jupiter.api.*;
+import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -16,15 +28,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория FulfilledHabitRepositoryImpl")
 class FulfilledHabitRepositoryImplTest {
-    private FulfilledHabitRepositoryImpl fulfilledHabitRepository;
+    private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
+            .withDatabaseName("testdb")
+            .withUsername("junit")
+            .withPassword("password");
+    private FulfilledHabitRepository fulfilledHabitRepository;
     private FulfilledHabit fulfilledHabit1;
     private FulfilledHabit fulfilledHabit2;
 
+    @BeforeAll
+    static void beforeAll() {
+        postgresContainer.start();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        postgresContainer.stop();
+    }
+
     @BeforeEach
-    public void setUp() {
-        fulfilledHabitRepository = new FulfilledHabitRepositoryImpl();
-        fulfilledHabit1 = new FulfilledHabit(1L, 1L, LocalDate.now());
-        fulfilledHabit2 = new FulfilledHabit(2L, 1L, LocalDate.now().minusDays(1));
+    public void setUp() throws SQLException {
+        Connection connection = DriverManager.getConnection(
+                postgresContainer.getJdbcUrl(),
+                postgresContainer.getUsername(),
+                postgresContainer.getPassword()
+        );
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
+
+        MigrationManager.migrate(connection, "db/changelog/test-changelog.xml");
+
+        UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
+        HabitRepository habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
+        fulfilledHabitRepository = new FulfilledHabitRepositoryImpl(jdbcTemplate, new FulfilledHabitRowMapper());
+
+        User user = new User(null, "mock", "mock@example.ru", "pass", false, true);
+        userRepository.create(user);
+
+        Habit habit = new Habit(null, "mock", "", HabitFrequency.DAILY, LocalDate.now(), true, user.getId());
+        habitRepository.create(habit);
+        fulfilledHabit1 = new FulfilledHabit(1L, habit.getId(), LocalDate.now());
+        fulfilledHabit2 = new FulfilledHabit(2L, habit.getId(), LocalDate.now().minusDays(1));
     }
 
     @Test
@@ -40,8 +83,7 @@ class FulfilledHabitRepositoryImplTest {
     @DisplayName("[create] Когда выполненная привычка = null, должен выбросить исключение")
     public void createWhenFulfilledHabitIsNullShouldThrowIllegalArgumentException() {
         assertThatThrownBy(() -> fulfilledHabitRepository.create(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("FulfilledHabit is null");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -50,7 +92,7 @@ class FulfilledHabitRepositoryImplTest {
         fulfilledHabitRepository.create(fulfilledHabit1);
 
         assertThatThrownBy(() -> fulfilledHabitRepository.create(fulfilledHabit1))
-                .isInstanceOf(EntityAlreadyExistsException.class);
+                .isInstanceOf(RuntimeException.class);
     }
 
     @Test

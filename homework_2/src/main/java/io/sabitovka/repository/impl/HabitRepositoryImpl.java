@@ -32,9 +32,9 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
     public List<Habit> filterByUserAndTimeAndStatus(User owner, LocalDate startDate, LocalDate endDate, Boolean isActive) {
         String sql = """
             select * from habits where owner_id = ?
-                and (? is null or created_at >= ?)
-                and (? is null or created_at <= ?)
-                and (? is null or is_active = ?""";
+            and (? is null or created_at >= ?)
+            and (? is null or created_at <= ?)
+            and (? is null or is_active = ?)""";
         return jdbcTemplate.queryForList(
                 sql,
                 rowMapper,

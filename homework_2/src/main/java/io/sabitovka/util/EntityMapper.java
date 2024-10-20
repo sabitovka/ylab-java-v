@@ -1,5 +1,6 @@
 package io.sabitovka.util;
 
+import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.persistence.annotation.Column;
 import lombok.experimental.UtilityClass;
 
@@ -32,6 +33,10 @@ public class EntityMapper {
                         field.set(entity, resultSet.getLong(columnName));
                     } else if (fieldType == LocalDate.class) {
                         field.set(entity, resultSet.getDate(columnName).toLocalDate());
+                    } else if (fieldType == boolean.class || fieldType == Boolean.class){
+                        field.set(entity, resultSet.getBoolean(columnName));
+                    } else if (fieldType == HabitFrequency.class) {
+                        field.set(entity, HabitFrequency.valueOf(resultSet.getString(columnName)));
                     }
                 }
             }
