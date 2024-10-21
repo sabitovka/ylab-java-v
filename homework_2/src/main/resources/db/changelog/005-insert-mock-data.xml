@@ -9,7 +9,7 @@
         <insert tableName="users">
             <column name="name" value="admin"/>
             <column name="email" value="admin@ylab.ru"/>
-            <column name="password" value="admin123"/>
+            <column name="password" value="+WzY/xk6MXPOJz+4lYompVQrSBGDRAqkBSSxVeBZ4dTOq5dRF/rjPn9N6DYyAcrbKVu0TBWRLDNzT3rS1vVl4Q=="/>
             <column name="is_admin" valueBoolean="true"/>
         </insert>
 
@@ -58,7 +58,7 @@
         <insert tableName="users">
             <column name="name" value="Иван"/>
             <column name="email" value="ivan@example.com"/>
-            <column name="password" value="ivanpassword"/>
+            <column name="password" value="vp1j18RaukOFsqbVN8zKgxVL7naPK7URBXuWgKZAxfYqVNCQZROKZ3CWb496IBo3TY6TjEnvJCc3dkEjrk3yxg=="/>
             <column name="is_admin" valueBoolean="false"/>
         </insert>
 
@@ -103,7 +103,7 @@
         <insert tableName="users">
             <column name="name" value="Мария"/>
             <column name="email" value="maria@example.com"/>
-            <column name="password" value="mariapassword"/>
+            <column name="password" value="FvTy9603RdUEE3qhEPt22RmIUzdxMu+S4CQ4ZfIBgndbVO6mOejVlyhCeRt8qauAHTCDvlnUrXzgnGHmruXXuw=="/>
             <column name="is_admin" valueBoolean="false"/>
         </insert>
 

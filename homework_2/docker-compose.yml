@@ -9,5 +9,5 @@ services:
       POSTGRES_PASSWORD: P@ssw0rd
       POSTGRES_DB: habit-tracker
     ports:
-      - "5432:5432"
+      - "5433:5432"
 
