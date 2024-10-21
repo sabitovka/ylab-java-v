@@ -10,5 +10,5 @@
 базой данных, API для фронтенда и отправку уведомлений.
 
 ### Домашние задания:
-1. ДЗ №1 - [Вводная](https://github.com/sabitovka/ylab-java-v/homework_1)
+1. ДЗ №1 - [Вводная](./homework_1)
 2. ДЗ №2 - [JDBC. Миграции БД](https://github.com/sabitovka/ylab-java-v/pull/2) `Ссылка указана на Pull Request`
