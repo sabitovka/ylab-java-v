@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-insert-mock-data" author="sabitovka">
+
+        <insert tableName="users">
+            <column name="name" value="admin"/>
+            <column name="email" value="admin@ylab.ru"/>
+            <column name="password" value="+WzY/xk6MXPOJz+4lYompVQrSBGDRAqkBSSxVeBZ4dTOq5dRF/rjPn9N6DYyAcrbKVu0TBWRLDNzT3rS1vVl4Q=="/>
+            <column name="is_admin" valueBoolean="true"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Анжумания"/>
+            <column name="description" value="Прокачиваем Анжумания"/>
+            <column name="frequency" value="DAILY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='admin@ylab.ru')"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Прес качат"/>
+            <column name="description" value="Привычка для ежедневной тренировки пресса"/>
+            <column name="frequency" value="DAILY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='admin@ylab.ru')"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Бегит"/>
+            <column name="description" value="Ежедневные утренние пробежки"/>
+            <column name="frequency" value="DAILY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="false"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='admin@ylab.ru')"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Анжумания')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '2 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Анжумания')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '1 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Прес качат')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '1 DAY'"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Иван"/>
+            <column name="email" value="ivan@example.com"/>
+            <column name="password" value="vp1j18RaukOFsqbVN8zKgxVL7naPK7URBXuWgKZAxfYqVNCQZROKZ3CWb496IBo3TY6TjEnvJCc3dkEjrk3yxg=="/>
+            <column name="is_admin" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Читаем буки"/>
+            <column name="description" value="Привычка читать книги каждый день"/>
+            <column name="frequency" value="DAILY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='ivan@example.com')"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Учить английский"/>
+            <column name="description" value="Изучать английский язык раз в неделю"/>
+            <column name="frequency" value="WEEKLY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='ivan@example.com')"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Читаем буки')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '3 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Читаем буки')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '2 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Учить английский')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '1 WEEK'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Учить английский')"/>
+            <column name="fulfill_date" valueDate="NOW()"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="name" value="Мария"/>
+            <column name="email" value="maria@example.com"/>
+            <column name="password" value="FvTy9603RdUEE3qhEPt22RmIUzdxMu+S4CQ4ZfIBgndbVO6mOejVlyhCeRt8qauAHTCDvlnUrXzgnGHmruXXuw=="/>
+            <column name="is_admin" valueBoolean="false"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Медитация"/>
+            <column name="description" value="Медитировать каждое утро"/>
+            <column name="frequency" value="DAILY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='maria@example.com')"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Йога"/>
+            <column name="description" value="Заниматься йогой по понедельникам"/>
+            <column name="frequency" value="WEEKLY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='maria@example.com')"/>
+        </insert>
+
+        <insert tableName="habits">
+            <column name="name" value="Бегать по вечерам"/>
+            <column name="description" value="Ежедневные пробежки вечером"/>
+            <column name="frequency" value="DAILY"/>
+            <column name="created_at" valueDate="NOW()"/>
+            <column name="is_active" valueBoolean="true"/>
+            <column name="owner_id" valueComputed="(SELECT id FROM users WHERE email='maria@example.com')"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Медитация')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '4 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Медитация')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '3 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Бегать по вечерам')"/>
+            <column name="fulfill_date" valueDate="NOW() - INTERVAL '1 DAY'"/>
+        </insert>
+
+        <insert tableName="fulfilled_habits">
+            <column name="habit_id" valueComputed="(SELECT id FROM habits WHERE name='Бегать по вечерам')"/>
+            <column name="fulfill_date" valueDate="NOW()"/>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>
