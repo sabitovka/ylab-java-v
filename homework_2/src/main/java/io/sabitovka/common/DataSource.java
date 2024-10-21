@@ -11,16 +11,16 @@ import java.sql.SQLException;
  */
 @UtilityClass
 public class DataSource {
-    private static String url = "jdbc:postgresql://%s:%s/%s?currentSchema=%s"
+    private final static String url = "jdbc:postgresql://%s:%s/%s?currentSchema=%s"
             .formatted(
                     Constants.DB_HOST,
                     Constants.DB_PORT,
                     Constants.DB_NAME,
                     Constants.MODEL_SCHEMA
             );
-    private static String username = Constants.DB_USERNAME;
-    private static String password = Constants.DB_PASSWORD;
-    private static String driverClassName = Constants.DRIVER_CLASS_NAME;
+    private final static String username = Constants.DB_USERNAME;
+    private final static String password = Constants.DB_PASSWORD;
+    private final static String driverClassName = Constants.DRIVER_CLASS_NAME;
 
     static {
         try {

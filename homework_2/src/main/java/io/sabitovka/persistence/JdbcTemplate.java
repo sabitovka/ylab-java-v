@@ -17,6 +17,13 @@ public class JdbcTemplate implements AutoCloseable {
         this.connection = connection;
     }
 
+    /**
+     * Выполняет простой SQL запрос на обновление данных. Возвращает количество затронутых строк.
+     * Используется для операций UPDATE
+     * @param sql SQL-запрос
+     * @param params Параметры запроса
+     * @return Количество затронутых строк
+     */
     public int executeUpdate(String sql, Object ...params) {
         try (PreparedStatement statement = prepareStatement(sql, params)) {
             return statement.executeUpdate();
@@ -25,6 +32,13 @@ public class JdbcTemplate implements AutoCloseable {
         }
     }
 
+    /**
+     * Выполняет SQL запрос на обновление данных, но возвращает сгенерированные ID.
+     * Используется для операций INSERT
+     * @param sql SQL-запрос
+     * @param params Параметры запроса
+     * @return Список идентификаторов новых записей
+     */
     public List<Long> executeInsert(String sql, Object ...params) {
         try (PreparedStatement statement = prepareStatement(sql, params)) {
             int affectedRows = statement.executeUpdate();
@@ -47,6 +61,16 @@ public class JdbcTemplate implements AutoCloseable {
         }
     }
 
+    /**
+     * Выполняет операцию выборки данных, помещая их в массив.
+     * Может сразу мапить {@link ResultSet} в сущность посредством интерфейса {@link RowMapper} или его реализаций.
+     * Используется для операций SELECT
+     * @param sql SQL-запрос
+     * @param rowMapper Реализация интерфейса {@link RowMapper}
+     * @param params Параметры запроса
+     * @return Список выбранных объектов из базы данных
+     * @param <T> Класс запрашиваемой модели данных
+     */
     public <T> List<T> queryForList(String sql, RowMapper<T> rowMapper, Object ...params) {
         try (PreparedStatement statement = prepareStatement(sql, params);
              ResultSet resultSet = statement.executeQuery()) {
@@ -61,6 +85,16 @@ public class JdbcTemplate implements AutoCloseable {
         }
     }
 
+    /**
+     * Выполняет операцию выборки данных, выбирая первый элемент. Если элементов нет, вернет {@code null}
+     * Может сразу мапить {@link ResultSet} в сущность посредством интерфейса {@link RowMapper} или его реализаций.
+     * Используется для операций SELECT
+     * @param sql SQL-запрос
+     * @param rowMapper Реализация интерфейса {@link RowMapper}
+     * @param params Параметры запроса
+     * @return Полученный объект из БД или {@code null}
+     * @param <T> Класс запрашиваемой модели данных
+     */
     public <T> T queryForObject(String sql, RowMapper<T> rowMapper, Object ...params) {
         try (PreparedStatement statement = prepareStatement(sql, params);
              ResultSet resultSet = statement.executeQuery()) {
@@ -74,6 +108,13 @@ public class JdbcTemplate implements AutoCloseable {
         }
     }
 
+    /**
+     * Выполняет подготовку запроса для выполнения. Экранирует параметры SQL-запроса
+     * @param sql SQL-запрос
+     * @param params Параметры запроса
+     * @return Подготовленный запроса
+     * @throws SQLException Когда не удается подготовить параметры
+     */
     private PreparedStatement prepareStatement(String sql, Object ...params) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql.trim().replace("\n", " "), Statement.RETURN_GENERATED_KEYS);
         for (int i = 0; i < params.length; i++) {

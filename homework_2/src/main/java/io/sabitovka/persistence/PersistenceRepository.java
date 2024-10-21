@@ -9,6 +9,11 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Универсальный репозиторий для выполнения базовых CRUD операций над сущностями
+ * @param <I> Идентификатор сущности
+ * @param <M> Класс сущности
+ */
 public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M> {
     protected final JdbcTemplate jdbcTemplate;
     protected final RowMapper<M> rowMapper;
@@ -20,11 +25,20 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
         this.rowMapper = rowMapper;
     }
 
+    /**
+     * Позволяет получить название таблицы сущности через аннотацию {@link Table}
+     * @return Название таблицы
+     */
     private String getEntityTableName() {
         Table annotation = modelClass.getAnnotation(Table.class);
         return annotation.name();
     }
 
+    /**
+     * Метод для создание записи сущности в БД
+     * @param obj Объект сущности, который нужно сохранить.
+     * @return Сохраненный объект сущности с обновленным ID
+     */
     @Override
     public M create(M obj) {
         if (obj == null) {
@@ -74,23 +88,42 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
         return obj;
     }
 
+    /**
+     * Позволяет получить сущность по ID
+     * @param id Идентификатор сущности, которую нужно найти.
+     * @return Полученная из БД сущность
+     */
     @Override
     public Optional<M> findById(I id) {
         String sql = "select * from %s where id = ?".formatted(getEntityTableName());
         return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, id));
     }
 
+    /**
+     * Позволяет получить всех сущностей из БД
+     * @return Список сущностей
+     */
     @Override
     public List<M> findAll() {
         String sql = "select * from %s".formatted(getEntityTableName());
         return jdbcTemplate.queryForList(sql, rowMapper);
     }
 
+    /**
+     * Проверяет, существует ли сущность в БД
+     * @param id Идентификатор сущности, которую необходимо проверить
+     * @return {@code true} если существует {@code false} иначе
+     */
     @Override
     public boolean existsById(I id) {
         return findById(id).isPresent();
     }
 
+    /**
+     * Выполняет обновление данных сущности
+     * @param obj Объект сущности с обновлёнными данными.
+     * @return {@code true} если удалось обновить {@code false} иначе
+     */
     @Override
     public boolean update(M obj) {
         if (obj == null) {
@@ -139,6 +172,11 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
         return rowsAffected > 0;
     }
 
+    /**
+     * Удаляет сущность по ID
+     * @param id Идентификатор сущности, которую нужно удалить.
+     * @return {@code true} если удалось удалить {@code false} иначе
+     */
     @Override
     public boolean deleteById(I id) {
         String sql = "delete from %s where id = ?".formatted(getEntityTableName());

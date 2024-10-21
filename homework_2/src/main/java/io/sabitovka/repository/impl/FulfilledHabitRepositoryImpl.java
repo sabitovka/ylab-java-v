@@ -6,10 +6,8 @@ import io.sabitovka.persistence.PersistenceRepository;
 import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.FulfilledHabitRepository;
 
-import java.util.HashMap;
-
 /**
- * Реализация интерфейса {@link FulfilledHabitRepository} для управления выполненными привычками в памяти с использованием {@link HashMap}.
+ * Реализация интерфейса {@link FulfilledHabitRepository} для управления выполненными привычками.
  */
 public class FulfilledHabitRepositoryImpl extends PersistenceRepository<Long, FulfilledHabit> implements FulfilledHabitRepository {
     public FulfilledHabitRepositoryImpl(JdbcTemplate jdbcTemplate, RowMapper<FulfilledHabit> rowMapper) {

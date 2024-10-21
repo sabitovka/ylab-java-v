@@ -6,13 +6,10 @@ import io.sabitovka.persistence.PersistenceRepository;
 import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.UserRepository;
 
-import java.util.HashMap;
 import java.util.Optional;
 
 /**
- * Реализация интерфейса {@link UserRepository} для управления пользователями в памяти.
- * Использует {@link HashMap} для хранения пользователей и индексацию по email для уникальности.
- * В рамках данного репозитория отсутствует интеграция с базой данных.
+ * Реализация интерфейса {@link UserRepository} для управления пользователями.
  */
 public class UserRepositoryImpl extends PersistenceRepository<Long, User> implements UserRepository {
     public UserRepositoryImpl(JdbcTemplate jdbcTemplate, RowMapper<User> rowMapper) {

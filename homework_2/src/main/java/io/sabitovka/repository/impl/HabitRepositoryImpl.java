@@ -8,13 +8,10 @@ import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.HabitRepository;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Реализация интерфейса {@link HabitRepository} для управления привычками в памяти.
- * Использует {@link HashMap} для хранения привычек и обеспечивает уникальные идентификаторы с помощью {@link AtomicLong}.
+ * Реализация интерфейса {@link HabitRepository} для управления привычками.
  * Хранилище предназначено для работы с объектами типа {@link Habit}, которые привязаны к конкретному пользователю.
  */
 public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> implements HabitRepository {
