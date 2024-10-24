@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.sabitovka</groupId>
   <artifactId>habit-tracker-hw-3</artifactId>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
   <version>1.0</version>
   <name>homework-3</name>
   <url>http://maven.apache.org</url>
@@ -18,6 +18,9 @@
     <postgresql.version>42.7.4</postgresql.version>
     <liquibase.version>4.29.2</liquibase.version>
     <test-containers.postgresql.version>1.19.8</test-containers.postgresql.version>
+    <jakarta.version>6.1.0</jakarta.version>
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
     <exec.version>1.4.0</exec.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -73,15 +76,25 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+
   </dependencies>
 
   <build>
+    <finalName>homework-3</finalName>
     <plugins>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <annotationProcessorPaths>
             <path>
@@ -91,6 +104,12 @@
             </path>
           </annotationProcessorPaths>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>${maven-war-plugin.version}</version>
       </plugin>
 
       <plugin>

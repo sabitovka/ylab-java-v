@@ -1,7 +1,5 @@
 package io.sabitovka;
 
-import io.sabitovka.controllers.BaseController;
-import io.sabitovka.controllers.MainController;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.HabitService;
@@ -17,8 +15,5 @@ public class Application {
         StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();
 
         MigrationManager.migrate();
-
-        BaseController mainController = new MainController(authorizationService, userService, statisticService, habitService);
-        mainController.showMenu();
     }
 }
