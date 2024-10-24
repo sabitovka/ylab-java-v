@@ -1,5 +1,7 @@
 package io.sabitovka.servlet;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sabitovka.controller.HabitsRestController;
 import io.sabitovka.controller.StatisticRestController;
 import io.sabitovka.controller.UsersRestController;
@@ -55,12 +57,28 @@ public class RestControllerServlet extends HttpServlet {
             String urlPathPart = urlPathParts[i];
 
             if (mappingPathPart.startsWith("{") && mappingPathPart.endsWith("}")) {
-                String paramName = mappingPathPart.substring(1, mappingPathPart.length() - 1);
-                pathVariables.put(paramName, urlPathPart);
+                String[] paramAndRegex = mappingPathPart.substring(1, mappingPathPart.length() - 1).split("\\|");
+                String paramName = paramAndRegex[0];
+                String regex = paramAndRegex.length > 1 ? paramAndRegex[1] : ".*";
+
+                if (urlPathPart.matches(regex)) {
+                    pathVariables.put(paramName, urlPathPart);
+                } else {
+                    return null;
+                }
+            } else if (!mappingPathPart.equals(urlPathPart)) {
+                return null;
             }
         }
 
         return pathVariables;
+    }
+
+    private void writeResponse(HttpServletResponse response, Object result) throws IOException {
+        response.setContentType("application/json; charset=utf-8");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResult = objectMapper.writeValueAsString(result);
+        response.getWriter().write(jsonResult);
     }
 
     @Override
@@ -94,9 +112,10 @@ public class RestControllerServlet extends HttpServlet {
 
                 try {
                     Object[] args = pathVars.values().toArray();
-                    Object res = method.invoke(controller, args);
-                    System.out.println(res);
-                    break;
+                    Object result = method.invoke(controller, args);
+
+                    writeResponse(resp, result);
+                    return;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
