@@ -1,7 +1,6 @@
 package io.sabitovka.service.impl;
 
 import io.sabitovka.common.Constants;
-import io.sabitovka.servlet.util.PaginatedResponse;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
@@ -128,30 +127,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PaginatedResponse<UserInfoDto> getBlockedUsers() {
-        List<UserInfoDto> blockedUsers = userRepository.findAll().stream()
+    public List<UserInfoDto> getBlockedUsers() {
+        return userRepository.findAll().stream()
                 .filter(user -> !user.isActive())
                 .map(this::mapUserToUserInfo)
                 .toList();
-
-        PaginatedResponse<UserInfoDto> userInfoDtoPaginatedResponse = new PaginatedResponse<>();
-        userInfoDtoPaginatedResponse.setRecords(blockedUsers);
-        userInfoDtoPaginatedResponse.setTotal(blockedUsers.size());
-
-        return userInfoDtoPaginatedResponse;
     }
 
     @Override
-    public PaginatedResponse<UserInfoDto> getActiveUsers() {
-        List<UserInfoDto> activeUsers = userRepository.findAll().stream()
+    public List<UserInfoDto> getActiveUsers() {
+        return userRepository.findAll().stream()
                 .filter(User::isActive)
                 .map(this::mapUserToUserInfo)
                 .toList();
-
-        PaginatedResponse<UserInfoDto> userInfoDtoPaginatedResponse = new PaginatedResponse<>();
-        userInfoDtoPaginatedResponse.setRecords(activeUsers);
-        userInfoDtoPaginatedResponse.setTotal(activeUsers.size());
-
-        return userInfoDtoPaginatedResponse;
     }
 }

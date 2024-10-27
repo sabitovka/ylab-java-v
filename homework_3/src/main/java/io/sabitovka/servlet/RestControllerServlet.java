@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Predicate;
@@ -184,6 +185,12 @@ public class RestControllerServlet extends HttpServlet {
 
                     writeResponse(resp, result);
                     return;
+                } catch (InvocationTargetException e) {
+                    try {
+                        throw e.getTargetException();
+                    } catch (Throwable ex) {
+                        throw new ApplicationException(ErrorCode.BAD_REQUEST, ex.getMessage());
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

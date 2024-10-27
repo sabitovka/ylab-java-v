@@ -1,6 +1,5 @@
 package io.sabitovka.service;
 
-import io.sabitovka.servlet.util.PaginatedResponse;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.exception.EntityNotFoundException;
@@ -298,10 +297,10 @@ class UserServiceTest {
         User blockedUser2 = new User(3L, "Blocked2", "blocked2@example.ru", "password", false, false);
         when(userRepository.findAll()).thenReturn(List.of(activeUser, blockedUser1, blockedUser2));
 
-        PaginatedResponse<UserInfoDto> blockedUsers = userService.getBlockedUsers();
+        List<UserInfoDto> blockedUsers = userService.getBlockedUsers();
 
-        assertThat(blockedUsers.getRecords()).hasSize(2);
-        assertThat(blockedUsers.getRecords()).extracting(UserInfoDto::getId).containsExactly(2L, 3L);
+        assertThat(blockedUsers).hasSize(2);
+        assertThat(blockedUsers).extracting(UserInfoDto::getId).containsExactly(2L, 3L);
         verify(userRepository).findAll();
     }
 
@@ -313,10 +312,10 @@ class UserServiceTest {
         User blockedUser = new User(3L, "Blocked", "blocked@example.ru", "password", false, false);
         when(userRepository.findAll()).thenReturn(List.of(activeUser1, activeUser2, blockedUser));
 
-        PaginatedResponse<UserInfoDto> activeUsers = userService.getActiveUsers();
+        List<UserInfoDto> activeUsers = userService.getActiveUsers();
 
-        assertThat(activeUsers.getRecords()).hasSize(2);
-        assertThat(activeUsers.getRecords()).extracting(UserInfoDto::getId).containsExactly(1L, 2L);
+        assertThat(activeUsers).hasSize(2);
+        assertThat(activeUsers).extracting(UserInfoDto::getId).containsExactly(1L, 2L);
         verify(userRepository).findAll();
     }
 }

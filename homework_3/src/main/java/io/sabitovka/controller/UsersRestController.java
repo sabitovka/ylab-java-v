@@ -9,8 +9,10 @@ import io.sabitovka.servlet.annotation.GetMapping;
 import io.sabitovka.servlet.annotation.PostMapping;
 import io.sabitovka.servlet.annotation.RequestBody;
 import io.sabitovka.servlet.annotation.RequestMapping;
-import io.sabitovka.servlet.util.PaginatedResponse;
 import io.sabitovka.servlet.util.SuccessResponse;
+import io.sabitovka.util.validation.Validator;
+
+import java.util.List;
 
 @RequestMapping("/users")
 public class UsersRestController implements RestController {
@@ -22,17 +24,18 @@ public class UsersRestController implements RestController {
     }
 
     @GetMapping("/blocked")
-    public SuccessResponse<PaginatedResponse<UserInfoDto>> getBlockedUsers() {
+    public SuccessResponse<List<UserInfoDto>> getBlockedUsers() {
         return new SuccessResponse<>(userService.getBlockedUsers());
     }
 
     @GetMapping("/active")
-    public SuccessResponse<PaginatedResponse<UserInfoDto>> getActiveUsers() {
+    public SuccessResponse<List<UserInfoDto>> getActiveUsers() {
         return new SuccessResponse<>(userService.getActiveUsers());
     }
 
     @PostMapping("/")
-    public void createUser(@RequestBody CreateUserDto createUserDto) {
-        System.out.println('1');
+    public CreateUserDto createUser(@RequestBody CreateUserDto createUserDto) {
+        Validator.validate(createUserDto);
+        return createUserDto;
     }
 }
