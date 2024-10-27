@@ -1,5 +1,6 @@
 package io.sabitovka.service;
 
+import io.sabitovka.servlet.util.PaginatedResponse;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.exception.EntityNotFoundException;
@@ -55,9 +56,9 @@ class UserServiceTest {
         assertThat(userInfoDto.getId()).isEqualTo(user.getId());
         assertThat(userInfoDto.getName()).isEqualTo(user.getName());
         assertThat(userInfoDto.getEmail()).isEqualTo(user.getEmail());
-        assertThat(userInfoDto.getPassword()).isEqualTo(user.getPassword());
-        assertThat(userInfoDto.isAdmin()).isEqualTo(user.isAdmin());
-        assertThat(userInfoDto.isActive()).isEqualTo(user.isActive());
+//        assertThat(userInfoDto.getPassword()).isEqualTo(user.getPassword());
+//        assertThat(userInfoDto.isAdmin()).isEqualTo(user.isAdmin());
+//        assertThat(userInfoDto.isActive()).isEqualTo(user.isActive());
     }
 
     @Test
@@ -67,18 +68,18 @@ class UserServiceTest {
         userInfoDto.setId(1L);
         userInfoDto.setName("mock");
         userInfoDto.setEmail("mock@example.com");
-        userInfoDto.setPassword("password");
-        userInfoDto.setAdmin(false);
-        userInfoDto.setActive(true);
+//        userInfoDto.setPassword("password");
+//        userInfoDto.setAdmin(false);
+//        userInfoDto.setActive(true);
 
         User user = userService.mapUserInfoToUser(userInfoDto);
 
         assertThat(user.getId()).isEqualTo(userInfoDto.getId());
         assertThat(user.getName()).isEqualTo(userInfoDto.getName());
         assertThat(user.getEmail()).isEqualTo(userInfoDto.getEmail());
-        assertThat(user.getPassword()).isEqualTo(userInfoDto.getPassword());
-        assertThat(user.isAdmin()).isEqualTo(userInfoDto.isAdmin());
-        assertThat(user.isActive()).isEqualTo(userInfoDto.isActive());
+//        assertThat(user.getPassword()).isEqualTo(userInfoDto.getPassword());
+//        assertThat(user.isAdmin()).isEqualTo(userInfoDto.isAdmin());
+//        assertThat(user.isActive()).isEqualTo(userInfoDto.isActive());
     }
 
     @Test
@@ -91,17 +92,17 @@ class UserServiceTest {
         UserInfoDto userInfoDto1 = new UserInfoDto();
         userInfoDto1.setName(" ");
         userInfoDto1.setEmail(email);
-        userInfoDto1.setPassword(password);
+//        userInfoDto1.setPassword(password);
 
         UserInfoDto userInfoDto2 = new UserInfoDto();
         userInfoDto2.setName(name);
         userInfoDto2.setEmail("sssdd");
-        userInfoDto2.setPassword(password);
+//        userInfoDto2.setPassword(password);
 
         UserInfoDto userInfoDto3 = new UserInfoDto();
         userInfoDto3.setName(name);
         userInfoDto3.setEmail(email);
-        userInfoDto3.setPassword("123");
+//        userInfoDto3.setPassword("123");
 
         assertThatThrownBy(() -> userService.createUser(userInfoDto1))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -124,7 +125,7 @@ class UserServiceTest {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setName("mock");
         userInfoDto.setEmail(email);
-        userInfoDto.setPassword("password");
+//        userInfoDto.setPassword("password");
 
         assertThatThrownBy(() -> userService.createUser(userInfoDto))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -138,7 +139,7 @@ class UserServiceTest {
         UserInfoDto userInfoDto = new UserInfoDto();
         userInfoDto.setName("mock");
         userInfoDto.setEmail("mock@example.com");
-        userInfoDto.setPassword("password");
+//        userInfoDto.setPassword("password");
 
         when(userRepository.create(any(User.class))).thenReturn(any(User.class));
 
@@ -161,7 +162,7 @@ class UserServiceTest {
         userInfoDto.setId(1L);
         userInfoDto.setName("updatedMock");
         userInfoDto.setEmail("updatedMock@example.com");
-        userInfoDto.setPassword("password");
+//        userInfoDto.setPassword("password");
         when(userRepository.update(any(User.class))).thenReturn(true);
 
         userService.updateUser(userInfoDto);
@@ -176,7 +177,7 @@ class UserServiceTest {
         userInfoDto.setId(1L);
         userInfoDto.setName("mock");
         userInfoDto.setEmail("mock@example.com");
-        userInfoDto.setPassword("newPassword123");
+//        userInfoDto.setPassword("newPassword123");
 
         User existingUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
 
@@ -195,7 +196,7 @@ class UserServiceTest {
         userInfoDto.setId(1L);
         userInfoDto.setName("mock");
         userInfoDto.setEmail("mock@example.com");
-        userInfoDto.setPassword("newPassword123");
+//        userInfoDto.setPassword("newPassword123");
 
         User existingUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
 
@@ -297,10 +298,10 @@ class UserServiceTest {
         User blockedUser2 = new User(3L, "Blocked2", "blocked2@example.ru", "password", false, false);
         when(userRepository.findAll()).thenReturn(List.of(activeUser, blockedUser1, blockedUser2));
 
-        List<UserInfoDto> blockedUsers = userService.getBlockedUsers();
+        PaginatedResponse<UserInfoDto> blockedUsers = userService.getBlockedUsers();
 
-        assertThat(blockedUsers).hasSize(2);
-        assertThat(blockedUsers).extracting(UserInfoDto::getId).containsExactly(2L, 3L);
+        assertThat(blockedUsers.getRecords()).hasSize(2);
+        assertThat(blockedUsers.getRecords()).extracting(UserInfoDto::getId).containsExactly(2L, 3L);
         verify(userRepository).findAll();
     }
 
@@ -312,10 +313,10 @@ class UserServiceTest {
         User blockedUser = new User(3L, "Blocked", "blocked@example.ru", "password", false, false);
         when(userRepository.findAll()).thenReturn(List.of(activeUser1, activeUser2, blockedUser));
 
-        List<UserInfoDto> activeUsers = userService.getActiveUsers();
+        PaginatedResponse<UserInfoDto> activeUsers = userService.getActiveUsers();
 
-        assertThat(activeUsers).hasSize(2);
-        assertThat(activeUsers).extracting(UserInfoDto::getId).containsExactly(1L, 2L);
+        assertThat(activeUsers.getRecords()).hasSize(2);
+        assertThat(activeUsers.getRecords()).extracting(UserInfoDto::getId).containsExactly(1L, 2L);
         verify(userRepository).findAll();
     }
 }

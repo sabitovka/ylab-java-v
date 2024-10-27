@@ -1,6 +1,7 @@
 package io.sabitovka.service.impl;
 
 import io.sabitovka.common.Constants;
+import io.sabitovka.servlet.util.PaginatedResponse;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
@@ -27,9 +28,9 @@ public class UserServiceImpl implements UserService {
         user.setId(userInfoDto.getId());
         user.setName(userInfoDto.getName());
         user.setEmail(userInfoDto.getEmail());
-        user.setPassword(userInfoDto.getPassword());
-        user.setAdmin(userInfoDto.isAdmin());
-        user.setActive(userInfoDto.isActive());
+//        user.setPassword(userInfoDto.getPassword());
+//        user.setAdmin(userInfoDto.isAdmin());
+//        user.setActive(userInfoDto.isActive());
         return user;
     }
 
@@ -39,9 +40,9 @@ public class UserServiceImpl implements UserService {
         userInfoDto.setId(user.getId());
         userInfoDto.setName(user.getName());
         userInfoDto.setEmail(user.getEmail());
-        userInfoDto.setPassword(user.getPassword());
-        userInfoDto.setAdmin(user.isAdmin());
-        userInfoDto.setActive(user.isActive());
+//        userInfoDto.setPassword(user.getPassword());
+//        userInfoDto.setAdmin(user.isAdmin());
+//        userInfoDto.setActive(user.isActive());
         return userInfoDto;
     }
 
@@ -56,9 +57,9 @@ public class UserServiceImpl implements UserService {
         if (userInfoDto.getEmail() == null || !userInfoDto.getEmail().matches(Constants.EMAIL_REGEX)) {
             throw new IllegalArgumentException("Неправильный формат email");
         }
-        if (userInfoDto.getPassword() == null || !userInfoDto.getPassword().matches(Constants.PASSWORD_REGEX)) {
-            throw new IllegalArgumentException("Пароль не соответствует требованиям");
-        }
+//        if (userInfoDto.getPassword() == null || !userInfoDto.getPassword().matches(Constants.PASSWORD_REGEX)) {
+//            throw new IllegalArgumentException("Пароль не соответствует требованиям");
+//        }
     }
 
     @Override
@@ -69,8 +70,8 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Данный email уже занят");
         }
 
-        String hashedPassword = PasswordHasher.hash(userInfoDto.getPassword());
-        userInfoDto.setPassword(hashedPassword);
+//        String hashedPassword = PasswordHasher.hash(userInfoDto.getPassword());
+//        userInfoDto.setPassword(hashedPassword);
 
         User user = mapUserInfoToUser(userInfoDto);
         return userRepository.create(user);
@@ -127,18 +128,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserInfoDto> getBlockedUsers() {
-        return userRepository.findAll().stream()
+    public PaginatedResponse<UserInfoDto> getBlockedUsers() {
+        List<UserInfoDto> blockedUsers = userRepository.findAll().stream()
                 .filter(user -> !user.isActive())
                 .map(this::mapUserToUserInfo)
                 .toList();
+
+        PaginatedResponse<UserInfoDto> userInfoDtoPaginatedResponse = new PaginatedResponse<>();
+        userInfoDtoPaginatedResponse.setRecords(blockedUsers);
+        userInfoDtoPaginatedResponse.setTotal(blockedUsers.size());
+
+        return userInfoDtoPaginatedResponse;
     }
 
     @Override
-    public List<UserInfoDto> getActiveUsers() {
-        return userRepository.findAll().stream()
+    public PaginatedResponse<UserInfoDto> getActiveUsers() {
+        List<UserInfoDto> activeUsers = userRepository.findAll().stream()
                 .filter(User::isActive)
                 .map(this::mapUserToUserInfo)
                 .toList();
+
+        PaginatedResponse<UserInfoDto> userInfoDtoPaginatedResponse = new PaginatedResponse<>();
+        userInfoDtoPaginatedResponse.setRecords(activeUsers);
+        userInfoDtoPaginatedResponse.setTotal(activeUsers.size());
+
+        return userInfoDtoPaginatedResponse;
     }
 }

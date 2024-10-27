@@ -1,5 +1,6 @@
 package io.sabitovka.controller;
 
+import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.UserService;
 import jakarta.servlet.ServletException;
@@ -28,22 +29,24 @@ public class FooController extends HttpServlet {
                 req.getPathInfo(), req.getContextPath(), req.getQueryString(), req.getRequestURL(), req.getServletPath()
         );
 
-        resp.setContentType("text/plain;charset=UTF-8");
-
-        HttpServletMapping mapping = req.getHttpServletMapping();
-
-        String mapName = mapping.getMappingMatch().name();
-        String value = mapping.getMatchValue();
-        String pattern = mapping.getPattern();
-        String servletName = mapping.getServletName();
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("Mapping type: ").append(mapName)
-                .append("; Match value: ").append(value)
-                .append("; Pattern: ").append(pattern)
-                .append("; Servlet name: ").append(servletName);
-
-        ServletOutputStream out = resp.getOutputStream();
-        out.println(builder.toString());
+        throw new RuntimeException();
+//
+//        resp.setContentType("text/plain;charset=UTF-8");
+//
+//        HttpServletMapping mapping = req.getHttpServletMapping();
+//
+//        String mapName = mapping.getMappingMatch().name();
+//        String value = mapping.getMatchValue();
+//        String pattern = mapping.getPattern();
+//        String servletName = mapping.getServletName();
+//
+//        StringBuilder builder = new StringBuilder();
+//        builder.append("Mapping type: ").append(mapName)
+//                .append("; Match value: ").append(value)
+//                .append("; Pattern: ").append(pattern)
+//                .append("; Servlet name: ").append(servletName);
+//
+//        ServletOutputStream out = resp.getOutputStream();
+//        out.println(builder.toString());
     }
 }

@@ -1,5 +1,6 @@
 package io.sabitovka.service;
 
+import io.sabitovka.servlet.util.PaginatedResponse;
 import io.sabitovka.dto.UserInfoDto;
 import io.sabitovka.model.User;
 
@@ -51,15 +52,16 @@ public interface UserService {
 
     /**
      * Возвращает список заблокированных пользователей
+     *
      * @return Список неактивных пользователей
      */
-    List<UserInfoDto> getBlockedUsers();
+    PaginatedResponse<UserInfoDto> getBlockedUsers();
 
     /**
      * Возвращает Список активных пользователей
      * @return Список активных пользователей
      */
-    List<UserInfoDto> getActiveUsers();
+    PaginatedResponse<UserInfoDto> getActiveUsers();
 
     /**
      * Преобразует информацию о пользователе {@link UserInfoDto} в модель {@link User}
