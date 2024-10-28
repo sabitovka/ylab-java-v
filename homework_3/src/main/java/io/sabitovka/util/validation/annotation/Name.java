@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidEmail {
-    String message() default "Email: некорректный ввод";
+public @interface Name {
+    String message() default "Имя: некорректный ввод";
 }

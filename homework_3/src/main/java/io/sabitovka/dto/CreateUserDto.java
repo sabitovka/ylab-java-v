@@ -1,20 +1,20 @@
 package io.sabitovka.dto;
 
-import io.sabitovka.util.validation.annotation.ValidEmail;
-import io.sabitovka.util.validation.annotation.ValidName;
-import io.sabitovka.util.validation.annotation.ValidPassword;
+import io.sabitovka.util.validation.annotation.Email;
+import io.sabitovka.util.validation.annotation.Name;
+import io.sabitovka.util.validation.annotation.Password;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 public class CreateUserDto {
-    @ValidName
+    @Name
     private String name;
 
-    @ValidEmail
+    @Email
     private String email;
 
-    @ValidPassword
+    @Password
     private String password;
 }

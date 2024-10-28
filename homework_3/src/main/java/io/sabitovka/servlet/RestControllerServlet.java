@@ -6,6 +6,7 @@ import io.sabitovka.controller.StatisticRestController;
 import io.sabitovka.controller.UsersRestController;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
+import io.sabitovka.exception.ValidationException;
 import io.sabitovka.servlet.annotation.GetMapping;
 import io.sabitovka.servlet.annotation.PostMapping;
 import io.sabitovka.servlet.annotation.RequestMapping;

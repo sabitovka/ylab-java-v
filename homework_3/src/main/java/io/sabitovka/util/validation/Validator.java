@@ -4,9 +4,9 @@ import io.sabitovka.common.Constants;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.exception.ValidationException;
-import io.sabitovka.util.validation.annotation.ValidEmail;
-import io.sabitovka.util.validation.annotation.ValidName;
-import io.sabitovka.util.validation.annotation.ValidPassword;
+import io.sabitovka.util.validation.annotation.Email;
+import io.sabitovka.util.validation.annotation.Name;
+import io.sabitovka.util.validation.annotation.Password;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
@@ -22,15 +22,16 @@ public class Validator {
         try {
             for (Field field : declaredFields) {
                 field.setAccessible(true);
-                if (field.isAnnotationPresent(ValidName.class)) {
+
+                if (field.isAnnotationPresent(Name.class)) {
                     validateName(object, field, messages);
                 }
 
-                if (field.isAnnotationPresent(ValidPassword.class)) {
+                if (field.isAnnotationPresent(Password.class)) {
                     validatePassword(object, field, messages);
                 }
 
-                if (field.isAnnotationPresent(ValidEmail.class)) {
+                if (field.isAnnotationPresent(Email.class)) {
                     validateEmail(object, field, messages);
                 }
             }
@@ -46,7 +47,7 @@ public class Validator {
     private static void validateName(Object object, Field field, List<String> messages) throws IllegalAccessException {
         String name = (String) field.get(object);
         if (name == null || name.trim().isEmpty()) {
-            ValidName annotation = field.getAnnotation(ValidName.class);
+            Name annotation = field.getAnnotation(Name.class);
             String message = annotation.message();
             messages.add(message);
         }
@@ -55,7 +56,7 @@ public class Validator {
     private static void validatePassword(Object object, Field field, List<String> messages) throws IllegalAccessException {
         String password = (String) field.get(object);
         if (password == null || !password.matches(Constants.PASSWORD_REGEX)) {
-            ValidPassword annotation = field.getAnnotation(ValidPassword.class);
+            Password annotation = field.getAnnotation(Password.class);
             String message = annotation.message();
             messages.add(message);
         }
@@ -64,7 +65,7 @@ public class Validator {
     private static void validateEmail(Object object, Field field, List<String> messages) throws IllegalAccessException {
         String email = (String) field.get(object);
         if (email == null || !email.matches(Constants.EMAIL_REGEX)) {
-            ValidEmail annotation = field.getAnnotation(ValidEmail.class);
+            Email annotation = field.getAnnotation(Email.class);
             String message = annotation.message();
             messages.add(message);
         }

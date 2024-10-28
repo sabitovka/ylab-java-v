@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ValidPassword {
+public @interface Password {
     String message() default "Пароль: некорректный ввод";
 }
