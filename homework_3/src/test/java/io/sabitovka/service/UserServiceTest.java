@@ -10,7 +10,7 @@ import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.impl.AuthorizationServiceImpl;
 import io.sabitovka.service.impl.UserServiceImpl;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.auth.util.PasswordHasher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

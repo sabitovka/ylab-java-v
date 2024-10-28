@@ -129,6 +129,16 @@ public class RestControllerServlet extends HttpServlet {
 
                     writeResponse(resp, result);
                     return;
+                } catch (InvocationTargetException invocationTargetException) {
+                    try {
+                        throw invocationTargetException.getTargetException();
+                    } catch (ApplicationException exception) {
+                        throw exception;
+                    } catch (ValidationException ex) {
+                        throw new ApplicationException(ErrorCode.BAD_REQUEST, ex.getMessage());
+                    } catch (Throwable ex) {
+                        throw new RuntimeException(ex);
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

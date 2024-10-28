@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebFilter(
-        filterName = "Error handling filter",
+        filterName = "ErrorHandlingFilter",
         urlPatterns = "/api/*"
 )
 public class ErrorHandlerFilter extends HttpFilter {
@@ -36,4 +36,6 @@ public class ErrorHandlerFilter extends HttpFilter {
             handleException(req, res, e);
         }
     }
+
+
 }

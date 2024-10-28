@@ -5,8 +5,10 @@ import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.AuthorizationService;
-import io.sabitovka.util.Jwt;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.auth.util.Jwt;
+import io.sabitovka.auth.util.PasswordHasher;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Optional;
 
@@ -15,6 +17,9 @@ import java.util.Optional;
  */
 public class AuthorizationServiceImpl implements AuthorizationService {
     private final UserRepository userRepository;
+
+    @Getter
+    @Setter
     private Long currentUserId;
     public AuthorizationServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -32,10 +37,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return getCurrentUser().isAdmin();
     }
 
-    public Long getCurrentUserId() {
-        return currentUserId;
-    }
-
     public String login(String email, String password) {
         Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isEmpty() || !PasswordHasher.verify(password, user.get().getPassword())) {
@@ -48,7 +49,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         this.currentUserId = user.get().getId();
 
-        return Jwt.generate(String.valueOf(currentUserId));
+        return Jwt.generate(currentUserId);
     }
 
     public void logout() {

@@ -25,6 +25,12 @@ public interface AuthorizationService {
     Long getCurrentUserId();
 
     /**
+     * Устанавливает текущего авторизованного пользователя
+     * @param userId - ИД авторизованного пользователя
+     */
+    void setCurrentUserId(Long userId);
+
+    /**
      * Выполняет вход в систему по переданному логину и паролю
      * @param email Логин или email пользователя
      * @param password Пароль пользователя

@@ -3,7 +3,7 @@ package io.sabitovka.service;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.impl.AuthorizationServiceImpl;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.auth.util.PasswordHasher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

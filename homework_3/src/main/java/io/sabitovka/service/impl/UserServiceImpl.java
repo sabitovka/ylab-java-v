@@ -8,7 +8,7 @@ import io.sabitovka.model.User;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
-import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.util.mapper.UserMapper;
 
 import java.util.List;
