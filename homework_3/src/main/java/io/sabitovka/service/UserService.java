@@ -1,6 +1,7 @@
 package io.sabitovka.service;
 
-import io.sabitovka.dto.UserInfoDto;
+import io.sabitovka.dto.user.CreateUserDto;
+import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.model.User;
 
 import java.util.List;
@@ -11,10 +12,10 @@ import java.util.List;
 public interface UserService {
     /**
      * Создает нового пользователя по переданным данным от пользователя
-     * @param userInfoDto Данные, по которым будет создан новый пользователь
+     * @param createUserDto Данные, по которым будет создан новый пользователь
      * @return Новый пользователь
      */
-    User createUser(UserInfoDto userInfoDto);
+    UserInfoDto createUser(CreateUserDto createUserDto);
 
     /**
      * Обновляет пользователя по переданным данным

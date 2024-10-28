@@ -1,4 +1,4 @@
-package io.sabitovka.dto;
+package io.sabitovka.dto.user;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

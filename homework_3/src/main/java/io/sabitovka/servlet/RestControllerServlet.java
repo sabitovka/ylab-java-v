@@ -1,6 +1,7 @@
 package io.sabitovka.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.sabitovka.controller.AuthController;
 import io.sabitovka.controller.HabitsRestController;
 import io.sabitovka.controller.StatisticRestController;
 import io.sabitovka.controller.UsersRestController;
@@ -22,7 +23,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Predicate;
 
 @WebServlet("/api/*")
 public class RestControllerServlet extends HttpServlet {
@@ -34,6 +34,7 @@ public class RestControllerServlet extends HttpServlet {
         controllerMap.put("/users", new UsersRestController());
         controllerMap.put("/habits", new HabitsRestController());
         controllerMap.put("/statistics", new StatisticRestController());
+        controllerMap.put("/auth", new AuthController());
     }
 
     private RestController findControllerByPath(String path) {
@@ -140,20 +141,10 @@ public class RestControllerServlet extends HttpServlet {
         String pathInfo = req.getPathInfo();
 
         RestController controller = findControllerByPath(pathInfo);
+        Method[] methods = getMappingMethodsOfController(controller);
 
-        if (controller == null) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Не найден контроллер для этого запроса");
-            return;
-        }
-
-        RequestMapping requestMapping = controller.getClass().getAnnotation(RequestMapping.class);
-
-        if (requestMapping == null || requestMapping.value() == null) {
-            throw new RuntimeException();
-        }
-
-        Method[] methods = controller.getClass().getDeclaredMethods();
         for (Method method : methods) {
+            RequestMapping requestMapping = controller.getClass().getAnnotation(RequestMapping.class);
             PostMapping getMappingAnnotation = method.getAnnotation(PostMapping.class);
             if (getMappingAnnotation != null) {
                 String mappingPath = requestMapping.value() + getMappingAnnotation.value();
@@ -163,7 +154,6 @@ public class RestControllerServlet extends HttpServlet {
                 if (pathVars == null) {
                     continue;
                 }
-
 
                 StringBuilder sb = new StringBuilder();
                 BufferedReader reader = req.getReader();
@@ -189,6 +179,8 @@ public class RestControllerServlet extends HttpServlet {
                 } catch (InvocationTargetException e) {
                     try {
                         throw e.getTargetException();
+                    } catch (ApplicationException exception) {
+                        throw exception;
                     } catch (ValidationException ex) {
                         throw new ApplicationException(ErrorCode.BAD_REQUEST, ex.getMessage());
                     } catch (Throwable ex) {
@@ -200,6 +192,6 @@ public class RestControllerServlet extends HttpServlet {
             }
         }
 
-        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Не найден метод для текущего пути");
+        throw new ApplicationException(ErrorCode.NOT_FOUND, "Не найден метод для текущего пути");
     }
 }

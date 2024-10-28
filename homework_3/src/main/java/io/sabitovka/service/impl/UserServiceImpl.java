@@ -1,13 +1,15 @@
 package io.sabitovka.service.impl;
 
 import io.sabitovka.common.Constants;
-import io.sabitovka.dto.UserInfoDto;
+import io.sabitovka.dto.user.CreateUserDto;
+import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
 import io.sabitovka.util.PasswordHasher;
+import io.sabitovka.util.mapper.UserMapper;
 
 import java.util.List;
 
@@ -62,18 +64,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(UserInfoDto userInfoDto) {
-        validateRegistrationInput(userInfoDto);
-
-        if (userRepository.findUserByEmail(userInfoDto.getEmail()).isPresent()) {
+    public UserInfoDto createUser(CreateUserDto createUserDto) {
+        if (userRepository.findUserByEmail(createUserDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Данный email уже занят");
         }
 
-//        String hashedPassword = PasswordHasher.hash(userInfoDto.getPassword());
-//        userInfoDto.setPassword(hashedPassword);
+        String hashedPassword = PasswordHasher.hash(createUserDto.getPassword());
+        createUserDto.setPassword(hashedPassword);
 
-        User user = mapUserInfoToUser(userInfoDto);
-        return userRepository.create(user);
+        User user = UserMapper.INSTANCE.createUserDtoToUser(createUserDto);
+        User saved = userRepository.create(user);
+
+        return UserMapper.INSTANCE.userToUserInfoDto(saved);
     }
 
     @Override

@@ -1,8 +1,11 @@
 package io.sabitovka.service.impl;
 
+import io.sabitovka.enums.ErrorCode;
+import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.AuthorizationService;
+import io.sabitovka.util.Jwt;
 import io.sabitovka.util.PasswordHasher;
 
 import java.util.Optional;
@@ -33,17 +36,19 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return currentUserId;
     }
 
-    public void login(String email, String password) {
+    public String login(String email, String password) {
         Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isEmpty() || !PasswordHasher.verify(password, user.get().getPassword())) {
-            return;
+            throw new ApplicationException(ErrorCode.UNAUTHORIZED, "Неверный логин или пароль");
         }
 
         if (!user.get().isActive()) {
-            throw new IllegalStateException("Ваша учетная запись была заблокирована");
+            throw new ApplicationException(ErrorCode.FORBIDDEN, "Ваша учетная запись была заблокирована");
         }
 
         this.currentUserId = user.get().getId();
+
+        return Jwt.generate(String.valueOf(currentUserId));
     }
 
     public void logout() {

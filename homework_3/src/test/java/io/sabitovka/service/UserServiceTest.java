@@ -1,6 +1,7 @@
 package io.sabitovka.service;
 
-import io.sabitovka.dto.UserInfoDto;
+import io.sabitovka.dto.user.CreateUserDto;
+import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.model.Habit;
@@ -88,22 +89,22 @@ class UserServiceTest {
         String email = "mock@example.com";
         String password = "password";
 
-        UserInfoDto userInfoDto1 = new UserInfoDto();
-        userInfoDto1.setName(" ");
-        userInfoDto1.setEmail(email);
-//        userInfoDto1.setPassword(password);
+        CreateUserDto createUserDto1 = new CreateUserDto();
+        createUserDto1.setName(" ");
+        createUserDto1.setEmail(email);
+        createUserDto1.setPassword(password);
 
-        UserInfoDto userInfoDto2 = new UserInfoDto();
+        CreateUserDto userInfoDto2 = new CreateUserDto();
         userInfoDto2.setName(name);
         userInfoDto2.setEmail("sssdd");
-//        userInfoDto2.setPassword(password);
+        userInfoDto2.setPassword(password);
 
-        UserInfoDto userInfoDto3 = new UserInfoDto();
+        CreateUserDto userInfoDto3 = new CreateUserDto();
         userInfoDto3.setName(name);
         userInfoDto3.setEmail(email);
-//        userInfoDto3.setPassword("123");
+        userInfoDto3.setPassword("123");
 
-        assertThatThrownBy(() -> userService.createUser(userInfoDto1))
+        assertThatThrownBy(() -> userService.createUser(createUserDto1))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Имя не может быть пустым");
 
@@ -121,10 +122,10 @@ class UserServiceTest {
     public void createUser_whenEmailAlreadyExists_shouldThrowException() {
         String email = "mock@example.com";
         when(userRepository.findUserByEmail(email)).thenReturn(Optional.of(new User()));
-        UserInfoDto userInfoDto = new UserInfoDto();
+        CreateUserDto userInfoDto = new CreateUserDto();
         userInfoDto.setName("mock");
         userInfoDto.setEmail(email);
-//        userInfoDto.setPassword("password");
+        userInfoDto.setPassword("password");
 
         assertThatThrownBy(() -> userService.createUser(userInfoDto))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -135,10 +136,10 @@ class UserServiceTest {
     @Test
     @DisplayName("[createUser] Должен создать пользователя")
     void createUser_whenUserIsCorrect_shouldCreateSuccessfully() {
-        UserInfoDto userInfoDto = new UserInfoDto();
+        CreateUserDto userInfoDto = new CreateUserDto();
         userInfoDto.setName("mock");
         userInfoDto.setEmail("mock@example.com");
-//        userInfoDto.setPassword("password");
+        userInfoDto.setPassword("password");
 
         when(userRepository.create(any(User.class))).thenReturn(any(User.class));
 

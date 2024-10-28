@@ -28,8 +28,9 @@ public interface AuthorizationService {
      * Выполняет вход в систему по переданному логину и паролю
      * @param email Логин или email пользователя
      * @param password Пароль пользователя
+     * @return Токен авторизации
      */
-    void login(String email, String password);
+    String login(String email, String password);
 
     /**
      * Выполняет выход из системы, удаляет currentUser
