@@ -22,9 +22,11 @@
     <jackson-databind.version>2.18.0</jackson-databind.version>
     <mapstruct.version>1.6.2</mapstruct.version>
     <java-jwt.version>4.4.0</java-jwt.version>
+    <aspectjrt.version>1.9.7</aspectjrt.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
     <exec.version>1.4.0</exec.version>
+    <aspectj-maven-plugin.version>1.14.0</aspectj-maven-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -108,26 +110,17 @@
       <version>${java-jwt.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>${aspectjrt.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
     <finalName>homework-3</finalName>
     <plugins>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -142,6 +135,46 @@
         <configuration>
           <mainClass>io.sabitovka.Application</mainClass>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>aspectj-maven-plugin</artifactId>
+        <version>${aspectj-maven-plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectjrt.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
+            <version>${aspectjrt.version}</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <complianceLevel>16</complianceLevel>
+          <forceAjcCompile>true</forceAjcCompile>
+          <source>16</source>
+          <target>16</target>
+          <showWeaveInfo>true</showWeaveInfo>
+          <verbose>true</verbose>
+          <Xlint>ignore</Xlint>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <sources />
+          <weaveDirectories>
+            <weaveDirectory>${project.build.directory}/classes</weaveDirectory>
+          </weaveDirectories>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>test-compile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>

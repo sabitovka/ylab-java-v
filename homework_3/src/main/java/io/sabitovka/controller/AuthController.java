@@ -10,9 +10,11 @@ import io.sabitovka.servlet.RestController;
 import io.sabitovka.servlet.annotation.PostMapping;
 import io.sabitovka.servlet.annotation.RequestMapping;
 import io.sabitovka.servlet.util.SuccessResponse;
+import io.sabitovka.util.logging.annotation.Loggable;
 import io.sabitovka.util.validation.Validator;
 
 @RequestMapping("/auth")
+@Loggable
 public class AuthController implements RestController {
     private final UserService userService = ServiceFactory.getInstance().getUserService();
     private final AuthorizationService authService = ServiceFactory.getInstance().getAuthorizationService();
