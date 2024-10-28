@@ -189,8 +189,10 @@ public class RestControllerServlet extends HttpServlet {
                 } catch (InvocationTargetException e) {
                     try {
                         throw e.getTargetException();
-                    } catch (Throwable ex) {
+                    } catch (ValidationException ex) {
                         throw new ApplicationException(ErrorCode.BAD_REQUEST, ex.getMessage());
+                    } catch (Throwable ex) {
+                        throw new RuntimeException(ex);
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
