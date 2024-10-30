@@ -50,7 +50,7 @@ public final class ServiceFactory {
         HabitRepository habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
         FulfilledHabitRepository fulfilledHabitRepository = new FulfilledHabitRepositoryImpl(jdbcTemplate, new FulfilledHabitRowMapper());
 
-        userService = new UserServiceImpl(userRepository, habitRepository);
+        userService = new UserServiceImpl(userRepository, habitRepository, fulfilledHabitRepository);
         authorizationService = new AuthorizationServiceImpl(userRepository);
         habitService = new HabitServiceImpl(habitRepository, userRepository, fulfilledHabitRepository);
         statisticService = new StatisticServiceImpl(habitRepository, fulfilledHabitRepository);

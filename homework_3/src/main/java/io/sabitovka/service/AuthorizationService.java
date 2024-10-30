@@ -1,5 +1,6 @@
 package io.sabitovka.service;
 
+import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.util.logging.annotation.Audit;
 import io.sabitovka.util.logging.annotation.IgnoreAudit;
 
@@ -14,5 +15,5 @@ public interface AuthorizationService {
      * @return Токен авторизации
      */
     @Audit(action = "Выполнен вход в систему")
-    String login(String email, @IgnoreAudit String password);
+    String login(@IgnoreAudit UserLoginDto userLoginDto);
 }

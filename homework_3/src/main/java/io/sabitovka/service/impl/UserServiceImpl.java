@@ -1,14 +1,16 @@
 package io.sabitovka.service.impl;
 
-import io.sabitovka.common.Constants;
-import io.sabitovka.dto.user.CreateUserDto;
-import io.sabitovka.dto.user.UserInfoDto;
-import io.sabitovka.exception.EntityNotFoundException;
+import io.sabitovka.auth.AuthInMemoryContext;
+import io.sabitovka.auth.entity.UserDetails;
+import io.sabitovka.auth.util.PasswordHasher;
+import io.sabitovka.dto.user.*;
+import io.sabitovka.enums.ErrorCode;
+import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
-import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.util.mapper.UserMapper;
 import io.sabitovka.util.validation.Validator;
 
@@ -17,58 +19,26 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
+    private final FulfilledHabitRepository fulfilledHabitRepository;
 
-
-    public UserServiceImpl(UserRepository userRepository, HabitRepository habitRepository) {
+    public UserServiceImpl(UserRepository userRepository, HabitRepository habitRepository, FulfilledHabitRepository fulfilledHabitRepository) {
         this.userRepository = userRepository;
         this.habitRepository = habitRepository;
+        this.fulfilledHabitRepository = fulfilledHabitRepository;
     }
 
-    @Override
-    public User mapUserInfoToUser(UserInfoDto userInfoDto) {
-        User user = new User();
-        user.setId(userInfoDto.getId());
-        user.setName(userInfoDto.getName());
-        user.setEmail(userInfoDto.getEmail());
-//        user.setPassword(userInfoDto.getPassword());
-//        user.setAdmin(userInfoDto.isAdmin());
-//        user.setActive(userInfoDto.isActive());
-        return user;
-    }
-
-    @Override
-    public UserInfoDto mapUserToUserInfo(User user) {
-        UserInfoDto userInfoDto = new UserInfoDto();
-        userInfoDto.setId(user.getId());
-        userInfoDto.setName(user.getName());
-        userInfoDto.setEmail(user.getEmail());
-//        userInfoDto.setPassword(user.getPassword());
-//        userInfoDto.setAdmin(user.isAdmin());
-//        userInfoDto.setActive(user.isActive());
-        return userInfoDto;
-    }
-
-    private void validateRegistrationInput(UserInfoDto userInfoDto) {
-        if (userInfoDto == null) {
-            throw new IllegalArgumentException("Userinfo in null");
+    private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
+        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
+        if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN);
         }
-
-        if (userInfoDto.getName() == null || userInfoDto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя не может быть пустым");
-        }
-        if (userInfoDto.getEmail() == null || !userInfoDto.getEmail().matches(Constants.EMAIL_REGEX)) {
-            throw new IllegalArgumentException("Неправильный формат email");
-        }
-//        if (userInfoDto.getPassword() == null || !userInfoDto.getPassword().matches(Constants.PASSWORD_REGEX)) {
-//            throw new IllegalArgumentException("Пароль не соответствует требованиям");
-//        }
     }
 
     @Override
     public UserInfoDto createUser(CreateUserDto createUserDto) {
         Validator.validate(createUserDto);
         if (userRepository.findUserByEmail(createUserDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Данный email уже занят");
+            throw new ApplicationException(ErrorCode.BAD_REQUEST, "Данный email уже занят");
         }
 
         String hashedPassword = PasswordHasher.hash(createUserDto.getPassword());
@@ -81,44 +51,58 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(UserInfoDto userInfoDto) {
-        validateRegistrationInput(userInfoDto);
+    public void updateUser(Long userId, UpdateUserDto updateUserDto) {
+        Validator.validate(updateUserDto);
 
-        User user = mapUserInfoToUser(userInfoDto);
+        throwIfNotCurrentUserOrNotAdmin(userId);
+
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Не удалось обновить пользователя"));
+
+        user.setName(updateUserDto.getName());
+        user.setEmail(updateUserDto.getEmail());
+
         userRepository.update(user);
     }
 
     @Override
-    public void changePassword(UserInfoDto userInfoDto, String oldPassword) {
-        validateRegistrationInput(userInfoDto);
+    public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
+        Validator.validate(changePasswordDto);
 
-        User user = userRepository.findById(userInfoDto.getId()).orElseThrow();
-        if (!PasswordHasher.verify(oldPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Старый пароль не совпадает");
+        throwIfNotCurrentUserOrNotAdmin(userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Не удалось обновить пароль пользователя"));
+
+        if (!PasswordHasher.verify(changePasswordDto.getOldPassword(), user.getPassword())) {
+            throw new ApplicationException(ErrorCode.BAD_REQUEST, "Старый пароль не совпадает");
         }
 
-        User updatedUser = mapUserInfoToUser(userInfoDto);
-        updatedUser.setPassword(PasswordHasher.hash(updatedUser.getPassword()));
-        userRepository.update(updatedUser);
+        user.setPassword(changePasswordDto.getNewPassword());
+        userRepository.update(user);
     }
 
     @Override
-    public void deleteProfile(Long profileId, String password) {
-        if (!password.matches(Constants.PASSWORD_REGEX)) {
-            throw new IllegalArgumentException("Пароль не соответствует требованиям");
-        }
+    public void deleteProfile(Long id) {
+        throwIfNotCurrentUserOrNotAdmin(id);
 
-        User user = userRepository.findById(profileId).orElseThrow();
-        if (PasswordHasher.verify(password, user.getPassword())) {
-            userRepository.deleteById(profileId);
-            habitRepository.findAllByUser(user).forEach(habit -> habitRepository.deleteById(habit.getId()));
-        }
+        User user = userRepository.findById(id).orElseThrow();
+
+        // TODO: 30.10.2024 Перевести этот ужас на sql запросы
+        habitRepository.findAllByUser(user).forEach(habit -> {
+            fulfilledHabitRepository.findAllByHabit(habit).forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
+            habitRepository.deleteById(habit.getId());
+        });
+        userRepository.deleteById(user.getId());
     }
 
     @Override
     public void blockUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(userId));
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Не удалось заблокировать пользователя"));
+
+        throwIfNotCurrentUserOrNotAdmin(userId);
+
         user.setActive(false);
         userRepository.update(user);
     }
@@ -126,15 +110,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoDto findById(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(userId));
-        return mapUserToUserInfo(user);
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND));
+        return UserMapper.INSTANCE.userToUserInfoDto(user);
     }
 
     @Override
     public List<UserInfoDto> getBlockedUsers() {
         return userRepository.findAll().stream()
                 .filter(user -> !user.isActive())
-                .map(this::mapUserToUserInfo)
+                .map(UserMapper.INSTANCE::userToUserInfoDto)
                 .toList();
     }
 
@@ -142,7 +126,7 @@ public class UserServiceImpl implements UserService {
     public List<UserInfoDto> getActiveUsers() {
         return userRepository.findAll().stream()
                 .filter(User::isActive)
-                .map(this::mapUserToUserInfo)
+                .map(UserMapper.INSTANCE::userToUserInfoDto)
                 .toList();
     }
 }

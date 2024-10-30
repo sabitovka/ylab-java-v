@@ -1,9 +1,9 @@
 package io.sabitovka.service;
 
-import io.sabitovka.dto.user.CreateUserDto;
-import io.sabitovka.dto.user.UserInfoDto;
+import io.sabitovka.dto.user.*;
 import io.sabitovka.model.User;
 import io.sabitovka.util.logging.annotation.Audit;
+import io.sabitovka.util.logging.annotation.IgnoreAudit;
 
 import java.util.List;
 
@@ -21,28 +21,37 @@ public interface UserService {
 
     /**
      * Обновляет пользователя по переданным данным
-     * @param userInfoDto Информация о пользователе
+     *
+     * @param userId
+     * @param updateUserDto Информация о пользователе
      */
-    void updateUser(UserInfoDto userInfoDto);
+    @Audit(action = "Выполнено обновление пользователя")
+    void updateUser(Long userId, UpdateUserDto updateUserDto);
 
     /**
      * Меняет пароль пользователя по переданным данным. Для корректной смены, необходимо ввести старый пароль пользователя
+     *
      * @param userInfoDto Информация о пользователе с новым паролем
      * @param oldPassword Старый пароль пользователя
+     * @param userId
      */
-    void changePassword(UserInfoDto userInfoDto, String oldPassword);
+    @Audit(action = "Выполнено обновление пароля пользователя")
+    void changePassword(Long userId, @IgnoreAudit ChangePasswordDto changePasswordDto);
 
     /**
      * Удаляет профиль пользователя. Для подтверждения нужно указать действующий пароль пользователя
-     * @param profileId Id профиля пользователя
-     * @param password Пароль пользователя
+     *
+     * @param deleteProfileDto
      */
-    void deleteProfile(Long profileId, String password);
+    @Audit(action = "Выполнено удаление профиля пользователя")
+    void deleteProfile(Long deleteProfileDto);
 
     /**
      * Блокирует пользователя по переданному ID
+     *
      * @param userId ID пользователя
      */
+    @Audit(action = "Выполнена блокировка пользователя")
     void blockUser(Long userId);
 
     /**
@@ -50,6 +59,7 @@ public interface UserService {
      * @param userId Id пользователя для поиска
      * @return Информацию о пользователе
      */
+    @Audit(action = "Выполнен поиск пользователя по ID")
     UserInfoDto findById(Long userId);
 
     /**
@@ -57,25 +67,13 @@ public interface UserService {
      *
      * @return Список неактивных пользователей
      */
+    @Audit(action = "Получены заблокированные пользователи")
     List<UserInfoDto> getBlockedUsers();
 
     /**
      * Возвращает Список активных пользователей
      * @return Список активных пользователей
      */
+    @Audit(action = "Получены активные пользователи")
     List<UserInfoDto> getActiveUsers();
-
-    /**
-     * Преобразует информацию о пользователе {@link UserInfoDto} в модель {@link User}
-     * @param userInfoDto Информация о пользователе
-     * @return Модель пользователя
-     */
-    User mapUserInfoToUser(UserInfoDto userInfoDto);
-
-    /**
-     * Преобразует модель пользователя {@link User} в информацию о пользователе {@link UserInfoDto}
-     * @param user Модель пользователя
-     * @return Информация о пользователе
-     */
-    UserInfoDto mapUserToUserInfo(User user);
 }

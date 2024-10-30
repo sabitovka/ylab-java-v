@@ -8,9 +8,7 @@ import io.sabitovka.controller.UsersRestController;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.exception.ValidationException;
-import io.sabitovka.servlet.annotation.GetMapping;
-import io.sabitovka.servlet.annotation.PostMapping;
-import io.sabitovka.servlet.annotation.RequestMapping;
+import io.sabitovka.servlet.annotation.*;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,9 +18,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @WebServlet("/api/*")
 public class RestControllerServlet extends HttpServlet {
@@ -42,11 +43,24 @@ public class RestControllerServlet extends HttpServlet {
             return null;
         }
 
-        Optional<String> controllerPath = controllerMap.keySet().stream()
-                .filter(path::startsWith)
-                .findFirst();
+        return controllerMap.entrySet().stream()
+                .filter(entry -> path.startsWith(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst().orElse(null);
+    }
 
-        return controllerPath.map(controllerMap::get).orElse(null);
+    private Method[] getMappingMethodsOfController(RestController controller) throws IOException {
+        if (controller == null) {
+            throw new ApplicationException(ErrorCode.NOT_FOUND, "Не найден контроллер для этого запроса");
+        }
+
+        RequestMapping requestMapping = controller.getClass().getAnnotation(RequestMapping.class);
+
+        if (requestMapping == null || requestMapping.value() == null) {
+            throw new ApplicationException(ErrorCode.INTERNAL_ERROR);
+        }
+
+        return controller.getClass().getDeclaredMethods();
     }
 
     private Map<String, String> matchPath(String mappingPath, String urlPath) {
@@ -81,20 +95,6 @@ public class RestControllerServlet extends HttpServlet {
         return pathVariables;
     }
 
-    private Method[] getMappingMethodsOfController(RestController controller) throws IOException {
-        if (controller == null) {
-            throw new ApplicationException(ErrorCode.NOT_FOUND, "Не найден контроллер для этого запроса");
-        }
-
-        RequestMapping requestMapping = controller.getClass().getAnnotation(RequestMapping.class);
-
-        if (requestMapping == null || requestMapping.value() == null) {
-            throw new ApplicationException(ErrorCode.INTERNAL_ERROR);
-        }
-
-        return controller.getClass().getDeclaredMethods();
-    }
-
     private void writeResponse(HttpServletResponse response, Object result) throws IOException {
         response.setContentType("application/json; charset=utf-8");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -102,106 +102,86 @@ public class RestControllerServlet extends HttpServlet {
         response.getWriter().write(jsonResult);
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    private void processRequest(
+            HttpServletRequest req,
+            HttpServletResponse res,
+            Class<? extends Annotation> annotationClass,
+            Function<Method, String> getMethodMappingPath,
+            boolean hasRequestBody
+    ) throws IOException {
         String pathInfo = req.getPathInfo();
-
         RestController controller = findControllerByPath(pathInfo);
         Method[] methods = getMappingMethodsOfController(controller);
 
-        for (Method method : methods) {
+        for (Method method: methods) {
+            if (!method.isAnnotationPresent(annotationClass)) {
+                continue;
+            }
+
             RequestMapping requestMapping = controller.getClass().getAnnotation(RequestMapping.class);
-            GetMapping getMappingAnnotation = method.getAnnotation(GetMapping.class);
-            if (getMappingAnnotation != null) {
-                String mappingPath = requestMapping.value() + getMappingAnnotation.value();
+            String mappingPath = requestMapping.value() + getMethodMappingPath.apply(method);
 
-                Map<String, String> pathVars = matchPath(mappingPath, pathInfo);
+            Map<String, String> pathVars = matchPath(mappingPath, pathInfo);
+            if (pathVars == null) {
+                continue;
+            }
 
-                if (pathVars == null) {
-                    continue;
+
+            Object requestBody = hasRequestBody ? getObjectFromRequest(req, method) : null;
+            List<Object> args = new ArrayList<>(pathVars.values());
+            if (requestBody != null) {
+                args.add(0, requestBody);
+            }
+
+            try {
+                Object result = method.invoke(controller, args.toArray());
+                writeResponse(res, result);
+                return;
+            } catch (InvocationTargetException e) {
+                Throwable targetException = e.getTargetException();
+                if (targetException instanceof ApplicationException) {
+                    throw (ApplicationException) targetException;
+                } else if (targetException instanceof ValidationException validationException) {
+                    throw new ApplicationException(ErrorCode.BAD_REQUEST, validationException.getMessage());
+                } else {
+                    throw new RuntimeException(targetException);
                 }
-
-                try {
-                    Object[] args = pathVars.values().toArray();
-                    Object result = method.invoke(controller, args);
-
-                    writeResponse(resp, result);
-                    return;
-                } catch (InvocationTargetException invocationTargetException) {
-                    try {
-                        throw invocationTargetException.getTargetException();
-                    } catch (ApplicationException exception) {
-                        throw exception;
-                    } catch (ValidationException ex) {
-                        throw new ApplicationException(ErrorCode.BAD_REQUEST, ex.getMessage());
-                    } catch (Throwable ex) {
-                        throw new RuntimeException(ex);
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
-
         throw new ApplicationException(ErrorCode.NOT_FOUND, "Не найден метод для текущего пути");
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String pathInfo = req.getPathInfo();
+    private Object getObjectFromRequest(HttpServletRequest req, Method method) throws IOException {
+        BufferedReader reader = req.getReader();
 
-        RestController controller = findControllerByPath(pathInfo);
-        Method[] methods = getMappingMethodsOfController(controller);
-
-        for (Method method : methods) {
-            RequestMapping requestMapping = controller.getClass().getAnnotation(RequestMapping.class);
-            PostMapping getMappingAnnotation = method.getAnnotation(PostMapping.class);
-            if (getMappingAnnotation != null) {
-                String mappingPath = requestMapping.value() + getMappingAnnotation.value();
-
-                Map<String, String> pathVars = matchPath(mappingPath, pathInfo);
-
-                if (pathVars == null) {
-                    continue;
-                }
-
-                StringBuilder sb = new StringBuilder();
-                BufferedReader reader = req.getReader();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line);
-                }
-                String json = sb.toString();
-
-                Class<?> requestBodyClass = method.getParameters()[0].getType();
-
-                ObjectMapper objectMapper = new ObjectMapper();
-                Object requestBody = objectMapper.readValue(json, requestBodyClass);
-
-                try {
-                    List<Object> pathArgs = new ArrayList<>(List.of(pathVars.values().toArray()));
-                    pathArgs.add(0, requestBody);
-
-                    Object result = method.invoke(controller, pathArgs.toArray());
-
-                    writeResponse(resp, result);
-                    return;
-                } catch (InvocationTargetException e) {
-                    try {
-                        throw e.getTargetException();
-                    } catch (ApplicationException exception) {
-                        throw exception;
-                    } catch (ValidationException ex) {
-                        throw new ApplicationException(ErrorCode.BAD_REQUEST, ex.getMessage());
-                    } catch (Throwable ex) {
-                        throw new RuntimeException(ex);
-                    }
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        if (!reader.ready()) {
+            return null;
         }
 
-        throw new ApplicationException(ErrorCode.NOT_FOUND, "Не найден метод для текущего пути");
+        Class<?> requestBodyClass = method.getParameters()[0].getType();
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(reader, requestBodyClass);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        processRequest(req, resp, GetMapping.class, (method) -> method.getAnnotation(GetMapping.class).value(), false);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        processRequest(req, resp, PostMapping.class, method -> method.getAnnotation(PostMapping.class).value(), true);
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        processRequest(req, resp, PutMapping.class, method -> method.getAnnotation(PutMapping.class).value(), true);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        processRequest(req, resp, DeleteMapping.class, method -> method.getAnnotation(DeleteMapping.class).value(),false);
     }
 }

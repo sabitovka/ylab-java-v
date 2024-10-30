@@ -1,5 +1,6 @@
 package io.sabitovka.service.impl;
 
+import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
@@ -8,6 +9,7 @@ import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.auth.util.Jwt;
 import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.util.logging.annotation.Audit;
+import io.sabitovka.util.validation.Validator;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,9 +25,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public String login(String email, String password) {
-        Optional<User> user = userRepository.findUserByEmail(email);
-        if (user.isEmpty() || !PasswordHasher.verify(password, user.get().getPassword())) {
+    public String login(UserLoginDto userLoginDto) {
+        Validator.validate(userLoginDto);
+
+        Optional<User> user = userRepository.findUserByEmail(userLoginDto.getEmail());
+        if (user.isEmpty() || !PasswordHasher.verify(userLoginDto.getPassword(), user.get().getPassword())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED, "Неверный логин или пароль");
         }
 

@@ -24,7 +24,7 @@ public class AuthController implements RestController {
 
     @PostMapping("/login")
     public SuccessResponse<String> login(UserLoginDto loginDto) {
-        String token = authService.login(loginDto.getEmail(), loginDto.getPassword());
+        String token = authService.login(loginDto);
 
         return new SuccessResponse<>(token);
     }

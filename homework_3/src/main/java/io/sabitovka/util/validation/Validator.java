@@ -2,10 +2,7 @@ package io.sabitovka.util.validation;
 
 import io.sabitovka.common.Constants;
 import io.sabitovka.exception.ValidationException;
-import io.sabitovka.util.validation.annotation.Email;
-import io.sabitovka.util.validation.annotation.Name;
-import io.sabitovka.util.validation.annotation.Password;
-import io.sabitovka.util.validation.annotation.RunWith;
+import io.sabitovka.util.validation.annotation.*;
 import lombok.experimental.UtilityClass;
 
 import java.lang.annotation.Annotation;
@@ -73,6 +70,16 @@ public class Validator {
         String email = (String) field.get(object);
         if (email == null || !email.matches(Constants.EMAIL_REGEX)) {
             Email annotation = field.getAnnotation(Email.class);
+            String message = annotation.message();
+            messages.add(message);
+        }
+    }
+
+    @RunWith(annotation = NotNull.class)
+    private static void validateNotNull(Object object, Field field, List<String> messages) throws IllegalAccessException {
+        Object value = field.get(object);
+        if (value == null) {
+            NotNull annotation = field.getAnnotation(NotNull.class);
             String message = annotation.message();
             messages.add(message);
         }
