@@ -11,7 +11,6 @@ import io.sabitovka.exception.ValidationException;
 import io.sabitovka.servlet.annotation.GetMapping;
 import io.sabitovka.servlet.annotation.PostMapping;
 import io.sabitovka.servlet.annotation.RequestMapping;
-import io.sabitovka.util.logging.annotation.Loggable;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -26,7 +25,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 @WebServlet("/api/*")
-@Loggable
 public class RestControllerServlet extends HttpServlet {
     private final Map<String, RestController> controllerMap = new HashMap<>();
 

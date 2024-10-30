@@ -3,6 +3,7 @@ package io.sabitovka.service;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.model.User;
+import io.sabitovka.util.logging.annotation.Audit;
 
 import java.util.List;
 
@@ -15,11 +16,12 @@ public interface UserService {
      * @param createUserDto Данные, по которым будет создан новый пользователь
      * @return Новый пользователь
      */
+    @Audit(action = "Выполнено создание нового пользователя")
     UserInfoDto createUser(CreateUserDto createUserDto);
 
     /**
      * Обновляет пользователя по переданным данным
-     * @param userInfoDto Информация о пользовтеле
+     * @param userInfoDto Информация о пользователе
      */
     void updateUser(UserInfoDto userInfoDto);
 

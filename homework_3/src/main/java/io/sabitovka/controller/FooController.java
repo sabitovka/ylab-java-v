@@ -1,9 +1,5 @@
 package io.sabitovka.controller;
 
-import io.sabitovka.exception.ApplicationException;
-import io.sabitovka.factory.ServiceFactory;
-import io.sabitovka.service.UserService;
-import io.sabitovka.util.logging.annotation.Loggable;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.annotation.WebServlet;
@@ -15,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @WebServlet("/hello/*")
-@Loggable
 public class FooController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

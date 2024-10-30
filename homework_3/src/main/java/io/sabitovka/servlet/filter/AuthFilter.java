@@ -20,6 +20,8 @@ public class AuthFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+        AuthInMemoryContext.getContext().setIp(req.getRemoteAddr());
+
         String authHeader = req.getHeader("Authorization");
 
         if (authHeader == null || authHeader.isBlank()) {

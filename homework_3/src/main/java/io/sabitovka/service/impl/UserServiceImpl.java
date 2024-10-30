@@ -10,6 +10,7 @@ import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
 import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.util.mapper.UserMapper;
+import io.sabitovka.util.validation.Validator;
 
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoDto createUser(CreateUserDto createUserDto) {
+        Validator.validate(createUserDto);
         if (userRepository.findUserByEmail(createUserDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Данный email уже занят");
         }

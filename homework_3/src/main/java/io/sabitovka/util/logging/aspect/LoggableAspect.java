@@ -7,17 +7,18 @@ import org.aspectj.lang.annotation.Pointcut;
 
 @Aspect
 public class LoggableAspect {
-    @Pointcut("within(@io.sabitovka.util.logging.annotation.Loggable *) && execution(* * (..))")
+    @Pointcut("within(@io.sabitovka.util.logging.annotation.Loggable *) && execution(* *(..))")
     public void annotatedByLoggable() {}
 
-    @Around("annotatedByLoggable()")
-    public Object logging(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        System.out.println("Calling method " + proceedingJoinPoint.getSignature());
+    @Pointcut("execution(* io.sabitovka.controller.*.*(..))")
+    public void anyControllerMethod() {}
+
+    @Around("anyControllerMethod() || annotatedByLoggable()")
+    public Object logMethodTime(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         long start = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         long end = System.currentTimeMillis() - start;
-        System.out.println("Execution of method " + proceedingJoinPoint.getSignature()
-                + " finished. Execution time is " + end);
+        System.out.printf("Выполнен метод %s [%d ms].\n%n", proceedingJoinPoint.getSignature(), end);
         return result;
     }
 }
