@@ -1,6 +1,8 @@
 package io.sabitovka.service;
 
-import io.sabitovka.dto.HabitInfoDto;
+import io.sabitovka.dto.habit.HabitFilterDto;
+import io.sabitovka.dto.habit.HabitInfoDto;
+import io.sabitovka.dto.habit.SimpleLocalDateDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
@@ -50,7 +52,7 @@ class HabitServiceTest {
         Habit newHabit = new Habit(null, "habitName", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
         when(habitRepository.create(any(Habit.class))).thenReturn(newHabit);
 
-        Habit createdHabit = habitService.createHabit(habitInfoDto);
+        HabitInfoDto createdHabit = habitService.createHabit(habitInfoDto);
 
         assertThat(createdHabit.getName()).isEqualTo("habitName");
         verify(habitRepository).create(any(Habit.class));
@@ -70,11 +72,13 @@ class HabitServiceTest {
     @Test
     @DisplayName("[getHabitsByFilters] Должен вернуть отфильтрованных пользователей")
     public void getHabitsByFiltersShouldReturnFilteredHabits() {
-        User currentUser = new User(1L, "user", "user@example.com", "password", false, true);
         Habit habit = new Habit(1L, "habitName", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
-        when(habitRepository.filterByUserAndTimeAndStatus(currentUser, null, null, true)).thenReturn(List.of(habit));
+        when(habitRepository.filterByUserAndTimeAndStatus(1L, null, null, true)).thenReturn(List.of(habit));
 
-        List<HabitInfoDto> habitDtos = habitService.getHabitsByFilters(currentUser, null, null, true);
+        HabitFilterDto filterDto = new HabitFilterDto();
+        filterDto.setUserId(1L);
+        filterDto.setActive(true);
+        List<HabitInfoDto> habitDtos = habitService.getHabitsByFilters(filterDto);
 
         assertThat(habitDtos).hasSize(1);
         assertThat(habitDtos.get(0).getName()).isEqualTo("habitName");
@@ -83,11 +87,10 @@ class HabitServiceTest {
     @Test
     @DisplayName("[getAllByOwner] Должен вернуть привычки пользователя")
     public void getAllByOwnerShouldReturnHabitsOfUser() {
-        User currentUser = new User(1L, "user", "user@example.com", "password", false, true);
         Habit habit = new Habit(1L, "habitName", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
-        when(habitRepository.findAllByUser(currentUser)).thenReturn(List.of(habit));
+        when(habitRepository.findAllByUserId(1L)).thenReturn(List.of(habit));
 
-        List<HabitInfoDto> habitDtos = habitService.getAllByOwner(currentUser);
+        List<HabitInfoDto> habitDtos = habitService.getAllByOwner(1L);
 
         assertThat(habitDtos).hasSize(1);
         assertThat(habitDtos.get(0).getName()).isEqualTo("habitName");
@@ -97,7 +100,7 @@ class HabitServiceTest {
     @DisplayName("[disableHabit] Должен отключить привычку")
     public void disableHabitShouldSetHabitInactive() {
         Habit habit = new Habit(1L, "habitName", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
-        habitService.disableHabit(habit);
+        habitService.disableHabit(1L);
 
         assertThat(habit.isActive()).isFalse();
         verify(habitRepository).update(habit);
@@ -112,7 +115,7 @@ class HabitServiceTest {
         when(habitRepository.findById(1L)).thenReturn(Optional.of(habit));
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User(1L, "user", "user@example.com", "password", false, true)));
 
-        habitService.updateHabit(updatedHabit, 1L);
+        habitService.updateHabit(1L, updatedHabit);
 
         assertThat(habit.getName()).isEqualTo("newName");
         assertThat(habit.getDescription()).isEqualTo("newDescription");
@@ -130,7 +133,7 @@ class HabitServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User(1L, "user", "user@example.com", "password", false, true)));
         when(fulfilledHabitRepository.findAll()).thenReturn(List.of(fulfilledHabit));
 
-        habitService.delete(1L, 1L);
+        habitService.delete(1L);
 
         verify(habitRepository).deleteById(1L);
         verify(fulfilledHabitRepository).deleteById(1L);
@@ -144,7 +147,9 @@ class HabitServiceTest {
         when(habitRepository.findById(1L)).thenReturn(Optional.of(habit));
         when(userRepository.findById(1L)).thenReturn(Optional.of(new User(1L, "user", "user@example.com", "password", false, true)));
 
-        habitService.markHabitAsFulfilled(1L, LocalDate.now(), 1L);
+        SimpleLocalDateDto localDateDto = new SimpleLocalDateDto();
+        localDateDto.setDate(LocalDate.now());
+        habitService.markHabitAsFulfilled(1L, localDateDto);
 
         verify(fulfilledHabitRepository).create(any(FulfilledHabit.class));
     }

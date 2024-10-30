@@ -1,6 +1,7 @@
 package io.sabitovka.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.sabitovka.controller.AuthController;
 import io.sabitovka.controller.HabitsRestController;
 import io.sabitovka.controller.StatisticRestController;
@@ -21,9 +22,11 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @WebServlet("/api/*")
 public class RestControllerServlet extends HttpServlet {
@@ -34,7 +37,7 @@ public class RestControllerServlet extends HttpServlet {
         super.init(config);
         controllerMap.put("/users", new UsersRestController());
         controllerMap.put("/habits", new HabitsRestController());
-        controllerMap.put("/statistics", new StatisticRestController());
+        controllerMap.put("/statistic", new StatisticRestController());
         controllerMap.put("/auth", new AuthController());
     }
 
@@ -98,6 +101,7 @@ public class RestControllerServlet extends HttpServlet {
     private void writeResponse(HttpServletResponse response, Object result) throws IOException {
         response.setContentType("application/json; charset=utf-8");
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         String jsonResult = objectMapper.writeValueAsString(result);
         response.getWriter().write(jsonResult);
     }
@@ -162,6 +166,7 @@ public class RestControllerServlet extends HttpServlet {
 
         Class<?> requestBodyClass = method.getParameters()[0].getType();
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         return objectMapper.readValue(reader, requestBodyClass);
     }
 

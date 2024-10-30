@@ -84,4 +84,14 @@ public class Validator {
             messages.add(message);
         }
     }
+
+    @RunWith(annotation = NotBlank.class)
+    private static void validateNotBlank(Object object, Field field, List<String> messages) throws IllegalAccessException {
+        String value = (String) field.get(object);
+        if (value != null && value.isBlank()) {
+            NotBlank annotation = field.getAnnotation(NotBlank.class);
+            String message = annotation.message();
+            messages.add(message);
+        }
+    }
 }

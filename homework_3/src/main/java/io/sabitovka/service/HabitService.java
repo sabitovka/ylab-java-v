@@ -1,10 +1,11 @@
 package io.sabitovka.service;
 
-import io.sabitovka.dto.HabitInfoDto;
+import io.sabitovka.dto.habit.HabitFilterDto;
+import io.sabitovka.dto.habit.HabitInfoDto;
+import io.sabitovka.dto.habit.SimpleLocalDateDto;
 import io.sabitovka.model.Habit;
-import io.sabitovka.model.User;
+import io.sabitovka.util.logging.annotation.Audit;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -13,68 +14,70 @@ import java.util.List;
 public interface HabitService {
     /**
      * Создает новую привычку по переданной информации
+     *
      * @param habitInfoDto Информация о привычке для добавления
      * @return Модель новой привычки
      */
-    Habit createHabit(HabitInfoDto habitInfoDto);
+    @Audit(action = "Создана новая привычка")
+    HabitInfoDto createHabit(HabitInfoDto habitInfoDto);
 
     /**
      * Обновляет привычку по переданной информации
+     *
      * @param habitInfoDto Информация о привычке
-     * @param currentUserId ИД текущего пользователя
+     * @param habitId
      */
-    void updateHabit(HabitInfoDto habitInfoDto, Long currentUserId);
+    @Audit(action = "Привычка обновлена")
+    void updateHabit(Long habitId, HabitInfoDto habitInfoDto);
 
     /**
      * Получить список всех привычек по фильтрам. Например, за определенный период
-     * @param currentUser Пользователь
-     * @param startDate Начальная дата создания привычек
-     * @param endDate Дата окончания привычек
-     * @param isActive Активны ли привычки
-     * @return Список привычек
+     *
+     * @param filterDto@return Список привычек
      */
-    List<HabitInfoDto> getHabitsByFilters(User currentUser, LocalDate startDate, LocalDate endDate, Boolean isActive);
+    @Audit(action = "Получение привычек по фильтрам")
+    List<HabitInfoDto> getHabitsByFilters(HabitFilterDto filterDto);
 
     /**
      * Получить все привычки определенного пользователя
-     * @param currentUser Пользователь
+     *
+     * @param userId Пользователь
      * @return Список привычек
      */
-    List<HabitInfoDto> getAllByOwner(User currentUser);
+    @Audit(action = "Получение привычек пользователя")
+    List<HabitInfoDto> getAllByOwner(Long userId);
 
     /**
      * Отключает привычку
-     * @param habit Привычка
+     *
+     * @param habitId Привычка
      */
-    void disableHabit(Habit habit);
+    @Audit(action = "Отключение привычки")
+    void disableHabit(Long habitId);
 
     /**
      * Получает информацию о привычке по ID
+     *
      * @param id Id привычки
-     * @param userId Id пользователя, который запросил эту привычку
      * @return Информация о пользователе
      */
-    HabitInfoDto getHabitById(Long id, Long userId);
+    @Audit(action = "Получение привычки по Id")
+    HabitInfoDto getHabitById(Long id);
 
     /**
      * Позволяет удалить привычку по ID
+     *
      * @param habitId Id привычки
-     * @param currentUserId Пользователь, который инициировал удаление
      */
-    void delete(Long habitId, Long currentUserId);
+    @Audit(action = "Удаление привычки")
+    void delete(Long habitId);
 
     /**
      * Отметить выполнение привычки.
-     * @param habitId Id привычки
-     * @param date Дата выполнения привычки
-     * @param currentUserId Пользователь, который инициировал отметку привычки
+     *
+     * @param habitId      Id привычки
+     * @param localDateDto Пользователь, который инициировал отметку привычки
      */
-    void markHabitAsFulfilled(Long habitId, LocalDate date, Long currentUserId);
-
-    /**
-     * Преобразует модель привычки в информацию о привычке
-     * @param habit Привычка
-     * @return Информация о привычке
-     */
-    HabitInfoDto mapHabitToHabitInfoDto(Habit habit);
+    @Audit(action = "Выполнение привычки")
+    void markHabitAsFulfilled(Long habitId, SimpleLocalDateDto localDateDto);
 }

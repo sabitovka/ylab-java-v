@@ -1,7 +1,6 @@
 package io.sabitovka.repository.impl;
 
 import io.sabitovka.model.Habit;
-import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.PersistenceRepository;
 import io.sabitovka.persistence.rowmapper.RowMapper;
@@ -20,13 +19,13 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
     }
 
     @Override
-    public List<Habit> findAllByUser(User owner) {
+    public List<Habit> findAllByUserId(Long ownerId) {
         String sql = "select * from habits where owner_id = ?";
-        return jdbcTemplate.queryForList(sql, rowMapper, owner.getId());
+        return jdbcTemplate.queryForList(sql, rowMapper, ownerId);
     }
 
     @Override
-    public List<Habit> filterByUserAndTimeAndStatus(User owner, LocalDate startDate, LocalDate endDate, Boolean isActive) {
+    public List<Habit> filterByUserAndTimeAndStatus(Long ownerId, LocalDate startDate, LocalDate endDate, Boolean isActive) {
         String sql = """
             select * from habits where owner_id = ?
             and (? is null or created_at >= ?)
@@ -35,7 +34,7 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
         return jdbcTemplate.queryForList(
                 sql,
                 rowMapper,
-                owner.getId(),
+                ownerId,
                 startDate,
                 startDate,
                 endDate,

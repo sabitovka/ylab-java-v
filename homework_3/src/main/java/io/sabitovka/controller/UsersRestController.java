@@ -7,10 +7,7 @@ import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.UserService;
 import io.sabitovka.servlet.RestController;
-import io.sabitovka.servlet.annotation.DeleteMapping;
-import io.sabitovka.servlet.annotation.GetMapping;
-import io.sabitovka.servlet.annotation.PostMapping;
-import io.sabitovka.servlet.annotation.RequestMapping;
+import io.sabitovka.servlet.annotation.*;
 import io.sabitovka.servlet.util.SuccessResponse;
 
 import java.util.List;
@@ -31,7 +28,7 @@ public class UsersRestController implements RestController {
         return new SuccessResponse<>(userService.getBlockedUsers());
     }
 
-    @PostMapping("/{id|\\d+}")
+    @PutMapping("/{id|\\d+}")
     public SuccessResponse<String> updateUser(UpdateUserDto userInfoDto, String userId) {
         userService.updateUser(Long.valueOf(userId), userInfoDto);
         return new SuccessResponse<>("Пользователь обновлен");

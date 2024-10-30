@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow();
 
         // TODO: 30.10.2024 Перевести этот ужас на sql запросы
-        habitRepository.findAllByUser(user).forEach(habit -> {
+        habitRepository.findAllByUserId(id).forEach(habit -> {
             fulfilledHabitRepository.findAllByHabit(habit).forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
             habitRepository.deleteById(habit.getId());
         });

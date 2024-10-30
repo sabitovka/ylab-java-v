@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum ErrorCode {
     NOT_FOUND(100, "Не найдено", 404),
     USER_NOT_FOUND(101, "Пользователь не найден", 404),
+    HABIT_NOT_FOUND(102, "Привычка не найдена", 404),
     BAD_REQUEST(200, "Ошибка запроса", 400),
     UNAUTHORIZED(300, "Ошибка авторизации", 401),
     FORBIDDEN(400, "Нет доступа", 403),

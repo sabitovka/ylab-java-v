@@ -169,7 +169,7 @@ class HabitRepositoryImplTest {
         habitRepository.create(habit1);
         habitRepository.create(habit2);
 
-        List<Habit> userHabits = habitRepository.findAllByUser(user);
+        List<Habit> userHabits = habitRepository.findAllByUserId(user.getId());
 
         assertThat(userHabits).hasSize(2);
     }
@@ -181,7 +181,7 @@ class HabitRepositoryImplTest {
         habitRepository.create(habit2);
 
         List<Habit> filteredHabits = habitRepository.filterByUserAndTimeAndStatus(
-                user, LocalDate.now().minusDays(6), LocalDate.now(), true);
+                user.getId(), LocalDate.now().minusDays(6), LocalDate.now(), true);
 
         assertThat(filteredHabits).hasSize(1);
         assertThat(filteredHabits.get(0).getName()).isEqualTo(habit1.getName());
@@ -194,7 +194,7 @@ class HabitRepositoryImplTest {
         habitRepository.create(habit2);
 
         List<Habit> filteredHabits = habitRepository.filterByUserAndTimeAndStatus(
-                user, LocalDate.now().minusDays(1), LocalDate.now(), true);
+                user.getId(), LocalDate.now().minusDays(1), LocalDate.now(), true);
 
         assertThat(filteredHabits).isNotEmpty();
     }

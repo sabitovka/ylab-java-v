@@ -1,7 +1,12 @@
 package io.sabitovka.service.impl;
 
-import io.sabitovka.dto.HabitInfoDto;
-import io.sabitovka.exception.EntityNotFoundException;
+import io.sabitovka.auth.AuthInMemoryContext;
+import io.sabitovka.auth.entity.UserDetails;
+import io.sabitovka.dto.habit.HabitFilterDto;
+import io.sabitovka.dto.habit.HabitInfoDto;
+import io.sabitovka.dto.habit.SimpleLocalDateDto;
+import io.sabitovka.enums.ErrorCode;
+import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -9,8 +14,9 @@ import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.HabitService;
+import io.sabitovka.util.mapper.HabitMapper;
+import io.sabitovka.util.validation.Validator;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class HabitServiceImpl implements HabitService {
@@ -24,71 +30,90 @@ public class HabitServiceImpl implements HabitService {
         this.fulfilledHabitRepository = fulfilledHabitRepository;
     }
 
-    private Habit getHabitById(Long habitId) {
-        return habitRepository.findById(habitId)
-                .orElseThrow(() -> new EntityNotFoundException(habitId));
-    }
-
-    private void validateHabitOwnership(Habit habit, Long ownerId) {
-        User owner = userRepository.findById(ownerId)
-                .orElseThrow(() -> new EntityNotFoundException(ownerId));
+    private void validateHabitOwnership(Habit habit) {
+        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
+        User owner = userRepository.findById(userDetails.getUserId())
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Владелец привычки не найден"));
 
         if (!habit.getOwnerId().equals(owner.getId()) && !owner.isAdmin()) {
-            throw new IllegalArgumentException("У пользователя нет прав на эту привычку");
+            throw new ApplicationException(ErrorCode.FORBIDDEN, "У пользователя нет прав на эту привычку");
         }
     }
 
-    @Override
-    public Habit createHabit(HabitInfoDto habitInfoDto) {
-        if (habitInfoDto.getName() == null || habitInfoDto.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("Название привычки не может быть пустым");
+    private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
+        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
+        if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN);
         }
+    }
 
-        if (habitInfoDto.getOwnerId() == null || !userRepository.existsById(habitInfoDto.getOwnerId())) {
-            throw new IllegalArgumentException("Владелец привычки должен быть валидным пользователем");
-        }
+    private Habit findHabitById(Long habitId) {
+        Habit habit = habitRepository.findById(habitId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.HABIT_NOT_FOUND));
 
-        Habit newHabit = new Habit();
-        newHabit.setName(habitInfoDto.getName());
-        newHabit.setDescription(habitInfoDto.getDescription());
-        newHabit.setFrequency(habitInfoDto.getFrequency());
-        newHabit.setOwnerId(habitInfoDto.getOwnerId());
-        return habitRepository.create(newHabit);
+        validateHabitOwnership(habit);
+        return habit;
     }
 
     @Override
-    public List<HabitInfoDto> getHabitsByFilters(User currentUser, LocalDate startDate, LocalDate endDate, Boolean isActive) {
-        List<Habit> habits = habitRepository.filterByUserAndTimeAndStatus(currentUser, startDate, endDate, isActive);
+    public HabitInfoDto createHabit(HabitInfoDto habitInfoDto) {
+        Validator.validate(habitInfoDto);
+        throwIfNotCurrentUserOrNotAdmin(habitInfoDto.getOwnerId());
+
+        if (!userRepository.existsById(habitInfoDto.getOwnerId())) {
+            throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "Владелец привычки должен быть валидным пользователем");
+        }
+
+        Habit habit = HabitMapper.INSTANCE.habitInfoDtoToHabit(habitInfoDto);
+        Habit saved = habitRepository.create(habit);
+
+        return HabitMapper.INSTANCE.habitToHabitInfoDto(saved);
+    }
+
+    @Override
+    public List<HabitInfoDto> getHabitsByFilters(HabitFilterDto filterDto) {
+        throwIfNotCurrentUserOrNotAdmin(filterDto.getUserId());
+
+        List<Habit> habits = habitRepository.filterByUserAndTimeAndStatus(
+                filterDto.getUserId(),
+                filterDto.getStartDate(),
+                filterDto.getEndDate(),
+                filterDto.isActive());
+
         return habits.stream()
-                .map(this::mapHabitToHabitInfoDto)
+                .map(HabitMapper.INSTANCE::habitToHabitInfoDto)
                 .toList();
     }
 
     @Override
-    public List<HabitInfoDto> getAllByOwner(User currentUser) {
-        List<Habit> habits = habitRepository.findAllByUser(currentUser);
+    public List<HabitInfoDto> getAllByOwner(Long userId) {
+        throwIfNotCurrentUserOrNotAdmin(userId);
+
+        List<Habit> habits = habitRepository.findAllByUserId(userId);
         return habits.stream()
-                .map(this::mapHabitToHabitInfoDto)
+                .map(HabitMapper.INSTANCE::habitToHabitInfoDto)
                 .toList();
     }
 
     @Override
-    public void disableHabit(Habit habit) {
+    public void disableHabit(Long habitId) {
+        Habit habit = findHabitById(habitId);
+        validateHabitOwnership(habit);
         habit.setActive(false);
         habitRepository.update(habit);
     }
 
     @Override
-    public HabitInfoDto getHabitById(Long id, Long userId) {
-        Habit habit = getHabitById(id);
-        validateHabitOwnership(habit, userId);
-        return mapHabitToHabitInfoDto(habit);
+    public HabitInfoDto getHabitById(Long id) {
+        Habit habit = findHabitById(id);
+        return HabitMapper.INSTANCE.habitToHabitInfoDto(habit);
     }
 
     @Override
-    public void updateHabit(HabitInfoDto updatedHabit, Long currentUserId) {
-        Habit habit = getHabitById(updatedHabit.getId());
-        validateHabitOwnership(habit, currentUserId);
+    public void updateHabit(Long habitId, HabitInfoDto updatedHabit) {
+        Validator.validate(updatedHabit);
+
+        Habit habit = findHabitById(habitId);
 
         habit.setName(updatedHabit.getName());
         habit.setDescription(updatedHabit.getDescription());
@@ -98,40 +123,26 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
-    public void delete(Long habitId, Long currentUserId) {
-        Habit habit = getHabitById(habitId);
-        validateHabitOwnership(habit, currentUserId);
+    public void delete(Long habitId) {
+        Habit habit = findHabitById(habitId);
+        validateHabitOwnership(habit);
 
-        habitRepository.deleteById(habitId);
+        // TODO: 30.10.2024 Перевести на SQL запросы
         fulfilledHabitRepository.findAll().stream()
                 .filter(fulfilledHabit -> fulfilledHabit.getHabitId().equals(habitId))
                 .forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
+        habitRepository.deleteById(habitId);
     }
 
     @Override
-    public void markHabitAsFulfilled(Long habitId, LocalDate date, Long currentUserId) {
-        Habit habit = habitRepository.findById(habitId)
-                .orElseThrow(() -> new IllegalArgumentException("Не удалось найти привычку с id=" + habitId));
-
-        validateHabitOwnership(habit, currentUserId);
+    public void markHabitAsFulfilled(Long habitId, SimpleLocalDateDto localDateDto) {
+        Habit habit = findHabitById(habitId);
+        validateHabitOwnership(habit);
 
         FulfilledHabit fulfilledHabit = new FulfilledHabit();
         fulfilledHabit.setHabitId(habitId);
-        fulfilledHabit.setFulfillDate(date);
+        fulfilledHabit.setFulfillDate(localDateDto.getDate());
 
         fulfilledHabitRepository.create(fulfilledHabit);
-    }
-
-    @Override
-    public HabitInfoDto mapHabitToHabitInfoDto(Habit habit) {
-        HabitInfoDto habitInfoDto = new HabitInfoDto();
-        habitInfoDto.setId(habit.getId());
-        habitInfoDto.setName(habit.getName());
-        habitInfoDto.setDescription(habit.getDescription());
-        habitInfoDto.setFrequency(habit.getFrequency());
-        habitInfoDto.setCreatedAt(habit.getCreatedAt());
-        habitInfoDto.setActive(habit.isActive());
-        habitInfoDto.setId(habit.getOwnerId());
-        return habitInfoDto;
     }
 }

@@ -162,8 +162,8 @@ class UserServiceTest {
         Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
 
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
-        when(habitRepository.findAllByUser(user1)).thenReturn(List.of(habit1, habit2));
-        when(habitRepository.findAllByUser(user1)).thenReturn(List.of(habit1, habit2));
+        when(habitRepository.findAllByUserId(user1.getId())).thenReturn(List.of(habit1, habit2));
+        when(habitRepository.findAllByUserId(user1.getId())).thenReturn(List.of(habit1, habit2));
 
         userService.deleteProfile(user1.getId());
 

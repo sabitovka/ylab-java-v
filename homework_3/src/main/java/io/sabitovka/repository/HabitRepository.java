@@ -1,7 +1,6 @@
 package io.sabitovka.repository;
 
 import io.sabitovka.model.Habit;
-import io.sabitovka.model.User;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,19 +13,19 @@ public interface HabitRepository extends BaseRepository<Long, Habit> {
     /**
      * Возвращает список всех привычек, принадлежащих указанному пользователю.
      *
-     * @param owner Владелец привычек.
+     * @param ownerId Владелец привычек.
      * @return Список всех привычек, принадлежащих пользователю.
      */
-    List<Habit> findAllByUser(User owner);
+    List<Habit> findAllByUserId(Long ownerId);
 
     /**
      * Фильтрует привычки пользователя по времени их создания и статусу активности.
      *
-     * @param owner Владелец привычек.
+     * @param ownerId ID Владельца привычек.
      * @param startDate Дата начала периода фильтрации.
      * @param endDate Дата окончания периода фильтрации.
      * @param isActive Флаг активности привычек.
      * @return Список привычек, соответствующих фильтру.
      */
-    List<Habit> filterByUserAndTimeAndStatus(User owner, LocalDate startDate, LocalDate endDate, Boolean isActive);
+    List<Habit> filterByUserAndTimeAndStatus(Long ownerId, LocalDate startDate, LocalDate endDate, Boolean isActive);
 }
