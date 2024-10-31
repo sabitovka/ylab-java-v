@@ -19,20 +19,18 @@ public class AdminController extends BaseController {
             System.out.println("""
                     === Администрирование ===
                     1. Получить список активных пользователей
-                    2. Получить список привычек пользователя
-                    3. Заблокировать пользователя
-                    4. Получить список заблокированных пользователей
-                    5. Назад""");
+                    2. Заблокировать пользователя
+                    3. Получить список заблокированных пользователей
+                    4. Назад""");
 
-            String choice = prompt(" -> ", "^[1-5]$");
+            String choice = prompt(" -> ", "^[1-4]$");
 
             try {
                 switch (choice) {
                     case "1" -> activeUsers();
-                    case "2" -> throw new UnsupportedOperationException("Функционал пока не поддерживается");
-                    case "3" -> blockUser();
-                    case "4" -> blockedUsers();
-                    case "5" -> {
+                    case "2" -> blockUser();
+                    case "3" -> blockedUsers();
+                    case "4" -> {
                         System.out.println("Выход в главное меню");
                         return;
                     }
