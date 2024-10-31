@@ -1,5 +1,7 @@
 package io.sabitovka.service;
 
+import io.sabitovka.auth.AuthInMemoryContext;
+import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UpdateUserDto;
@@ -10,6 +12,7 @@ import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.exception.ValidationException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
+import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.impl.UserServiceImpl;
@@ -19,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -36,8 +41,15 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private HabitRepository habitRepository;
+    @Mock
+    private FulfilledHabitRepository fulfilledHabitRepository;
     @InjectMocks
     private UserServiceImpl userService;
+    @Mock
+    private AuthInMemoryContext authInMemoryContext;
+
+    UserDetails adminUserDetails = new UserDetails(1L, "admin", true);
+    UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
 
     @Test
     @DisplayName("[createUser] Когда регистрационные данные неверные, должен выбросить исключение")
@@ -102,45 +114,73 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("[updateUser] Должен обновить")
-    void updateUserShenUserInfoIsCorrectShouldCreateSuccessfully() {
+    @DisplayName("[updateUser] Должен обновить от имени пользователя и от имени администратора")
+    void updateUserWhenUserInfoIsCorrectShouldCreateSuccessfully() {
         UpdateUserDto updateUserDto = new UpdateUserDto();
         updateUserDto.setName("updatedMock");
         updateUserDto.setEmail("updatedMock@example.com");
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(new User()));
         when(userRepository.update(any(User.class))).thenReturn(true);
 
-        userService.updateUser(1L, updateUserDto);
+        try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
+            authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
 
-        verify(userRepository).update(any(User.class));
+            when(authInMemoryContext.getAuthentication()).thenReturn(adminUserDetails);
+            userService.updateUser(2L, updateUserDto);
+
+            when(authInMemoryContext.getAuthentication()).thenReturn(simpleUserDetails);
+            userService.updateUser(2L, updateUserDto);
+
+            verify(userRepository, times(2)).update(any(User.class));
+        }
     }
 
     @Test
-    @DisplayName("[changePassword] Должен обновить пароль")
+    @DisplayName("[changePassword] Должен обновить пароль от имени пользователя и администратора")
     void changePasswordShouldChangeSuccessfully() {
-        User existingUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
-        when(userRepository.update(any(User.class))).thenReturn(true);
-
         ChangePasswordDto changePasswordDto = new ChangePasswordDto();
         changePasswordDto.setNewPassword("newPassword");
         changePasswordDto.setOldPassword("oldPassword123");
-        userService.changePassword(1L, changePasswordDto);
 
-        verify(userRepository).update(any(User.class));
+        User existingUser = new User(2L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser));
+
+        try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
+            authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
+
+            when(authInMemoryContext.getAuthentication()).thenReturn(adminUserDetails);
+            userService.changePassword(2L, changePasswordDto);
+
+            User existingUser1 = new User(2L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+            when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser1));
+
+            when(authInMemoryContext.getAuthentication()).thenReturn(simpleUserDetails);
+            userService.changePassword(2L, changePasswordDto);
+
+            verify(userRepository, times(2)).update(any(User.class));
+        }
     }
 
     @Test
     @DisplayName("[changePassword] Должен выбросить исключение, когда пароли не совпадают")
     void changePasswordWhenOldPasswordIsIncorrectShouldThrowException() {
-        User existingUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
+        User existingUser = new User(2L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+        when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser));
 
-        ChangePasswordDto changePasswordDto = new ChangePasswordDto();
-        changePasswordDto.setNewPassword("newPassword");
-        changePasswordDto.setOldPassword("wrongOldPassword");
+        try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
+            authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
 
-        assertThatThrownBy(() -> userService.changePassword(1L, changePasswordDto))
-                .isInstanceOf(ApplicationException.class);
+            ChangePasswordDto changePasswordDto = new ChangePasswordDto();
+            changePasswordDto.setNewPassword("newPassword");
+            changePasswordDto.setOldPassword("wrongOldPassword");
+
+            when(authInMemoryContext.getAuthentication()).thenReturn(simpleUserDetails);
+
+            assertThatThrownBy(() -> userService.changePassword(2L, changePasswordDto))
+                    .isInstanceOf(ApplicationException.class);
+        }
+
     }
 
     @Test
@@ -156,20 +196,25 @@ class UserServiceTest {
 
     @Test
     @DisplayName("[deleteProfile] Удалить пользователя и привычки")
-    void deleteProfile_whenPasswordCorrect_shouldDeleteUserAndHabits() {
-        User user1 = new User(1L, "mock", "mock@example.ru", PasswordHasher.hash("password"), false, true);
-        Habit habit1 = new Habit(1L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
-        Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
+    void deleteProfileShouldDeleteUserAndHabits() {
+        User user1 = new User(2L, "mock", "mock@example.ru", PasswordHasher.hash("password"), false, true);
+        Habit habit1 = new Habit(1L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 2L);
+        Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 2L);
 
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         when(habitRepository.findAllByUserId(user1.getId())).thenReturn(List.of(habit1, habit2));
-        when(habitRepository.findAllByUserId(user1.getId())).thenReturn(List.of(habit1, habit2));
 
-        userService.deleteProfile(user1.getId());
+        try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
+            authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
 
-        verify(userRepository).deleteById(user1.getId());
-        verify(habitRepository).deleteById(habit1.getId());
-        verify(habitRepository).deleteById(habit2.getId());
+            when(authInMemoryContext.getAuthentication()).thenReturn(simpleUserDetails);
+            userService.deleteProfile(user1.getId());
+
+            verify(userRepository).deleteById(user1.getId());
+            verify(habitRepository).deleteById(habit1.getId());
+            verify(habitRepository).deleteById(habit2.getId());
+        }
+
     }
 
     @Test
@@ -178,10 +223,15 @@ class UserServiceTest {
         User user = new User(1L, "mock", "mock@example.ru", "password", true, true);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        userService.blockUser(1L);
+        try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
+            authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
 
-        assertThat(user.isActive()).isFalse();
-        verify(userRepository).update(user);
+            when(authInMemoryContext.getAuthentication()).thenReturn(adminUserDetails);
+            userService.blockUser(1L);
+
+            assertThat(user.isActive()).isFalse();
+            verify(userRepository).update(user);
+        }
     }
 
     @Test
@@ -199,12 +249,12 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("[findById] Должен выбросить исключение")
+    @DisplayName("[findById] Должен выбросить исключение, т.к. пользователь не найден")
     void findByIdWhenUserDoesNotExistShouldThrowException() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.findById(1L))
-                .isInstanceOf(EntityNotFoundException.class);
+                .isInstanceOf(ApplicationException.class);
         verify(userRepository).findById(1L);
     }
 

@@ -43,7 +43,7 @@ public class HabitServiceImpl implements HabitService {
     private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
         UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
         if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
-            throw new ApplicationException(ErrorCode.FORBIDDEN);
+            throw new ApplicationException(ErrorCode.FORBIDDEN, "Нет доступа к привычке");
         }
     }
 
@@ -98,7 +98,6 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public void disableHabit(Long habitId) {
         Habit habit = findHabitById(habitId);
-        validateHabitOwnership(habit);
         habit.setActive(false);
         habitRepository.update(habit);
     }

@@ -55,9 +55,9 @@ class AuthorizationServiceTest {
         when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
 
         userLoginDto.setPassword("wrongPassword");
-        String token = authorizationService.login(userLoginDto);
 
-        assertThat(token).isNotNull();
+        assertThatThrownBy(() -> authorizationService.login(userLoginDto))
+                .isInstanceOf(ApplicationException.class);
     }
 
     @Test

@@ -78,7 +78,8 @@ public class UserServiceImpl implements UserService {
             throw new ApplicationException(ErrorCode.BAD_REQUEST, "Старый пароль не совпадает");
         }
 
-        user.setPassword(changePasswordDto.getNewPassword());
+        String hashedPassword = PasswordHasher.hash(changePasswordDto.getNewPassword());
+        user.setPassword(hashedPassword);
         userRepository.update(user);
     }
 
