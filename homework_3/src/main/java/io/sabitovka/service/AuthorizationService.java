@@ -10,8 +10,7 @@ import io.sabitovka.util.logging.annotation.IgnoreAudit;
 public interface AuthorizationService {
     /**
      * Генерирует токен при успешном входе в систему по переданным логину и паролю
-     * @param email Логин или email пользователя
-     * @param password Пароль пользователя
+     * @param userLoginDto Данные для входа в систему
      * @return Токен авторизации
      */
     @Audit(action = "Выполнен вход в систему")

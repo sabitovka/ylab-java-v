@@ -1,16 +1,19 @@
 package io.sabitovka.dto.habit;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.sabitovka.enums.HabitFrequency;
-import io.sabitovka.util.validation.annotation.Name;
 import io.sabitovka.util.validation.annotation.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
+/**
+ * Информация о привычке
+ */
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class HabitInfoDto {

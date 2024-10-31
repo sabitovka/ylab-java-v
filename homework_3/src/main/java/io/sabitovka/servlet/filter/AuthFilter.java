@@ -2,9 +2,9 @@ package io.sabitovka.servlet.filter;
 
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
+import io.sabitovka.auth.util.Jwt;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.UserDetailsService;
-import io.sabitovka.auth.util.Jwt;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
@@ -14,6 +14,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Фильтр для проверки авторизации пользователя.
+ * Если передан Bearer токен, то выполняет его валидацию и авторизацию в системе
+ * Если токен не валидный или вообще не был передан, фильтр пропускает дальнейшее выполнение,
+ * оставляя право методы принять решение, обрабатывать запрос без авторизации или нет
+ */
 @WebFilter(filterName = "AuthFilter", value = "/api/*")
 public class AuthFilter extends HttpFilter {
     private final UserDetailsService userDetailsService = ServiceFactory.getInstance().getUserDetailsService();

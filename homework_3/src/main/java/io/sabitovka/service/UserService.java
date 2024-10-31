@@ -1,6 +1,9 @@
 package io.sabitovka.service;
 
-import io.sabitovka.dto.user.*;
+import io.sabitovka.dto.user.ChangePasswordDto;
+import io.sabitovka.dto.user.CreateUserDto;
+import io.sabitovka.dto.user.UpdateUserDto;
+import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.model.User;
 import io.sabitovka.util.logging.annotation.Audit;
 import io.sabitovka.util.logging.annotation.IgnoreAudit;
@@ -22,7 +25,7 @@ public interface UserService {
     /**
      * Обновляет пользователя по переданным данным
      *
-     * @param userId
+     * @param userId - ID пользователя, которого нужно обновить
      * @param updateUserDto Информация о пользователе
      */
     @Audit(action = "Выполнено обновление пользователя")
@@ -31,9 +34,8 @@ public interface UserService {
     /**
      * Меняет пароль пользователя по переданным данным. Для корректной смены, необходимо ввести старый пароль пользователя
      *
-     * @param userInfoDto Информация о пользователе с новым паролем
-     * @param oldPassword Старый пароль пользователя
-     * @param userId
+     * @param changePasswordDto Информация о пользователе для смены пароля
+     * @param userId - ID пользователя, чей пароль нужно поменять
      */
     @Audit(action = "Выполнено обновление пароля пользователя")
     void changePassword(Long userId, @IgnoreAudit ChangePasswordDto changePasswordDto);
@@ -41,7 +43,7 @@ public interface UserService {
     /**
      * Удаляет профиль пользователя. Для подтверждения нужно указать действующий пароль пользователя
      *
-     * @param deleteProfileDto
+     * @param deleteProfileDto - Данные для удаления профиля
      */
     @Audit(action = "Выполнено удаление профиля пользователя")
     void deleteProfile(Long deleteProfileDto);

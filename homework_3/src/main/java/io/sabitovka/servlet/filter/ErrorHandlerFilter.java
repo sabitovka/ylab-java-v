@@ -12,6 +12,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * Фильтр для обработки ошибок. Любую неизвестную или известную ошибку оборачивает в AppllicationException
+ */
 @WebFilter(
         filterName = "ErrorHandlingFilter",
         urlPatterns = "/api/*"
@@ -29,7 +32,7 @@ public class ErrorHandlerFilter extends HttpFilter {
     }
 
     @Override
-    protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+    protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException {
         try {
             chain.doFilter(req, res);
         } catch (Exception e) {

@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DTO для получения статистики
+ */
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

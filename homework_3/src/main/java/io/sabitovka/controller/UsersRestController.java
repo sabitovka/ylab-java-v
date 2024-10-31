@@ -12,6 +12,9 @@ import io.sabitovka.servlet.util.SuccessResponse;
 
 import java.util.List;
 
+/**
+ * REST-контроллер для управления пользователями
+ */
 @RequestMapping("/users")
 public class UsersRestController implements RestController {
     private final UserService userService = ServiceFactory.getInstance().getUserService();

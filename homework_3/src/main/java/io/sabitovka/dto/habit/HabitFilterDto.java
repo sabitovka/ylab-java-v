@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DTO для выполнения запроса получения привычек по фильтру
+ */
 @Getter
 @Setter
 @NoArgsConstructor

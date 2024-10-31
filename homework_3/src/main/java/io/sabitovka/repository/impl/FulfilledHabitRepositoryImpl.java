@@ -4,7 +4,6 @@ import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.PersistenceRepository;
-import io.sabitovka.persistence.rowmapper.FulfilledHabitRowMapper;
 import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.FulfilledHabitRepository;
 

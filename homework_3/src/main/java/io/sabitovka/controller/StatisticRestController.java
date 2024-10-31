@@ -8,6 +8,9 @@ import io.sabitovka.servlet.annotation.PostMapping;
 import io.sabitovka.servlet.annotation.RequestMapping;
 import io.sabitovka.servlet.util.SuccessResponse;
 
+/**
+ * REST-контроллер для управления статисткой выполнения привычек
+ */
 @RequestMapping("/statistic")
 public class StatisticRestController implements RestController {
     StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();

@@ -3,7 +3,6 @@ package io.sabitovka.service;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
-import io.sabitovka.model.Habit;
 import io.sabitovka.util.logging.annotation.Audit;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public interface HabitService {
      * Обновляет привычку по переданной информации
      *
      * @param habitInfoDto Информация о привычке
-     * @param habitId
+     * @param habitId - ID привычки
      */
     @Audit(action = "Привычка обновлена")
     void updateHabit(Long habitId, HabitInfoDto habitInfoDto);

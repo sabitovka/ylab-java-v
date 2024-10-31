@@ -3,14 +3,12 @@ package io.sabitovka.model;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.persistence.annotation.Column;
 import io.sabitovka.persistence.annotation.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)

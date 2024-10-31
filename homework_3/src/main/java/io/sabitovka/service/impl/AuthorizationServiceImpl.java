@@ -1,17 +1,14 @@
 package io.sabitovka.service.impl;
 
+import io.sabitovka.auth.util.Jwt;
+import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.AuthorizationService;
-import io.sabitovka.auth.util.Jwt;
-import io.sabitovka.auth.util.PasswordHasher;
-import io.sabitovka.util.logging.annotation.Audit;
 import io.sabitovka.util.validation.Validator;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Optional;
 

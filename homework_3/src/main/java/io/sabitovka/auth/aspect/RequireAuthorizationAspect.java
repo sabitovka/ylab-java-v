@@ -13,6 +13,9 @@ import org.aspectj.lang.reflect.MethodSignature;
 
 import java.lang.reflect.Method;
 
+/**
+ * Аспект для проверки авторизации перед вызовом метода
+ */
 @Aspect
 public class RequireAuthorizationAspect {
     @Pointcut("@annotation(io.sabitovka.auth.annotation.RequiresAuthorization)")

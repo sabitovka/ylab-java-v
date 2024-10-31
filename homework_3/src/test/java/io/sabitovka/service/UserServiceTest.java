@@ -2,13 +2,13 @@ package io.sabitovka.service;
 
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
+import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UpdateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.exception.ApplicationException;
-import io.sabitovka.exception.EntityNotFoundException;
 import io.sabitovka.exception.ValidationException;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -16,14 +16,12 @@ import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.impl.UserServiceImpl;
-import io.sabitovka.auth.util.PasswordHasher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -41,8 +39,6 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private HabitRepository habitRepository;
-    @Mock
-    private FulfilledHabitRepository fulfilledHabitRepository;
     @InjectMocks
     private UserServiceImpl userService;
     @Mock

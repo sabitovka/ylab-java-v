@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public final class AuthInMemoryContext {
-    private final static AuthInMemoryContext CONTEXT = new AuthInMemoryContext();;
+    private final static AuthInMemoryContext CONTEXT = new AuthInMemoryContext();
 
     private UserDetails authenticatedUser;
 

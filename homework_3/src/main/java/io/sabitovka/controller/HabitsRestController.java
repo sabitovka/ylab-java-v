@@ -12,6 +12,9 @@ import io.sabitovka.servlet.util.SuccessResponse;
 
 import java.util.List;
 
+/**
+ * REST-контроллер для управления привычками пользователя
+ */
 @RequestMapping("/habits")
 public class HabitsRestController implements RestController {
     HabitService habitService = ServiceFactory.getInstance().getHabitService();

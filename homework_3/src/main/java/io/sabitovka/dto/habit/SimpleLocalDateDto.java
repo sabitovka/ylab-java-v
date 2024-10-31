@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+/**
+ * DTO с простой датой
+ */
 @Setter
 @Getter
 @NoArgsConstructor

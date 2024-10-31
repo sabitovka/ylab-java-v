@@ -1,19 +1,23 @@
 package io.sabitovka.servlet.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.sabitovka.dto.ErrorDto;
-import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.experimental.UtilityClass;
 
 import java.io.IOException;
 
+/**
+ * Утилитарный класс для работы с сервлетами
+ */
 @UtilityClass
 public class ServletUtils {
     public static void writeJsonResponse(HttpServletResponse response, Object result) throws IOException {
         response.setContentType("application/json; charset=utf-8");
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
         String jsonResult = objectMapper.writeValueAsString(result);
         response.getWriter().write(jsonResult);
     }

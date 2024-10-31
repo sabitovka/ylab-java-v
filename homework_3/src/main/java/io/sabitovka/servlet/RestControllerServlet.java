@@ -28,6 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Основной сервлет, который выполняет роль аггрегатора RES-запросов.
+ * Каждый запрос на адрес api/--- будет перехвачен тут.
+ * Выполняет сопоставление запроса с известными ему контроллерами.
+ * Есои находит нужный контроллер, ищет соответствующий метод.
+ */
 @WebServlet("/api/*")
 public class RestControllerServlet extends HttpServlet {
     private final Map<String, RestController> controllerMap = new HashMap<>();
@@ -52,7 +58,7 @@ public class RestControllerServlet extends HttpServlet {
                 .findFirst().orElse(null);
     }
 
-    private Method[] getMappingMethodsOfController(RestController controller) throws IOException {
+    private Method[] getMappingMethodsOfController(RestController controller) {
         if (controller == null) {
             throw new ApplicationException(ErrorCode.NOT_FOUND, "Не найден контроллер для этого запроса");
         }

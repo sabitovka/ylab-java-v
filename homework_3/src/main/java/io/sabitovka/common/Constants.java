@@ -26,10 +26,7 @@ public class Constants {
      */
     public static final String SALT = properties.getProperty("salt");
 
-    /**
-     * Регулярное выражение для проверки ввода имени пользователя
-     */
-    public static final String USERNAME_REGEX = "^[a-zA-Z0-9_-]{3,16}$";
+    public static final String JWT_SECRET = properties.getProperty("jwt.secret");
 
     /**
      * Регулярное выражение для проверки email
@@ -40,11 +37,6 @@ public class Constants {
      * Регулярное выражение для проверки пароля
      */
     public static final String PASSWORD_REGEX = ".{6,}";
-
-    /**
-     * Регулярное выражение для проверки названия привычки
-     */
-    public static final String HABIT_NAME = ".{3,30}";
 
     /**
      * Расположение файла для миграции БД

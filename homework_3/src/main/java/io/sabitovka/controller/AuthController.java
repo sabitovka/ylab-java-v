@@ -11,6 +11,9 @@ import io.sabitovka.servlet.annotation.PostMapping;
 import io.sabitovka.servlet.annotation.RequestMapping;
 import io.sabitovka.servlet.util.SuccessResponse;
 
+/**
+ * REST-контроллер для обработки авторизации
+ */
 @RequestMapping("/auth")
 public class AuthController implements RestController {
     private final UserService userService = ServiceFactory.getInstance().getUserService();
