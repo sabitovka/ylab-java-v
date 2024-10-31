@@ -53,15 +53,17 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
             field.setAccessible(true);
 
             Column column = field.getAnnotation(Column.class);
-            if (column != null) {
-                try {
-                    Object value = field.get(obj);
-                    if (value != null) {
-                        columns.put(column.name(), value);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Ошибка при доступе к полю " + field.getName(), e);
+            if (column == null) {
+                continue;
+            }
+            try {
+                Object value = field.get(obj);
+                if (value == null) {
+                    continue;
                 }
+                columns.put(column.name(), value);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Ошибка при доступе к полю " + field.getName(), e);
             }
         }
 
@@ -140,19 +142,21 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
             field.setAccessible(true);
 
             Column column = field.getAnnotation(Column.class);
-            if (column != null) {
-                try {
-                    Object value = field.get(obj);
-                    if (value != null) {
-                        if (column.name().equals("id")) {
-                            idValue = value;
-                        } else {
-                            columns.put(column.name(), value);
-                        }
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException("Ошибка при доступе к полю " + field.getName(), e);
+            if (column == null) {
+                continue;
+            }
+            try {
+                Object value = field.get(obj);
+                if (value == null) {
+                    continue;
                 }
+                if (column.name().equals("id")) {
+                    idValue = value;
+                } else {
+                    columns.put(column.name(), value);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Ошибка при доступе к полю " + field.getName(), e);
             }
         }
 
