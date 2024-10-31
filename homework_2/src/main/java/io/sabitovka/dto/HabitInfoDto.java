@@ -1,12 +1,13 @@
 package io.sabitovka.dto;
 
 import io.sabitovka.enums.HabitFrequency;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class HabitInfoDto {
