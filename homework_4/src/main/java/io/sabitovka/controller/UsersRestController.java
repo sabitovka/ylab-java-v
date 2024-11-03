@@ -1,28 +1,28 @@
 package io.sabitovka.controller;
 
 import io.sabitovka.auth.annotation.RequiresAuthorization;
+import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.UpdateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.UserService;
-import io.sabitovka.servlet.RestController;
-import io.sabitovka.servlet.annotation.*;
-import io.sabitovka.servlet.util.SuccessResponse;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * REST-контроллер для управления пользователями
  */
-@RequestMapping("/users")
-public class UsersRestController implements RestController {
+@RequestMapping("/api/users")
+@RestController
+public class UsersRestController {
     private final UserService userService = ServiceFactory.getInstance().getUserService();
 
-    @GetMapping("/{id|\\d+}")
+    @GetMapping("/{id}")
     @RequiresAuthorization
-    public UserInfoDto getUserById(String id) {
-        return userService.findById(Long.parseLong(id));
+    public UserInfoDto getUserById(@PathVariable Long id) {
+        return userService.findById(id);
     }
 
     @GetMapping("/blocked")
@@ -31,9 +31,9 @@ public class UsersRestController implements RestController {
         return new SuccessResponse<>(userService.getBlockedUsers());
     }
 
-    @PutMapping("/{id|\\d+}")
-    public SuccessResponse<String> updateUser(UpdateUserDto userInfoDto, String userId) {
-        userService.updateUser(Long.valueOf(userId), userInfoDto);
+    @PutMapping("/{id}")
+    public SuccessResponse<String> updateUser(UpdateUserDto userInfoDto, @PathVariable Long id) {
+        userService.updateUser(id, userInfoDto);
         return new SuccessResponse<>("Пользователь обновлен");
     }
 
@@ -43,24 +43,24 @@ public class UsersRestController implements RestController {
         return new SuccessResponse<>(userService.getActiveUsers());
     }
 
-    @PostMapping("/{id|\\d+}/password")
+    @PostMapping("/{id}/password")
     @RequiresAuthorization
-    public SuccessResponse<String> changePassword(ChangePasswordDto changePasswordDto, String userId) {
-        userService.changePassword(Long.valueOf(userId), changePasswordDto);
+    public SuccessResponse<String> changePassword(ChangePasswordDto changePasswordDto, @PathVariable Long id) {
+        userService.changePassword(id, changePasswordDto);
         return new SuccessResponse<>("Пароль успешно изменен");
     }
 
-    @DeleteMapping("/{id|\\d+}")
+    @DeleteMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<String> deleteProfile(String id) {
-        userService.deleteProfile(Long.valueOf(id));
+    public SuccessResponse<String> deleteProfile(@PathVariable Long id) {
+        userService.deleteProfile(id);
         return new SuccessResponse<>("Профиль удален.");
     }
 
-    @PostMapping("/{id|\\d+}/block")
+    @PostMapping("/{id}/block")
     @RequiresAuthorization(onlyAdmin = true)
-    public SuccessResponse<String> blockUser(String id) {
-        userService.blockUser(Long.parseLong(id));
+    public SuccessResponse<String> blockUser(@PathVariable Long id) {
+        userService.blockUser(id);
         return new SuccessResponse<>("Пользователь заблокирован");
     }
 }

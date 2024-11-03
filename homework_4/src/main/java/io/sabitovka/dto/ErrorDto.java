@@ -1,18 +1,19 @@
 package io.sabitovka.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
 /**
  * DTO для вывода ошибки
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class ErrorDto {
     private int internalCode;
-    private int status;
+    private HttpStatus status;
     private String error;
     private String message;
     private LocalDateTime timestamp = LocalDateTime.now();

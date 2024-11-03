@@ -1,18 +1,19 @@
 package io.sabitovka.controller;
 
+import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.statistic.ReportParamsDto;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.StatisticService;
-import io.sabitovka.servlet.RestController;
-import io.sabitovka.servlet.annotation.PostMapping;
-import io.sabitovka.servlet.annotation.RequestMapping;
-import io.sabitovka.servlet.util.SuccessResponse;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST-контроллер для управления статисткой выполнения привычек
  */
-@RequestMapping("/statistic")
-public class StatisticRestController implements RestController {
+@RequestMapping("/api/statistic")
+@RestController
+public class StatisticRestController {
     StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();
 
     @PostMapping("/report")

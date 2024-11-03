@@ -1,4 +1,4 @@
-package io.sabitovka.servlet.filter;
+package io.sabitovka.filter;
 
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;

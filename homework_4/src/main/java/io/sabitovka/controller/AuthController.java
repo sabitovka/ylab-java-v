@@ -1,34 +1,34 @@
 package io.sabitovka.controller;
 
+import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
-import io.sabitovka.servlet.RestController;
-import io.sabitovka.servlet.annotation.PostMapping;
-import io.sabitovka.servlet.annotation.RequestMapping;
-import io.sabitovka.servlet.util.SuccessResponse;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST-контроллер для обработки авторизации
  */
-@RequestMapping("/auth")
-public class AuthController implements RestController {
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
     private final UserService userService = ServiceFactory.getInstance().getUserService();
     private final AuthorizationService authService = ServiceFactory.getInstance().getAuthorizationService();
 
     @PostMapping("/register")
-    public SuccessResponse<UserInfoDto> register(CreateUserDto createUserDto) {
+    public SuccessResponse<UserInfoDto> register(@RequestBody CreateUserDto createUserDto) {
         UserInfoDto createdUser = userService.createUser(createUserDto);
         return new SuccessResponse<>(createdUser);
     }
 
     @PostMapping("/login")
-    public SuccessResponse<String> login(UserLoginDto loginDto) {
+    public ResponseEntity<?> login(@RequestBody UserLoginDto loginDto) {
         String token = authService.login(loginDto);
 
-        return new SuccessResponse<>(token);
+        return ResponseEntity.ok(new SuccessResponse<>(token));
     }
 }

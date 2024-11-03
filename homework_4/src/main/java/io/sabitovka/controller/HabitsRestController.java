@@ -6,34 +6,35 @@ import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
 import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.HabitService;
-import io.sabitovka.servlet.RestController;
-import io.sabitovka.servlet.annotation.*;
-import io.sabitovka.servlet.util.SuccessResponse;
+import io.sabitovka.dto.SuccessResponse;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * REST-контроллер для управления привычками пользователя
  */
-@RequestMapping("/habits")
-public class HabitsRestController implements RestController {
+@RestController
+@RequestMapping("/api/habits")
+public class HabitsRestController {
     HabitService habitService = ServiceFactory.getInstance().getHabitService();
 
-    @PostMapping("/")
+    @PostMapping
     @RequiresAuthorization
     public SuccessResponse<HabitInfoDto> createHabit(HabitInfoDto habitInfoDto) {
         HabitInfoDto created = habitService.createHabit(habitInfoDto);
         return new SuccessResponse<>(created);
     }
 
-    @PutMapping("/{id|\\d+}")
+    @PutMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<String> updateHabit(HabitInfoDto habitInfoDto, String habitId) {
-        habitService.updateHabit(Long.valueOf(habitId), habitInfoDto);
+    public SuccessResponse<String> updateHabit(HabitInfoDto habitInfoDto, @PathVariable Long id) {
+        habitService.updateHabit(id, habitInfoDto);
         return new SuccessResponse<>("Привычка обновлена");
     }
 
     // NOTE: Не успел сделать маппинг параметров url в функцию. в следующем задании сделаю через GET, честно)
+    // TODO: 03.11.2024 Переделать на GET
     @PostMapping("/filter")
     @RequiresAuthorization
     public SuccessResponse<List<HabitInfoDto>> filterHabitsByFilters(HabitFilterDto filterDto) {
@@ -41,37 +42,37 @@ public class HabitsRestController implements RestController {
         return new SuccessResponse<>(habitsByFilters);
     }
 
-    @GetMapping("/user/{id|\\d+}")
+    @GetMapping("/user/{userId}")
     @RequiresAuthorization
-    public SuccessResponse<List<HabitInfoDto>> getUserHabits(String userId) {
-        List<HabitInfoDto> allByOwner = habitService.getAllByOwner(Long.valueOf(userId));
+    public SuccessResponse<List<HabitInfoDto>> getUserHabits(@PathVariable Long userId) {
+        List<HabitInfoDto> allByOwner = habitService.getAllByOwner(userId);
         return new SuccessResponse<>(allByOwner);
     }
 
-    @PutMapping("/{id|\\d+}/disable")
+    @PutMapping("/{id}/disable")
     @RequiresAuthorization
-    public SuccessResponse<String> disableHabit(String habitId) {
-        habitService.disableHabit(Long.valueOf(habitId));
+    public SuccessResponse<String> disableHabit(@PathVariable Long id) {
+        habitService.disableHabit(id);
         return new SuccessResponse<>("Привычка отключена");
     }
 
-    @GetMapping("/{id|\\d+}")
+    @GetMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<HabitInfoDto> getHabitById(String habitId) {
-        HabitInfoDto habitById = habitService.getHabitById(Long.valueOf(habitId));
+    public SuccessResponse<HabitInfoDto> getHabitById(@PathVariable Long id) {
+        HabitInfoDto habitById = habitService.getHabitById(id);
         return new SuccessResponse<>(habitById);
     }
 
-    @DeleteMapping("/{id|\\d+}")
+    @DeleteMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<String> deleteHabit(String habitId) {
-        habitService.delete(Long.valueOf(habitId));
+    public SuccessResponse<String> deleteHabit(@PathVariable Long id) {
+        habitService.delete(id);
         return new SuccessResponse<>("Привычка удалена");
     }
 
-    @PostMapping("/{id|\\d+}/fulfill")
+    @PostMapping("/{id}/fulfill")
     @RequiresAuthorization
-    public void fulfillHabit(SimpleLocalDateDto localDateDto, String habitId) {
-        habitService.markHabitAsFulfilled(Long.valueOf(habitId), localDateDto);
+    public void fulfillHabit(SimpleLocalDateDto localDateDto, @PathVariable String id) {
+        habitService.markHabitAsFulfilled(Long.valueOf(id), localDateDto);
     }
 }
