@@ -30,15 +30,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория FulfilledHabitRepositoryImpl")
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { MainWebAppInitializer.class })
 class FulfilledHabitRepositoryImplTest {
     private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
             .withDatabaseName("testdb")
             .withUsername("junit")
             .withPassword("password");
 
-    @Autowired
     private FulfilledHabitRepository fulfilledHabitRepository;
     private FulfilledHabit fulfilledHabit1;
     private FulfilledHabit fulfilledHabit2;
@@ -56,13 +53,13 @@ class FulfilledHabitRepositoryImplTest {
     @BeforeEach
     public void setUp() throws SQLException {
         DataSourceConfig.DataSource dataSource = new DataSourceConfig.DataSource(
-                postgresContainer.getJdbcUrl(),
+                postgresContainer.getJdbcUrl() + "&currentSchema=model",
                 postgresContainer.getUsername(),
                 postgresContainer.getPassword()
         );
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        MigrationManager.migrate(dataSource.getConnection(), "db/changelog/test-changelog.xml", "model", "service");
+        MigrationManager.migrate(dataSource.getConnection(), "db/changelog/test-changelog.xml", "model", "public");
 
         UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
         HabitRepository habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
@@ -75,6 +72,18 @@ class FulfilledHabitRepositoryImplTest {
         habitRepository.create(habit);
         fulfilledHabit1 = new FulfilledHabit(1L, habit.getId(), LocalDate.now());
         fulfilledHabit2 = new FulfilledHabit(2L, habit.getId(), LocalDate.now().minusDays(1));
+    }
+
+    @AfterEach
+    public void tearDown() {
+        DataSourceConfig.DataSource dataSource = new DataSourceConfig.DataSource(
+                postgresContainer.getJdbcUrl() + "&currentSchema=model",
+                postgresContainer.getUsername(),
+                postgresContainer.getPassword()
+        );
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        jdbcTemplate.executeUpdate("TRUNCATE TABLE fulfilled_habits, habits, users RESTART IDENTITY CASCADE");
     }
 
     @Test
