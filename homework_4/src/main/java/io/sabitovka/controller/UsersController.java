@@ -22,8 +22,9 @@ public class UsersController {
 
     @GetMapping("/{id}")
     @RequiresAuthorization
-    public UserInfoDto getUserById(@PathVariable Long id) {
-        return userService.findById(id);
+    public SuccessResponse<?> getUserById(@PathVariable Long id) {
+        UserInfoDto infoDto = userService.findById(id);
+        return new SuccessResponse<>(infoDto);
     }
 
     @GetMapping("/blocked")

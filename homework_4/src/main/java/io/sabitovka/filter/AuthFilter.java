@@ -23,7 +23,7 @@ import java.io.IOException;
  * оставляя право методы принять решение, обрабатывать запрос без авторизации или нет
  */
 @RequiredArgsConstructor
-@Component
+@Component("authFilter")
 public class AuthFilter extends HttpFilter {
     private final UserDetailsService userDetailsService;
     private final Jwt jwt;

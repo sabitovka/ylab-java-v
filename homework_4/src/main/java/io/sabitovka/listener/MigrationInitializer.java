@@ -13,13 +13,13 @@ import java.sql.SQLException;
 @RequiredArgsConstructor
 @Component
 public class MigrationInitializer {
-    @Value("db.modelSchema")
+    @Value("${db.modelSchema}")
     private String modelSchema;
 
-    @Value("db.serviceSchema")
+    @Value("${db.serviceSchema}")
     private String serviceSchema;
 
-    @Value("db.changelogFile")
+    @Value("${db.changelogFile}")
     private String changelogFile;
 
     private final DataSourceConfig.DataSource dataSource;

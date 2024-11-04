@@ -3,6 +3,7 @@ package io.sabitovka.controller;
 import io.sabitovka.dto.ErrorDto;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
+import io.sabitovka.exception.ValidationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,6 +23,12 @@ public class ExceptionController {
     public ResponseEntity<?> handleApplicationException(ApplicationException e) {
         return ResponseEntity.status(e.getErrorCode().getHttpCode())
                 .body(wrapToErrorDto(e));
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<?> handleValidationException(ValidationException e) {
+        return ResponseEntity.badRequest()
+                .body(wrapToErrorDto(new ApplicationException(ErrorCode.BAD_REQUEST, e)));
     }
 
     @ExceptionHandler(Exception.class)

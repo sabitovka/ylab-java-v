@@ -4,10 +4,18 @@ import io.sabitovka.filter.AuthFilter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 public class MainWebAppInitializer implements WebApplicationInitializer {
     @Override
@@ -20,13 +28,7 @@ public class MainWebAppInitializer implements WebApplicationInitializer {
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping("/");
 
-        registerFilters(container, context);
-    }
-
-    private void registerFilters(ServletContext container, AnnotationConfigWebApplicationContext context) {
-        context.refresh();
-        AuthFilter authFilter = context.getBean(AuthFilter.class);
-        FilterRegistration.Dynamic authFilterRegistration = container.addFilter("AuthFilter", authFilter);
-        authFilterRegistration.addMappingForUrlPatterns(null, false, "/api/*");
+        FilterRegistration.Dynamic authFilterProxy = container.addFilter("authFilter", new DelegatingFilterProxy("authFilter"));
+        authFilterProxy.addMappingForUrlPatterns(null, false, "/api/*");
     }
 }

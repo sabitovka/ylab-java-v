@@ -6,6 +6,8 @@ import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

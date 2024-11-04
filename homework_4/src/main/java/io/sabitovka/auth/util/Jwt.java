@@ -20,8 +20,7 @@ import java.util.UUID;
 @Component
 @PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public class Jwt {
-    @Value("${security.jwt.expirationMinutes}")
-    private int expirationTime;
+    private final int expirationTime;
     private final Algorithm algorithm;
 
     @Autowired
