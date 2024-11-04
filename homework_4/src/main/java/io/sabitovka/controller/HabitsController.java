@@ -1,11 +1,11 @@
 package io.sabitovka.controller;
 
 import io.sabitovka.auth.annotation.RequiresAuthorization;
+import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
 import io.sabitovka.service.HabitService;
-import io.sabitovka.dto.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

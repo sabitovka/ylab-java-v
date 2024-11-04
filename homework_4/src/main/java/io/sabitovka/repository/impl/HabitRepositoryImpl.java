@@ -4,7 +4,6 @@ import io.sabitovka.model.Habit;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.PersistenceRepository;
 import io.sabitovka.persistence.rowmapper.HabitRowMapper;
-import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.HabitRepository;
 import org.springframework.stereotype.Repository;
 

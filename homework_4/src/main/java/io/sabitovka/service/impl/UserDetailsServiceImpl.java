@@ -7,7 +7,6 @@ import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserDetailsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor

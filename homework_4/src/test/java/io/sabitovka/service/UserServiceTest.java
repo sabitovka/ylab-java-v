@@ -3,7 +3,6 @@ package io.sabitovka.service;
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.auth.util.PasswordHasher;
-import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UpdateUserDto;
@@ -24,16 +23,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

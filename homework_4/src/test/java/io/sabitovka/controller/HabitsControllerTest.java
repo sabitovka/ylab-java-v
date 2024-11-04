@@ -1,13 +1,12 @@
 package io.sabitovka.controller;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.service.HabitService;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -21,9 +20,11 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class HabitsControllerTest {
 

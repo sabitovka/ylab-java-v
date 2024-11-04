@@ -1,16 +1,11 @@
 package io.sabitovka.repository;
 
 import io.sabitovka.config.DataSourceConfig;
-import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.config.TestConfig;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
-import io.sabitovka.persistence.rowmapper.HabitRowMapper;
-import io.sabitovka.persistence.rowmapper.UserRowMapper;
-import io.sabitovka.repository.impl.HabitRepositoryImpl;
-import io.sabitovka.repository.impl.UserRepositoryImpl;
 import io.sabitovka.util.MigrationManager;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +16,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;

@@ -10,7 +10,6 @@ import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.util.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

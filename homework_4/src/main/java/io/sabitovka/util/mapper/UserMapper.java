@@ -1,7 +1,6 @@
 package io.sabitovka.util.mapper;
 
 import io.sabitovka.dto.user.CreateUserDto;
-import io.sabitovka.dto.user.UpdateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.model.User;
 import org.mapstruct.Mapper;

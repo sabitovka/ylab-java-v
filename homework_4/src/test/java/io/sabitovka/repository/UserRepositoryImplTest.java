@@ -1,7 +1,6 @@
 package io.sabitovka.repository;
 
 import io.sabitovka.config.DataSourceConfig;
-import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.config.TestConfig;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
@@ -17,8 +16,6 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;

@@ -1,19 +1,12 @@
 package io.sabitovka.repository;
 
 import io.sabitovka.config.DataSourceConfig;
-import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.config.TestConfig;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
-import io.sabitovka.persistence.rowmapper.FulfilledHabitRowMapper;
-import io.sabitovka.persistence.rowmapper.HabitRowMapper;
-import io.sabitovka.persistence.rowmapper.UserRowMapper;
-import io.sabitovka.repository.impl.FulfilledHabitRepositoryImpl;
-import io.sabitovka.repository.impl.HabitRepositoryImpl;
-import io.sabitovka.repository.impl.UserRepositoryImpl;
 import io.sabitovka.util.MigrationManager;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;

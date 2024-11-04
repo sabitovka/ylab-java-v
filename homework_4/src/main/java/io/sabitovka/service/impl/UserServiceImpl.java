@@ -17,7 +17,6 @@ import io.sabitovka.service.UserService;
 import io.sabitovka.util.mapper.UserMapper;
 import io.sabitovka.util.validation.Validator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

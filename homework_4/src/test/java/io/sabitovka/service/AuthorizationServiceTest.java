@@ -2,7 +2,6 @@ package io.sabitovka.service;
 
 import io.sabitovka.auth.util.Jwt;
 import io.sabitovka.auth.util.PasswordHasher;
-import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.config.TestConfig;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.exception.ApplicationException;
@@ -16,13 +15,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 

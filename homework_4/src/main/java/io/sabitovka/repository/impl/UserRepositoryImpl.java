@@ -3,7 +3,6 @@ package io.sabitovka.repository.impl;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.PersistenceRepository;
-import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.repository.UserRepository;
 import org.springframework.stereotype.Component;

@@ -3,7 +3,6 @@ package io.sabitovka.service;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.util.logging.annotation.Audit;
 import io.sabitovka.util.logging.annotation.IgnoreAudit;
-import org.springframework.stereotype.Service;
 
 /**
  * Сервис для управления авторизацией в системе. Предоставляет основные методы для авторизации и аутентификации
