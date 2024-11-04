@@ -1,4 +1,4 @@
-package io.sabitovka.auth.util;
+package io.sabitovka.util;
 
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;

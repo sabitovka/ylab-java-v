@@ -9,7 +9,6 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-@ComponentScan("io.sabitovka")
 public class MainWebAppInitializer implements WebApplicationInitializer {
     @Override
     public void onStartup(ServletContext container) {

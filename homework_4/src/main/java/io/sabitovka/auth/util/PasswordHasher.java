@@ -1,7 +1,6 @@
 package io.sabitovka.auth.util;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import io.sabitovka.util.YamlPropertySourceFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;

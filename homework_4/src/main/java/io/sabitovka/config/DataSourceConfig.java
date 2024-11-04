@@ -1,6 +1,6 @@
 package io.sabitovka.config;
 
-import io.sabitovka.auth.util.YamlPropertySourceFactory;
+import io.sabitovka.util.YamlPropertySourceFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,7 @@ public class DataSourceConfig {
     private String driverClassName;
 
     @Bean
-    public DataSource customDataSource() {
+    public DataSource getDataSource() {
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException e) {

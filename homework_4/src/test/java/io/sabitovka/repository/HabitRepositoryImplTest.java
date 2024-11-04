@@ -2,6 +2,7 @@ package io.sabitovka.repository;
 
 import io.sabitovka.config.DataSourceConfig;
 import io.sabitovka.config.MainWebAppInitializer;
+import io.sabitovka.config.TestConfig;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -29,14 +32,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория HabitRepositoryImpl")
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = { TestConfig.class })
 class HabitRepositoryImplTest {
     private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
             .withDatabaseName("testdb")
             .withUsername("junit")
             .withPassword("password");
 
+    @DynamicPropertySource
+    private static void datasourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("db.url", () -> postgresContainer.getJdbcUrl() + "&currentSchema=model");
+        registry.add("db.username", postgresContainer::getUsername);
+        registry.add("db.password", postgresContainer::getPassword);
+    }
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private HabitRepository habitRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private DataSourceConfig dataSourceConfig;
     private User user;
     private Habit habit1;
     private Habit habit2;
@@ -53,17 +74,8 @@ class HabitRepositoryImplTest {
 
     @BeforeEach
     public void setUp() throws SQLException {
-        DataSourceConfig.DataSource dataSource = new DataSourceConfig.DataSource(
-                postgresContainer.getJdbcUrl() + "&currentSchema=model",
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword()
-        );
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        MigrationManager.migrate(dataSourceConfig.getDataSource().getConnection(), "db/changelog/test-changelog.xml", "model", "public");
 
-        MigrationManager.migrate(dataSource.getConnection(), "db/changelog/test-changelog.xml", "model", "public");
-
-        habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
-        UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
         user = new User(1L, "testUser", "test@example.com", "password", false, true);
         userRepository.create(user);
         habit1 = new Habit(1L, "Habit1", "Description1", HabitFrequency.DAILY, LocalDate.now(), true, 1L);
@@ -72,13 +84,6 @@ class HabitRepositoryImplTest {
 
     @AfterEach
     public void tearDown() {
-        DataSourceConfig.DataSource dataSource = new DataSourceConfig.DataSource(
-                postgresContainer.getJdbcUrl() + "&currentSchema=model",
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword()
-        );
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
         jdbcTemplate.executeUpdate("TRUNCATE TABLE fulfilled_habits, habits, users RESTART IDENTITY CASCADE");
     }
 

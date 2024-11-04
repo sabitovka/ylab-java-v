@@ -2,6 +2,7 @@ package io.sabitovka.repository;
 
 import io.sabitovka.config.DataSourceConfig;
 import io.sabitovka.config.MainWebAppInitializer;
+import io.sabitovka.config.TestConfig;
 import io.sabitovka.model.User;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.rowmapper.UserRowMapper;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
@@ -25,18 +28,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория UserRepositoryImpl")
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { MainWebAppInitializer.class })
+@ContextConfiguration(classes = { TestConfig.class })
 class UserRepositoryImplTest {
     private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
             .withDatabaseName("testdb")
             .withUsername("junit")
             .withPassword("password");
 
+    @DynamicPropertySource
+    private static void datasourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("db.url", () -> postgresContainer.getJdbcUrl() + "&currentSchema=model");
+        registry.add("db.username", postgresContainer::getUsername);
+        registry.add("db.password", postgresContainer::getPassword);
+    }
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DataSourceConfig dataSourceConfig;
 
     @BeforeAll
     static void beforeAll() {
@@ -50,16 +63,15 @@ class UserRepositoryImplTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        DataSourceConfig.DataSource dataSource = new DataSourceConfig.DataSource(
-                postgresContainer.getJdbcUrl(),
-                postgresContainer.getUsername(),
-                postgresContainer.getPassword()
-        );
-        jdbcTemplate = new JdbcTemplate(dataSource);
-
-        MigrationManager.migrate(dataSource.getConnection(), "db/changelog/test-changelog.xml", "model", "schema");
+        MigrationManager.migrate(dataSourceConfig.getDataSource().getConnection(), "db/changelog/test-changelog.xml", "model", "public");
 
         userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());
+    }
+
+    @AfterEach
+    public void tearDown() {
+        jdbcTemplate.executeUpdate("TRUNCATE TABLE fulfilled_habits, habits, users RESTART IDENTITY CASCADE");
+        jdbcTemplate.executeUpdate("ALTER SEQUENCE users_sequence RESTART WITH 1");
     }
 
     @Test
