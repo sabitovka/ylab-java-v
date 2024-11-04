@@ -1,7 +1,9 @@
 package io.sabitovka.service;
 
+import io.sabitovka.auth.util.Jwt;
 import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.config.MainWebAppInitializer;
+import io.sabitovka.config.TestConfig;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
@@ -20,24 +22,25 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({ MockitoExtension.class, SpringExtension.class})
 @DisplayName("Тест сервиса авторизации")
-@ContextConfiguration(classes = { MainWebAppInitializer.class })
+@ExtendWith({ MockitoExtension.class, SpringExtension.class})
+@ContextConfiguration(classes = { TestConfig.class })
 class AuthorizationServiceTest {
-    @Autowired
     @Mock
     private UserRepository userRepository;
 
-    @Autowired
+    @Mock
+    private PasswordHasher passwordHasher;
+
+    @Mock
+    private Jwt jwt;
+
     @InjectMocks
     private AuthorizationServiceImpl authorizationService;
-
-    @Autowired
-    private PasswordHasher passwordHasher;
 
     private final UserLoginDto userLoginDto = new UserLoginDto();
 
@@ -50,12 +53,16 @@ class AuthorizationServiceTest {
     @Test
     @DisplayName("[login] Тест с корректными данными пользователя")
     public void loginWithValidCredentialsShouldSetCurrentUser() {
+        when(passwordHasher.hash(anyString())).thenReturn("hashedPassword");
+        when(passwordHasher.verify(anyString(), anyString())).thenReturn(true);
+        when(jwt.generate(1L)).thenReturn("jwt-token");
         User user = new User(1L, "mock", "mock@example.com", passwordHasher.hash("password"), false, true);
         when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
 
         String token = authorizationService.login(userLoginDto);
 
         assertThat(token).isNotNull();
+        assertThat(token).isEqualTo("jwt-token");
     }
 
     @Test

@@ -29,28 +29,35 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@ExtendWith({ MockitoExtension.class, SpringExtension.class })
 @DisplayName("Тест userServiceImpl")
-@ContextConfiguration(classes = { MainWebAppInitializer.class })
+@ExtendWith({ MockitoExtension.class })
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private HabitRepository habitRepository;
-    @InjectMocks
-    private UserServiceImpl userService;
+
+    @Mock
+    private FulfilledHabitRepository fulfilledHabitRepository;
+
     @Mock
     private AuthInMemoryContext authInMemoryContext;
 
-    @Autowired
+    @Mock
     private PasswordHasher passwordHasher;
+
+    @InjectMocks
+    private UserServiceImpl userService;
 
     UserDetails adminUserDetails = new UserDetails(1L, "admin", true);
     UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
@@ -147,19 +154,21 @@ class UserServiceTest {
         changePasswordDto.setNewPassword("newPassword");
         changePasswordDto.setOldPassword("oldPassword123");
 
-        User existingUser = new User(2L, "mock", "mock@example.com", passwordHasher.hash("oldPassword123"), false, true);
+        User existingUser = new User(2L, "mock", "mock@example.com", "oldPassword123", false, true);
         when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser));
 
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
-
             when(authInMemoryContext.getAuthentication()).thenReturn(adminUserDetails);
+
+            when(passwordHasher.verify(changePasswordDto.getOldPassword(), "oldPassword123")).thenReturn(true);
             userService.changePassword(2L, changePasswordDto);
 
-            User existingUser1 = new User(2L, "mock", "mock@example.com", passwordHasher.hash("oldPassword123"), false, true);
+            User existingUser1 = new User(2L, "mock", "mock@example.com", "oldPassword123", false, true);
             when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser1));
 
             when(authInMemoryContext.getAuthentication()).thenReturn(simpleUserDetails);
+            when(passwordHasher.verify(changePasswordDto.getOldPassword(), "oldPassword123")).thenReturn(true);
             userService.changePassword(2L, changePasswordDto);
 
             verify(userRepository, times(2)).update(any(User.class));
@@ -207,6 +216,7 @@ class UserServiceTest {
 
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         when(habitRepository.findAllByUserId(user1.getId())).thenReturn(List.of(habit1, habit2));
+        when(fulfilledHabitRepository.findAllByHabit(habit1)).thenReturn(Collections.emptyList());
 
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
