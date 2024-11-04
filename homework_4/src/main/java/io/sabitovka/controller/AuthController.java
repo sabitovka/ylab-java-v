@@ -4,9 +4,9 @@ import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.dto.user.UserLoginDto;
-import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,9 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private final UserService userService = ServiceFactory.getInstance().getUserService();
-    private final AuthorizationService authService = ServiceFactory.getInstance().getAuthorizationService();
+    private final UserService userService;
+    private final AuthorizationService authService;
 
     @PostMapping("/register")
     public SuccessResponse<UserInfoDto> register(@RequestBody CreateUserDto createUserDto) {

@@ -3,14 +3,16 @@ package io.sabitovka.filter;
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.auth.util.Jwt;
-import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.UserDetailsService;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -20,9 +22,16 @@ import java.io.IOException;
  * Если токен не валидный или вообще не был передан, фильтр пропускает дальнейшее выполнение,
  * оставляя право методы принять решение, обрабатывать запрос без авторизации или нет
  */
-@WebFilter(filterName = "AuthFilter", value = "/api/*")
+@RequiredArgsConstructor
+@Component
 public class AuthFilter extends HttpFilter {
-    private final UserDetailsService userDetailsService = ServiceFactory.getInstance().getUserDetailsService();
+    private final UserDetailsService userDetailsService;
+    private final Jwt jwt;
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        super.init(filterConfig);
+    }
 
     @Override
     protected void doFilter(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -50,6 +59,6 @@ public class AuthFilter extends HttpFilter {
             return null;
 
         String token = authHeader.substring(7);
-        return Jwt.verifyAndGetUserId(token);
+        return jwt.verifyAndGetUserId(token);
     }
 }

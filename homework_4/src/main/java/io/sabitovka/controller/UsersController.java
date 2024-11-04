@@ -5,8 +5,8 @@ import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.UpdateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
-import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +16,9 @@ import java.util.List;
  */
 @RequestMapping("/api/users")
 @RestController
-public class UsersRestController {
-    private final UserService userService = ServiceFactory.getInstance().getUserService();
+@RequiredArgsConstructor
+public class UsersController {
+    private final UserService userService;
 
     @GetMapping("/{id}")
     @RequiresAuthorization

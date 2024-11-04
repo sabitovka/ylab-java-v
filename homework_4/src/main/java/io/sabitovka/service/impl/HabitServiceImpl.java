@@ -16,19 +16,19 @@ import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.util.mapper.HabitMapper;
 import io.sabitovka.util.validation.Validator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@Service
 public class HabitServiceImpl implements HabitService {
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
     private final FulfilledHabitRepository fulfilledHabitRepository;
-
-    public HabitServiceImpl(HabitRepository habitRepository, UserRepository userRepository, FulfilledHabitRepository fulfilledHabitRepository) {
-        this.habitRepository = habitRepository;
-        this.userRepository = userRepository;
-        this.fulfilledHabitRepository = fulfilledHabitRepository;
-    }
 
     private void validateHabitOwnership(Habit habit) {
         UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();

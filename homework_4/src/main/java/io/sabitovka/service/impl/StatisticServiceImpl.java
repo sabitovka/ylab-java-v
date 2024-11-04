@@ -6,6 +6,8 @@ import io.sabitovka.model.Habit;
 import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.service.StatisticService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -13,14 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
+@Service
 public class StatisticServiceImpl implements StatisticService {
     private final HabitRepository habitRepository;
     private final FulfilledHabitRepository fulfilledHabitRepository;
-
-    public StatisticServiceImpl(HabitRepository habitRepository, FulfilledHabitRepository fulfilledHabitRepository) {
-        this.habitRepository = habitRepository;
-        this.fulfilledHabitRepository = fulfilledHabitRepository;
-    }
 
     private LocalDate incDate(HabitFrequency habitFrequency, LocalDate date) {
         return switch (habitFrequency) {

@@ -3,8 +3,10 @@ package io.sabitovka.repository.impl;
 import io.sabitovka.model.Habit;
 import io.sabitovka.persistence.JdbcTemplate;
 import io.sabitovka.persistence.PersistenceRepository;
+import io.sabitovka.persistence.rowmapper.HabitRowMapper;
 import io.sabitovka.persistence.rowmapper.RowMapper;
 import io.sabitovka.repository.HabitRepository;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,8 +15,9 @@ import java.util.List;
  * Реализация интерфейса {@link HabitRepository} для управления привычками.
  * Хранилище предназначено для работы с объектами типа {@link Habit}, которые привязаны к конкретному пользователю.
  */
+@Repository
 public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> implements HabitRepository {
-    public HabitRepositoryImpl(JdbcTemplate jdbcTemplate, RowMapper<Habit> rowMapper) {
+    public HabitRepositoryImpl(JdbcTemplate jdbcTemplate, HabitRowMapper rowMapper) {
         super(jdbcTemplate, rowMapper, Habit.class);
     }
 

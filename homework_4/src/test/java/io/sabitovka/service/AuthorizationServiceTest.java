@@ -1,6 +1,7 @@
 package io.sabitovka.service;
 
 import io.sabitovka.auth.util.PasswordHasher;
+import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
@@ -13,6 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
@@ -20,14 +24,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class, SpringExtension.class})
 @DisplayName("Тест сервиса авторизации")
+@ContextConfiguration(classes = { MainWebAppInitializer.class })
 class AuthorizationServiceTest {
+    @Autowired
     @Mock
     private UserRepository userRepository;
 
+    @Autowired
     @InjectMocks
     private AuthorizationServiceImpl authorizationService;
+
+    @Autowired
+    private PasswordHasher passwordHasher;
 
     private final UserLoginDto userLoginDto = new UserLoginDto();
 
@@ -40,7 +50,7 @@ class AuthorizationServiceTest {
     @Test
     @DisplayName("[login] Тест с корректными данными пользователя")
     public void loginWithValidCredentialsShouldSetCurrentUser() {
-        User user = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, true);
+        User user = new User(1L, "mock", "mock@example.com", passwordHasher.hash("password"), false, true);
         when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
 
         String token = authorizationService.login(userLoginDto);
@@ -51,7 +61,7 @@ class AuthorizationServiceTest {
     @Test
     @DisplayName("[login] Не должен выполнить вход, если пароль неверный")
     public void loginWithInvalidPasswordShouldNotSetCurrentUser() {
-        User user = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, true);
+        User user = new User(1L, "mock", "mock@example.com", passwordHasher.hash("password"), false, true);
         when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(user));
 
         userLoginDto.setPassword("wrongPassword");
@@ -72,7 +82,7 @@ class AuthorizationServiceTest {
     @Test
     @DisplayName("[login] Не должен выполнять вход для заблокированного пользователя")
     public void loginWithBlockedUserShouldThrowException() {
-        User blockedUser = new User(1L, "mock", "mock@example.com", PasswordHasher.hash("password"), false, false);
+        User blockedUser = new User(1L, "mock", "mock@example.com", passwordHasher.hash("password"), false, false);
         when(userRepository.findUserByEmail("mock@example.com")).thenReturn(Optional.of(blockedUser));
 
         assertThatThrownBy(() -> authorizationService.login(userLoginDto))

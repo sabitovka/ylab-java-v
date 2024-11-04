@@ -2,8 +2,8 @@ package io.sabitovka.controller;
 
 import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.statistic.ReportParamsDto;
-import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.StatisticService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequestMapping("/api/statistic")
 @RestController
-public class StatisticRestController {
-    StatisticService statisticService = ServiceFactory.getInstance().getStatisticService();
+@RequiredArgsConstructor
+public class StatisticController {
+    private final StatisticService statisticService;
 
     @PostMapping("/report")
     public SuccessResponse<String> generateReport(ReportParamsDto reportParamsDto) {

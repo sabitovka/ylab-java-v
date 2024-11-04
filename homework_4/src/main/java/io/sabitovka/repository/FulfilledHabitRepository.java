@@ -2,6 +2,7 @@ package io.sabitovka.repository;
 
 import io.sabitovka.model.FulfilledHabit;
 import io.sabitovka.model.Habit;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

@@ -6,13 +6,14 @@ import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserDetailsService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
+@Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
-
-    public UserDetailsServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public UserDetails findUserById(Long id) {

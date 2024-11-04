@@ -5,8 +5,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.sabitovka.common.Constants;
-import lombok.experimental.UtilityClass;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.UUID;
@@ -14,17 +16,25 @@ import java.util.UUID;
 /**
  * Утилитарный класс для управления создания и верификации JWT токенов
  */
-@UtilityClass
+@Component
+@PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public class Jwt {
-    private final static Algorithm algorithm = Algorithm.HMAC256(Constants.JWT_SECRET);
-    private final static int expirationTime = 5 * 60 * 1000;
+    @Value("${security.jwt.expirationMinutes}")
+    private int expirationTime;
+    private final Algorithm algorithm;
+
+    @Autowired
+    public Jwt(@Value("${security.jwt.secret}") String jwtSecret, @Value("${security.jwt.expirationMinutes}") int expirationTime) {
+        algorithm = Algorithm.HMAC256(jwtSecret);
+        this.expirationTime = expirationTime * 60 * 1000;
+    }
 
     /**
      * Генерирует JWT-токен. В Claims записывает переданного ID пользователя
      * @param userId ID пользователя
      * @return Сгенерированный токен
      */
-    public static String generate(Long userId) {
+    public String generate(Long userId) {
         return JWT.create()
                 .withIssuer("Habit Tracker API")
                 .withSubject("Habit Tracker Client")
@@ -42,7 +52,7 @@ public class Jwt {
      * @param token Полученный от пользователя токен
      * @return ID пользователя или null если токен не валидный
      */
-    public static Long verifyAndGetUserId(String token) {
+    public Long verifyAndGetUserId(String token) {
         try {
             JWTVerifier verifier = JWT.require(algorithm).build();
             DecodedJWT decodedJWT = verifier.verify(token);

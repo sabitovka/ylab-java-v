@@ -1,5 +1,7 @@
 package io.sabitovka.repository;
 
+import io.sabitovka.config.DataSourceConfig;
+import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.enums.HabitFrequency;
 import io.sabitovka.model.Habit;
 import io.sabitovka.model.User;
@@ -10,6 +12,10 @@ import io.sabitovka.repository.impl.HabitRepositoryImpl;
 import io.sabitovka.repository.impl.UserRepositoryImpl;
 import io.sabitovka.util.MigrationManager;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.sql.Connection;
@@ -23,11 +29,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория HabitRepositoryImpl")
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = { MainWebAppInitializer.class })
 class HabitRepositoryImplTest {
     private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
             .withDatabaseName("testdb")
             .withUsername("junit")
             .withPassword("password");
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private HabitRepository habitRepository;
     private User user;
     private Habit habit1;
@@ -45,14 +58,14 @@ class HabitRepositoryImplTest {
 
     @BeforeEach
     public void setUp() throws SQLException {
-        Connection connection = DriverManager.getConnection(
+        DataSourceConfig.DataSource dataSource = new DataSourceConfig.DataSource(
                 postgresContainer.getJdbcUrl(),
                 postgresContainer.getUsername(),
                 postgresContainer.getPassword()
         );
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(connection);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        MigrationManager.migrate(connection, "db/changelog/test-changelog.xml");
+        MigrationManager.migrate(dataSource.getConnection(), "db/changelog/test-changelog.xml", "model", "service");
 
         habitRepository = new HabitRepositoryImpl(jdbcTemplate, new HabitRowMapper());
         UserRepository userRepository = new UserRepositoryImpl(jdbcTemplate, new UserRowMapper());

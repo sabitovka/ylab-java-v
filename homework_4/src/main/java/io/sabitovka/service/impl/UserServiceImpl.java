@@ -16,19 +16,19 @@ import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
 import io.sabitovka.util.mapper.UserMapper;
 import io.sabitovka.util.validation.Validator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@RequiredArgsConstructor
+@Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
     private final FulfilledHabitRepository fulfilledHabitRepository;
-
-    public UserServiceImpl(UserRepository userRepository, HabitRepository habitRepository, FulfilledHabitRepository fulfilledHabitRepository) {
-        this.userRepository = userRepository;
-        this.habitRepository = habitRepository;
-        this.fulfilledHabitRepository = fulfilledHabitRepository;
-    }
+    private final PasswordHasher passwordHasher;
 
     private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
         UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
             throw new ApplicationException(ErrorCode.BAD_REQUEST, "Данный email уже занят");
         }
 
-        String hashedPassword = PasswordHasher.hash(createUserDto.getPassword());
+        String hashedPassword = passwordHasher.hash(createUserDto.getPassword());
         createUserDto.setPassword(hashedPassword);
 
         User user = UserMapper.INSTANCE.createUserDtoToUser(createUserDto);
@@ -77,11 +77,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Не удалось обновить пароль пользователя"));
 
-        if (!PasswordHasher.verify(changePasswordDto.getOldPassword(), user.getPassword())) {
+        if (!passwordHasher.verify(changePasswordDto.getOldPassword(), user.getPassword())) {
             throw new ApplicationException(ErrorCode.BAD_REQUEST, "Старый пароль не совпадает");
         }
 
-        String hashedPassword = PasswordHasher.hash(changePasswordDto.getNewPassword());
+        String hashedPassword = passwordHasher.hash(changePasswordDto.getNewPassword());
         user.setPassword(hashedPassword);
         userRepository.update(user);
     }

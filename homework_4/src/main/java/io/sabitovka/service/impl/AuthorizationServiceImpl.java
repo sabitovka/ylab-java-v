@@ -9,24 +9,28 @@ import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.util.validation.Validator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 /**
  *
  */
+@RequiredArgsConstructor
+@Service
 public class AuthorizationServiceImpl implements AuthorizationService {
     private final UserRepository userRepository;
-    public AuthorizationServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final Jwt jwt;
+    private final PasswordHasher passwordHasher;
 
     @Override
     public String login(UserLoginDto userLoginDto) {
         Validator.validate(userLoginDto);
 
         Optional<User> user = userRepository.findUserByEmail(userLoginDto.getEmail());
-        if (user.isEmpty() || !PasswordHasher.verify(userLoginDto.getPassword(), user.get().getPassword())) {
+        if (user.isEmpty() || !passwordHasher.verify(userLoginDto.getPassword(), user.get().getPassword())) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED, "Неверный логин или пароль");
         }
 
@@ -34,6 +38,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new ApplicationException(ErrorCode.FORBIDDEN, "Ваша учетная запись была заблокирована");
         }
 
-        return Jwt.generate(user.get().getId());
+        return jwt.generate(user.get().getId());
     }
 }

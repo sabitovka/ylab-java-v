@@ -3,6 +3,7 @@ package io.sabitovka.service;
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.auth.util.PasswordHasher;
+import io.sabitovka.config.MainWebAppInitializer;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UpdateUserDto;
@@ -23,6 +24,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,8 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({ MockitoExtension.class, SpringExtension.class })
 @DisplayName("Тест userServiceImpl")
+@ContextConfiguration(classes = { MainWebAppInitializer.class })
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -43,6 +48,9 @@ class UserServiceTest {
     private UserServiceImpl userService;
     @Mock
     private AuthInMemoryContext authInMemoryContext;
+
+    @Autowired
+    private PasswordHasher passwordHasher;
 
     UserDetails adminUserDetails = new UserDetails(1L, "admin", true);
     UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
@@ -139,7 +147,7 @@ class UserServiceTest {
         changePasswordDto.setNewPassword("newPassword");
         changePasswordDto.setOldPassword("oldPassword123");
 
-        User existingUser = new User(2L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+        User existingUser = new User(2L, "mock", "mock@example.com", passwordHasher.hash("oldPassword123"), false, true);
         when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser));
 
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
@@ -148,7 +156,7 @@ class UserServiceTest {
             when(authInMemoryContext.getAuthentication()).thenReturn(adminUserDetails);
             userService.changePassword(2L, changePasswordDto);
 
-            User existingUser1 = new User(2L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+            User existingUser1 = new User(2L, "mock", "mock@example.com", passwordHasher.hash("oldPassword123"), false, true);
             when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser1));
 
             when(authInMemoryContext.getAuthentication()).thenReturn(simpleUserDetails);
@@ -161,7 +169,7 @@ class UserServiceTest {
     @Test
     @DisplayName("[changePassword] Должен выбросить исключение, когда пароли не совпадают")
     void changePasswordWhenOldPasswordIsIncorrectShouldThrowException() {
-        User existingUser = new User(2L, "mock", "mock@example.com", PasswordHasher.hash("oldPassword123"), false, true);
+        User existingUser = new User(2L, "mock", "mock@example.com", passwordHasher.hash("oldPassword123"), false, true);
         when(userRepository.findById(2L)).thenReturn(Optional.of(existingUser));
 
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
@@ -193,7 +201,7 @@ class UserServiceTest {
     @Test
     @DisplayName("[deleteProfile] Удалить пользователя и привычки")
     void deleteProfileShouldDeleteUserAndHabits() {
-        User user1 = new User(2L, "mock", "mock@example.ru", PasswordHasher.hash("password"), false, true);
+        User user1 = new User(2L, "mock", "mock@example.ru", passwordHasher.hash("password"), false, true);
         Habit habit1 = new Habit(1L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 2L);
         Habit habit2 = new Habit(2L, "name", "description", HabitFrequency.DAILY, LocalDate.now(), true, 2L);
 

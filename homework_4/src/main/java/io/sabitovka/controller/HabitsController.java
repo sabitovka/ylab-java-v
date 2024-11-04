@@ -4,9 +4,9 @@ import io.sabitovka.auth.annotation.RequiresAuthorization;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
-import io.sabitovka.factory.ServiceFactory;
 import io.sabitovka.service.HabitService;
 import io.sabitovka.dto.SuccessResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +16,9 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/habits")
-public class HabitsRestController {
-    HabitService habitService = ServiceFactory.getInstance().getHabitService();
+@RequiredArgsConstructor
+public class HabitsController {
+    private final HabitService habitService;
 
     @PostMapping
     @RequiresAuthorization
@@ -33,8 +34,6 @@ public class HabitsRestController {
         return new SuccessResponse<>("Привычка обновлена");
     }
 
-    // NOTE: Не успел сделать маппинг параметров url в функцию. в следующем задании сделаю через GET, честно)
-    // TODO: 03.11.2024 Переделать на GET
     @PostMapping("/filter")
     @RequiresAuthorization
     public SuccessResponse<List<HabitInfoDto>> filterHabitsByFilters(HabitFilterDto filterDto) {

@@ -1,6 +1,9 @@
 package io.sabitovka.persistence;
 
+import io.sabitovka.config.DataSourceConfig;
 import io.sabitovka.persistence.rowmapper.RowMapper;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,12 +13,10 @@ import java.util.List;
  * Класс, который позволяет работать с подключением к БД.
  * Запрашивать данные, выполнять SQL запросы
  */
-public class JdbcTemplate implements AutoCloseable {
-    private final Connection connection;
-
-    public JdbcTemplate(Connection connection) {
-        this.connection = connection;
-    }
+@AllArgsConstructor
+@Component
+public class JdbcTemplate {
+    private final DataSourceConfig.DataSource dataSource;
 
     /**
      * Выполняет простой SQL запрос на обновление данных. Возвращает количество затронутых строк.
@@ -116,7 +117,9 @@ public class JdbcTemplate implements AutoCloseable {
      * @throws SQLException Когда не удается подготовить параметры
      */
     private PreparedStatement prepareStatement(String sql, Object ...params) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql.trim().replace("\n", " "), Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement preparedStatement = dataSource.getConnection().prepareStatement(
+                sql.trim().replace("\n", " "),
+                Statement.RETURN_GENERATED_KEYS);
         for (int i = 0; i < params.length; i++) {
             if (params[i] instanceof Enum) {
                 preparedStatement.setObject(i + 1, params[i], Types.OTHER);
@@ -125,10 +128,5 @@ public class JdbcTemplate implements AutoCloseable {
             }
         }
         return preparedStatement;
-    }
-
-    @Override
-    public void close() throws Exception {
-        connection.close();
     }
 }
