@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Сервис для управления статистикой выполнения привычки. Реализует интерфейс {@link StatisticService}
+ */
 public class StatisticServiceImpl implements StatisticService {
     private final HabitRepository habitRepository;
     private final FulfilledHabitRepository fulfilledHabitRepository;
@@ -105,9 +108,8 @@ public class StatisticServiceImpl implements StatisticService {
         report.append("Процент успешности: ").append(String.format("%.2f", successRate)).append("%\n");
         report.append("История выполнения:").append("\n");
 
-        completionStats.forEach((date, completed) -> {
-            report.append(date).append(" - ").append(completed ? "Выполнено" : "Не выполнено").append("\n");
-        });
+        completionStats.forEach((date, completed) ->
+                report.append(date).append(" - ").append(completed ? "Выполнено" : "Не выполнено").append("\n"));
 
         return report.toString();
     }

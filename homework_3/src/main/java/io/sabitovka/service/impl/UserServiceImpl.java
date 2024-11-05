@@ -10,7 +10,6 @@ import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
-import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
@@ -19,15 +18,16 @@ import io.sabitovka.util.validation.Validator;
 
 import java.util.List;
 
+/**
+ * Интерфейс для управления пользователями. Реализует интерфейс {@link UserService}
+ */
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
-    private final FulfilledHabitRepository fulfilledHabitRepository;
 
-    public UserServiceImpl(UserRepository userRepository, HabitRepository habitRepository, FulfilledHabitRepository fulfilledHabitRepository) {
+    public UserServiceImpl(UserRepository userRepository, HabitRepository habitRepository) {
         this.userRepository = userRepository;
         this.habitRepository = habitRepository;
-        this.fulfilledHabitRepository = fulfilledHabitRepository;
     }
 
     private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
@@ -92,11 +92,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(id).orElseThrow();
 
-        // TODO: 30.10.2024 Перевести этот ужас на sql запросы
-        habitRepository.findAllByUserId(id).forEach(habit -> {
-            fulfilledHabitRepository.findAllByHabit(habit).forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
-            habitRepository.deleteById(habit.getId());
-        });
+        habitRepository.findAllByUserId(id).forEach(habitRepository::deleteWithHistoryByHabit);
         userRepository.deleteById(user.getId());
     }
 

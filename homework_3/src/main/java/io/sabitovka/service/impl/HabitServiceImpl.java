@@ -19,6 +19,9 @@ import io.sabitovka.util.validation.Validator;
 
 import java.util.List;
 
+/**
+ * Сервис для управления привычками пользователя. Реализует интерфейс {@link HabitService}
+ */
 public class HabitServiceImpl implements HabitService {
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
@@ -28,31 +31,6 @@ public class HabitServiceImpl implements HabitService {
         this.habitRepository = habitRepository;
         this.userRepository = userRepository;
         this.fulfilledHabitRepository = fulfilledHabitRepository;
-    }
-
-    private void validateHabitOwnership(Habit habit) {
-        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
-        User owner = userRepository.findById(userDetails.getUserId())
-                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Владелец привычки не найден"));
-
-        if (!habit.getOwnerId().equals(owner.getId()) && !owner.isAdmin()) {
-            throw new ApplicationException(ErrorCode.FORBIDDEN, "У пользователя нет прав на эту привычку");
-        }
-    }
-
-    private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
-        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
-        if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
-            throw new ApplicationException(ErrorCode.FORBIDDEN, "Нет доступа к привычке");
-        }
-    }
-
-    private Habit findHabitById(Long habitId) {
-        Habit habit = habitRepository.findById(habitId)
-                .orElseThrow(() -> new ApplicationException(ErrorCode.HABIT_NOT_FOUND));
-
-        validateHabitOwnership(habit);
-        return habit;
     }
 
     @Override
@@ -126,10 +104,7 @@ public class HabitServiceImpl implements HabitService {
         Habit habit = findHabitById(habitId);
         validateHabitOwnership(habit);
 
-        // TODO: 30.10.2024 Перевести на SQL запросы
-        fulfilledHabitRepository.findAll().stream()
-                .filter(fulfilledHabit -> fulfilledHabit.getHabitId().equals(habitId))
-                .forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
+        fulfilledHabitRepository.deleteByHabitId(habitId);
         habitRepository.deleteById(habitId);
     }
 
@@ -143,5 +118,30 @@ public class HabitServiceImpl implements HabitService {
         fulfilledHabit.setFulfillDate(localDateDto.getDate());
 
         fulfilledHabitRepository.create(fulfilledHabit);
+    }
+
+    private void validateHabitOwnership(Habit habit) {
+        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
+        User owner = userRepository.findById(userDetails.getUserId())
+                .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND, "Владелец привычки не найден"));
+
+        if (!habit.getOwnerId().equals(owner.getId()) && !owner.isAdmin()) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN, "У пользователя нет прав на эту привычку");
+        }
+    }
+
+    private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
+        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
+        if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN, "Нет доступа к привычке");
+        }
+    }
+
+    private Habit findHabitById(Long habitId) {
+        Habit habit = habitRepository.findById(habitId)
+                .orElseThrow(() -> new ApplicationException(ErrorCode.HABIT_NOT_FOUND));
+
+        validateHabitOwnership(habit);
+        return habit;
     }
 }

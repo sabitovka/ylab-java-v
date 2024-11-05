@@ -7,6 +7,9 @@ import io.sabitovka.model.User;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserDetailsService;
 
+/**
+ * Интерфейс для обертки информации о пользователе в {@link UserDetails}. Реализует интерфейс {@link UserDetailsService}
+ */
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
