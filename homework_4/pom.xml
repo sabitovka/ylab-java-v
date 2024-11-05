@@ -29,11 +29,19 @@
     <test-containers.postgresql.version>1.19.8</test-containers.postgresql.version>
     <jakarta.version>6.1.0</jakarta.version>
     <jackson-databind.version>2.18.0</jackson-databind.version>
+    <jackson-datatype-jsr310.version>2.18.1</jackson-datatype-jsr310.version>
     <mapstruct.version>1.6.2</mapstruct.version>
     <java-jwt.version>4.4.0</java-jwt.version>
     <aspectjrt.version>1.9.7</aspectjrt.version>
     <spring-framework.version>6.0.13</spring-framework.version>
-    <swagger.version>3.0.0</swagger.version>
+    <spring-context.version>6.1.14</spring-context.version>
+    <spring-web.version>6.1.12</spring-web.version>
+    <spring-webmvc.version>6.1.13</spring-webmvc.version>
+    <spring-test.version>6.0.13</spring-test.version>
+    <spring-aspects.version>6.0.13</spring-aspects.version>
+    <springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
+    <snakeyaml.version>2.2</snakeyaml.version>
+    <json-path.version>2.9.0</json-path.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
     <exec.version>1.4.0</exec.version>
@@ -114,6 +122,13 @@
       <version>${jackson-databind.version}</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jackson-datatype-jsr310.version}</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
@@ -129,59 +144,46 @@
     </dependency>
 
     <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>${aspectjrt.version}</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>2.18.1</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>6.1.14</version>
+      <version>${spring-context.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-      <version>6.1.12</version>
+      <version>${spring-web.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>6.1.13</version>
+      <version>${spring-webmvc.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>${spring-framework.version}</version>
+      <version>${spring-test.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aspects</artifactId>
-      <version>${spring-framework.version}</version>
+      <version>${spring-aspects.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.6.0</version>
+      <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
-      <version>2.2</version>
+      <version>${snakeyaml.version}</version>
     </dependency>
 
     <dependency>
