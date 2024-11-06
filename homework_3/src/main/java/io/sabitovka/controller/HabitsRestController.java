@@ -1,6 +1,6 @@
 package io.sabitovka.controller;
 
-import io.sabitovka.auth.annotation.RequiresAuthorization;
+import io.sabitovka.annotation.RequiresAuthorization;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
@@ -33,7 +33,6 @@ public class HabitsRestController implements RestController {
         return new SuccessResponse<>("Привычка обновлена");
     }
 
-    // NOTE: Не успел сделать маппинг параметров url в функцию. в следующем задании сделаю через GET, честно)
     @PostMapping("/filter")
     @RequiresAuthorization
     public SuccessResponse<List<HabitInfoDto>> filterHabitsByFilters(HabitFilterDto filterDto) {

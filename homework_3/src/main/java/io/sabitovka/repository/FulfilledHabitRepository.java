@@ -11,4 +11,5 @@ import java.util.List;
  */
 public interface FulfilledHabitRepository extends BaseRepository<Long, FulfilledHabit>{
     List<FulfilledHabit> findAllByHabit(Habit habit);
+    void deleteByHabitId(Long habitId);
 }

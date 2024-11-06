@@ -1,7 +1,7 @@
-package io.sabitovka.auth.aspect;
+package io.sabitovka.aspect;
 
+import io.sabitovka.annotation.RequiresAuthorization;
 import io.sabitovka.auth.AuthInMemoryContext;
-import io.sabitovka.auth.annotation.RequiresAuthorization;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  */
 @Aspect
 public class RequireAuthorizationAspect {
-    @Pointcut("@annotation(io.sabitovka.auth.annotation.RequiresAuthorization)")
+    @Pointcut("@annotation(io.sabitovka.annotation.RequiresAuthorization)")
     public void annotatedByRequiresAnnotation() {}
 
     @Around("annotatedByRequiresAnnotation()")

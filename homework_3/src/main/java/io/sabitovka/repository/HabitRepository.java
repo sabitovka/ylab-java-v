@@ -28,4 +28,6 @@ public interface HabitRepository extends BaseRepository<Long, Habit> {
      * @return Список привычек, соответствующих фильтру.
      */
     List<Habit> filterByUserAndTimeAndStatus(Long ownerId, LocalDate startDate, LocalDate endDate, Boolean isActive);
+
+    void deleteWithHistoryByHabit(Habit habit);
 }

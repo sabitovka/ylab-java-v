@@ -13,7 +13,7 @@ import io.sabitovka.util.validation.Validator;
 import java.util.Optional;
 
 /**
- *
+ * Сервис для выполнения авторизации в системе. Реализует интерфейс {@link AuthorizationService}
  */
 public class AuthorizationServiceImpl implements AuthorizationService {
     private final UserRepository userRepository;

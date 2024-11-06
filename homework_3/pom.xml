@@ -26,7 +26,6 @@
     <aspectjrt.version>1.9.7</aspectjrt.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-    <exec.version>1.4.0</exec.version>
     <aspectj-maven-plugin.version>1.14.0</aspectj-maven-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -161,15 +160,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>${maven-war-plugin.version}</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>${exec.version}</version>
-        <configuration>
-          <mainClass>io.sabitovka.Application</mainClass>
-        </configuration>
       </plugin>
 
       <plugin>

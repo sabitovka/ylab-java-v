@@ -1,4 +1,4 @@
-package io.sabitovka.auth.annotation;
+package io.sabitovka.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

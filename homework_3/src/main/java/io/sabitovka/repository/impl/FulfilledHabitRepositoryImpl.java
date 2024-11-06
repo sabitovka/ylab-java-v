@@ -27,4 +27,10 @@ public class FulfilledHabitRepositoryImpl extends PersistenceRepository<Long, Fu
         String sql = "select * from fulfilled_habits where habit_id = ?";
         return jdbcTemplate.queryForList(sql, rowMapper, habit.getId());
     }
+
+    @Override
+    public void deleteByHabitId(Long habitId) {
+        String sql = "delete from fulfilled_habits where habit_id = ?";
+        jdbcTemplate.executeUpdate(sql, habitId);
+    }
 }

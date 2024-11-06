@@ -1,6 +1,6 @@
 package io.sabitovka.servlet;
 
-import io.sabitovka.util.logging.annotation.Loggable;
+import io.sabitovka.annotation.Loggable;
 
 @Loggable
 public interface RestController {

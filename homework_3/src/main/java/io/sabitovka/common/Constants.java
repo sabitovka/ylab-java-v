@@ -28,6 +28,8 @@ public class Constants {
 
     public static final String JWT_SECRET = properties.getProperty("jwt.secret");
 
+    public static final int JWT_EXPIRATION_MINUTES = Integer.parseInt(properties.getProperty("jwt.expirationMinutes", "5"));
+
     /**
      * Регулярное выражение для проверки email
      */

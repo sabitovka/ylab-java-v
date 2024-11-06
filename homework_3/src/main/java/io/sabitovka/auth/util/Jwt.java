@@ -17,7 +17,7 @@ import java.util.UUID;
 @UtilityClass
 public class Jwt {
     private final static Algorithm algorithm = Algorithm.HMAC256(Constants.JWT_SECRET);
-    private final static int expirationTime = 5 * 60 * 1000;
+    private final static int expirationTime = Constants.JWT_EXPIRATION_MINUTES * 60 * 1000;
 
     /**
      * Генерирует JWT-токен. В Claims записывает переданного ID пользователя
