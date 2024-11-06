@@ -24,7 +24,6 @@ public class AuthController {
     private final UserService userService;
     private final AuthorizationService authService;
 
-    @Operation(summary = "123")
     @PostMapping("/register")
     public SuccessResponse<UserInfoDto> register(@RequestBody CreateUserDto createUserDto) {
         UserInfoDto createdUser = userService.createUser(createUserDto);

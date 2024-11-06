@@ -1,6 +1,6 @@
 package io.sabitovka.controller;
 
-import io.sabitovka.auth.annotation.RequiresAuthorization;
+import io.sabitovka.annotation.RequiresAuthorization;
 import io.sabitovka.dto.SuccessResponse;
 import io.sabitovka.dto.user.ChangePasswordDto;
 import io.sabitovka.dto.user.UpdateUserDto;

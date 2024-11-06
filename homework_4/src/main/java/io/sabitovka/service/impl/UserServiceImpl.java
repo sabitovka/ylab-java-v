@@ -21,20 +21,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Интерфейс для управления пользователями. Реализует интерфейс {@link UserService}
+ */
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
-    private final FulfilledHabitRepository fulfilledHabitRepository;
     private final PasswordHasher passwordHasher;
-
-    private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
-        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
-        if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
-            throw new ApplicationException(ErrorCode.FORBIDDEN);
-        }
-    }
 
     @Override
     public UserInfoDto createUser(CreateUserDto createUserDto) {
@@ -91,11 +86,7 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(id).orElseThrow();
 
-        // TODO: 30.10.2024 Перевести этот ужас на sql запросы
-        habitRepository.findAllByUserId(id).forEach(habit -> {
-            fulfilledHabitRepository.findAllByHabit(habit).forEach(fulfilledHabit -> fulfilledHabitRepository.deleteById(fulfilledHabit.getId()));
-            habitRepository.deleteById(habit.getId());
-        });
+        habitRepository.findAllByUserId(id).forEach(habitRepository::deleteWithHistoryByHabit);
         userRepository.deleteById(user.getId());
     }
 
@@ -132,4 +123,12 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper.INSTANCE::userToUserInfoDto)
                 .toList();
     }
+
+    private void throwIfNotCurrentUserOrNotAdmin(Long userId) {
+        UserDetails userDetails = AuthInMemoryContext.getContext().getAuthentication();
+        if (!userDetails.getUserId().equals(userId) && !userDetails.isAdmin()) {
+            throw new ApplicationException(ErrorCode.FORBIDDEN);
+        }
+    }
+
 }

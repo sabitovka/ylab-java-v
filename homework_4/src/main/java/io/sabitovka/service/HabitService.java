@@ -3,7 +3,7 @@ package io.sabitovka.service;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
-import io.sabitovka.util.logging.annotation.Audit;
+import io.sabitovka.annotation.Audit;
 
 import java.util.List;
 

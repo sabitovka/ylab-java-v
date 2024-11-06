@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 /**
- *
+ * Сервис для выполнения авторизации в системе. Реализует интерфейс {@link AuthorizationService}
  */
 @RequiredArgsConstructor
 @Service

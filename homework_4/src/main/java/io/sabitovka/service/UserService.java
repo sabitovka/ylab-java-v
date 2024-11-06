@@ -5,8 +5,8 @@ import io.sabitovka.dto.user.CreateUserDto;
 import io.sabitovka.dto.user.UpdateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.model.User;
-import io.sabitovka.util.logging.annotation.Audit;
-import io.sabitovka.util.logging.annotation.IgnoreAudit;
+import io.sabitovka.annotation.Audit;
+import io.sabitovka.annotation.IgnoreAudit;
 
 import java.util.List;
 

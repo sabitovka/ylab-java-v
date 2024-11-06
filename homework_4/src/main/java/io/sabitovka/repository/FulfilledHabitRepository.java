@@ -10,5 +10,16 @@ import java.util.List;
  * Представляет выполненные привычки.
  */
 public interface FulfilledHabitRepository extends BaseRepository<Long, FulfilledHabit>{
+    /**
+     * Ищет все выполненные привычки
+     * @param habit Привычка
+     * @return Историю выполнения привычки
+     */
     List<FulfilledHabit> findAllByHabit(Habit habit);
+
+    /**
+     * Удаляет историю привычки
+     * @param habitId
+     */
+    void deleteByHabitId(Long habitId);
 }

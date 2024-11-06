@@ -1,9 +1,12 @@
-package io.sabitovka.util.logging.aspect;
+package io.sabitovka.aspect;
 
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
-import io.sabitovka.util.logging.annotation.Audit;
-import io.sabitovka.util.logging.annotation.IgnoreAudit;
+import io.sabitovka.annotation.Audit;
+import io.sabitovka.annotation.IgnoreAudit;
+import io.sabitovka.model.AuditRecord;
+import io.sabitovka.service.AuditService;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -19,8 +22,11 @@ import java.util.Optional;
 
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class AuditAspect {
-    @Pointcut("@annotation(io.sabitovka.util.logging.annotation.Audit)")
+    private final AuditService auditService;
+
+    @Pointcut("@annotation(io.sabitovka.annotation.Audit)")
     public void annotatedByAudit() {}
 
     @Around("annotatedByAudit()")
@@ -42,14 +48,18 @@ public class AuditAspect {
         Object[] joinPointArgs = joinPoint.getArgs();
         List<String> args = new ArrayList<>();
         for (int i = 0; i < joinPointArgs.length; i++) {
-            if (!parameters[i].isAnnotationPresent(IgnoreAudit.class)) {
-                args.add(joinPointArgs[i].toString());
-            } else {
-                args.add("*");
-            }
+            String arg = !parameters[i].isAnnotationPresent(IgnoreAudit.class) ? joinPointArgs[i].toString() : "*";
+            args.add(arg);
         }
 
-        System.out.printf("[Audit Log]: Пользователь: %s, IP: %s, Действие: %s, Аргументы: %s, Время: %s\n", username, ip, action, args, localDateTime);
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setUsername(username);
+        auditRecord.setIp(ip);
+        auditRecord.setTimestamp(localDateTime);
+        auditRecord.setArguments(args.toString());
+        auditRecord.setAction(action);
+
+        auditService.saveAudit(auditRecord);
 
         return result;
     }

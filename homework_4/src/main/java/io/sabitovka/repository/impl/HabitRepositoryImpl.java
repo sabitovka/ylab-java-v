@@ -45,5 +45,13 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
                 isActive
         );
     }
+
+    @Override
+    public void deleteWithHistoryByHabit(Habit habit) {
+        String sqlHistory = "delete from fulfilled_habit where habit_id = ?";
+        jdbcTemplate.executeUpdate(sqlHistory, habit.getId());
+
+        this.deleteById(habit.getId());
+    }
 }
 

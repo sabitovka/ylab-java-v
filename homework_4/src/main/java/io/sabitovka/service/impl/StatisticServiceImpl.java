@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Сервис для управления статистикой выполнения привычки. Реализует интерфейс {@link StatisticService}
+ */
 @RequiredArgsConstructor
 @Service
 public class StatisticServiceImpl implements StatisticService {

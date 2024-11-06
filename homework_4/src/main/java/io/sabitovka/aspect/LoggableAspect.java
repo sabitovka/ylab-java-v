@@ -1,5 +1,6 @@
-package io.sabitovka.util.logging.aspect;
+package io.sabitovka.aspect;
 
+import lombok.extern.java.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,8 +9,9 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
+@Log
 public class LoggableAspect {
-    @Pointcut("within(@io.sabitovka.util.logging.annotation.Loggable *) && execution(* *(..))")
+    @Pointcut("within(@io.sabitovka.annotation.Loggable *) && execution(* *(..))")
     public void annotatedByLoggable() {}
 
     @Pointcut("execution(* io.sabitovka.controller.*.*(..))")
@@ -20,7 +22,7 @@ public class LoggableAspect {
         long start = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         long end = System.currentTimeMillis() - start;
-        System.out.printf("Выполнен метод %s [%d ms].\n%n", proceedingJoinPoint.getSignature(), end);
+        log.info("Выполнен метод %s [%d ms].\n%n".formatted(proceedingJoinPoint.getSignature(), end));
         return result;
     }
 }

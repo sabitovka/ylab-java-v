@@ -9,6 +9,9 @@ import io.sabitovka.service.UserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * Интерфейс для обертки информации о пользователе в {@link UserDetails}. Реализует интерфейс {@link UserDetailsService}
+ */
 @RequiredArgsConstructor
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
