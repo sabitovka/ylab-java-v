@@ -7,6 +7,7 @@ import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
 import io.sabitovka.service.HabitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,56 +23,56 @@ public class HabitsController {
 
     @PostMapping
     @RequiresAuthorization
-    public SuccessResponse<HabitInfoDto> createHabit(HabitInfoDto habitInfoDto) {
+    public ResponseEntity<?> createHabit(HabitInfoDto habitInfoDto) {
         HabitInfoDto created = habitService.createHabit(habitInfoDto);
-        return new SuccessResponse<>(created);
+        return ResponseEntity.ok(new SuccessResponse<>(created));
     }
 
     @PutMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<String> updateHabit(HabitInfoDto habitInfoDto, @PathVariable Long id) {
+    public ResponseEntity<?> updateHabit(HabitInfoDto habitInfoDto, @PathVariable("id") Long id) {
         habitService.updateHabit(id, habitInfoDto);
-        return new SuccessResponse<>("Привычка обновлена");
+        return ResponseEntity.ok(new SuccessResponse<>("Привычка обновлена"));
     }
 
     @PostMapping("/filter")
     @RequiresAuthorization
-    public SuccessResponse<List<HabitInfoDto>> filterHabitsByFilters(HabitFilterDto filterDto) {
+    public ResponseEntity<?> filterHabitsByFilters(HabitFilterDto filterDto) {
         List<HabitInfoDto> habitsByFilters = habitService.getHabitsByFilters(filterDto);
-        return new SuccessResponse<>(habitsByFilters);
+        return ResponseEntity.ok(new SuccessResponse<>(habitsByFilters));
     }
 
     @GetMapping("/user/{userId}")
     @RequiresAuthorization
-    public SuccessResponse<List<HabitInfoDto>> getUserHabits(@PathVariable Long userId) {
+    public ResponseEntity<?>  getUserHabits(@PathVariable("userId") Long userId) {
         List<HabitInfoDto> allByOwner = habitService.getAllByOwner(userId);
-        return new SuccessResponse<>(allByOwner);
+        return ResponseEntity.ok(new SuccessResponse<>(allByOwner));
     }
 
     @PutMapping("/{id}/disable")
     @RequiresAuthorization
-    public SuccessResponse<String> disableHabit(@PathVariable Long id) {
+    public ResponseEntity<?> disableHabit(@PathVariable("id") Long id) {
         habitService.disableHabit(id);
-        return new SuccessResponse<>("Привычка отключена");
+        return ResponseEntity.ok(new SuccessResponse<>("Привычка отключена"));
     }
 
     @GetMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<HabitInfoDto> getHabitById(@PathVariable Long id) {
+    public ResponseEntity<?> getHabitById(@PathVariable("id") Long id) {
         HabitInfoDto habitById = habitService.getHabitById(id);
-        return new SuccessResponse<>(habitById);
+        return ResponseEntity.ok(new SuccessResponse<>(habitById));
     }
 
     @DeleteMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<String> deleteHabit(@PathVariable Long id) {
+    public ResponseEntity<?> deleteHabit(@PathVariable("id") Long id) {
         habitService.delete(id);
-        return new SuccessResponse<>("Привычка удалена");
+        return ResponseEntity.ok(new SuccessResponse<>("Привычка удалена"));
     }
 
     @PostMapping("/{id}/fulfill")
     @RequiresAuthorization
-    public void fulfillHabit(SimpleLocalDateDto localDateDto, @PathVariable String id) {
+    public void fulfillHabit(SimpleLocalDateDto localDateDto, @PathVariable("id") String id) {
         habitService.markHabitAsFulfilled(Long.valueOf(id), localDateDto);
     }
 }

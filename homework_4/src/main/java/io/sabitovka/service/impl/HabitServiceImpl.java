@@ -1,5 +1,6 @@
 package io.sabitovka.service.impl;
 
+import io.sabitovka.annotation.Audit;
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.dto.habit.HabitFilterDto;
@@ -30,7 +31,9 @@ public class HabitServiceImpl implements HabitService {
     private final HabitRepository habitRepository;
     private final UserRepository userRepository;
     private final FulfilledHabitRepository fulfilledHabitRepository;
+    private final HabitMapper habitMapper;
 
+    @Audit(action = "Создана новая привычка")
     @Override
     public HabitInfoDto createHabit(HabitInfoDto habitInfoDto) {
         Validator.validate(habitInfoDto);
@@ -40,12 +43,13 @@ public class HabitServiceImpl implements HabitService {
             throw new ApplicationException(ErrorCode.USER_NOT_FOUND, "Владелец привычки должен быть валидным пользователем");
         }
 
-        Habit habit = HabitMapper.INSTANCE.habitInfoDtoToHabit(habitInfoDto);
+        Habit habit = habitMapper.habitInfoDtoToHabit(habitInfoDto);
         Habit saved = habitRepository.create(habit);
 
-        return HabitMapper.INSTANCE.habitToHabitInfoDto(saved);
+        return habitMapper.habitToHabitInfoDto(saved);
     }
 
+    @Audit(action = "Получение привычек по фильтрам")
     @Override
     public List<HabitInfoDto> getHabitsByFilters(HabitFilterDto filterDto) {
         throwIfNotCurrentUserOrNotAdmin(filterDto.getUserId());
@@ -57,20 +61,22 @@ public class HabitServiceImpl implements HabitService {
                 filterDto.isActive());
 
         return habits.stream()
-                .map(HabitMapper.INSTANCE::habitToHabitInfoDto)
+                .map(habitMapper::habitToHabitInfoDto)
                 .toList();
     }
 
+    @Audit(action = "Получение привычек пользователя")
     @Override
     public List<HabitInfoDto> getAllByOwner(Long userId) {
         throwIfNotCurrentUserOrNotAdmin(userId);
 
         List<Habit> habits = habitRepository.findAllByUserId(userId);
         return habits.stream()
-                .map(HabitMapper.INSTANCE::habitToHabitInfoDto)
+                .map(habitMapper::habitToHabitInfoDto)
                 .toList();
     }
 
+    @Audit(action = "Отключение привычки")
     @Override
     public void disableHabit(Long habitId) {
         Habit habit = findHabitById(habitId);
@@ -78,12 +84,14 @@ public class HabitServiceImpl implements HabitService {
         habitRepository.update(habit);
     }
 
+    @Audit(action = "Получение привычки по Id")
     @Override
     public HabitInfoDto getHabitById(Long id) {
         Habit habit = findHabitById(id);
-        return HabitMapper.INSTANCE.habitToHabitInfoDto(habit);
+        return habitMapper.habitToHabitInfoDto(habit);
     }
 
+    @Audit(action = "Привычка обновлена")
     @Override
     public void updateHabit(Long habitId, HabitInfoDto updatedHabit) {
         Validator.validate(updatedHabit);
@@ -97,6 +105,7 @@ public class HabitServiceImpl implements HabitService {
         habitRepository.update(habit);
     }
 
+    @Audit(action = "Удаление привычки")
     @Override
     public void delete(Long habitId) {
         Habit habit = findHabitById(habitId);
@@ -106,6 +115,7 @@ public class HabitServiceImpl implements HabitService {
         habitRepository.deleteById(habitId);
     }
 
+    @Audit(action = "Выполнение привычки")
     @Override
     public void markHabitAsFulfilled(Long habitId, SimpleLocalDateDto localDateDto) {
         Habit habit = findHabitById(habitId);

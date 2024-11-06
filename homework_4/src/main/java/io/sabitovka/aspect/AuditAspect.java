@@ -1,9 +1,9 @@
 package io.sabitovka.aspect;
 
-import io.sabitovka.auth.AuthInMemoryContext;
-import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.annotation.Audit;
 import io.sabitovka.annotation.IgnoreAudit;
+import io.sabitovka.auth.AuthInMemoryContext;
+import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.model.AuditRecord;
 import io.sabitovka.service.AuditService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +33,10 @@ public class AuditAspect {
     @Around("annotatedByAudit()")
     public Object logAuditAction(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Audit audit = signature.getMethod().getAnnotation(Audit.class);
+        Method method = joinPoint.getTarget()
+                .getClass()
+                .getMethod(signature.getName(), signature.getParameterTypes());
+        Audit audit = method.getAnnotation(Audit.class);
 
         Object result = joinPoint.proceed();
 

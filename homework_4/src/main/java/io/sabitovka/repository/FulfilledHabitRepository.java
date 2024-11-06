@@ -19,7 +19,7 @@ public interface FulfilledHabitRepository extends BaseRepository<Long, Fulfilled
 
     /**
      * Удаляет историю привычки
-     * @param habitId
+     * @param habitId ID привычки
      */
     void deleteByHabitId(Long habitId);
 }

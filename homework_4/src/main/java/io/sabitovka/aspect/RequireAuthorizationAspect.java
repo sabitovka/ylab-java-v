@@ -1,7 +1,7 @@
 package io.sabitovka.aspect;
 
-import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.annotation.RequiresAuthorization;
+import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;

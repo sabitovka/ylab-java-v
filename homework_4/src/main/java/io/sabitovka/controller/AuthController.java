@@ -6,7 +6,6 @@ import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.dto.user.UserLoginDto;
 import io.sabitovka.service.AuthorizationService;
 import io.sabitovka.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +24,7 @@ public class AuthController {
     private final AuthorizationService authService;
 
     @PostMapping("/register")
-    public SuccessResponse<UserInfoDto> register(@RequestBody CreateUserDto createUserDto) {
+    public SuccessResponse<?> register(@RequestBody CreateUserDto createUserDto) {
         UserInfoDto createdUser = userService.createUser(createUserDto);
         return new SuccessResponse<>(createdUser);
     }

@@ -7,9 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-@EnableWebMvc
 @Configuration
 @ComponentScan(basePackages = { "org.springdoc"})
 @Import({
@@ -24,8 +22,7 @@ public class ApiConfig {
     public GroupedOpenApi defaultApi() {
         return GroupedOpenApi.builder()
                 .group("all")
-                .packagesToScan("io.sabitovka")
-                .pathsToMatch("/controller/**")
+                .packagesToScan("io.sabitovka.controller")
                 .build();
     }
 

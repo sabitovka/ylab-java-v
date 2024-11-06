@@ -7,9 +7,8 @@ import io.sabitovka.dto.user.UpdateUserDto;
 import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * REST-контроллер для управления пользователями
@@ -22,47 +21,47 @@ public class UsersController {
 
     @GetMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<?> getUserById(@PathVariable Long id) {
+    public SuccessResponse<?> getUserById(@PathVariable("id") Long id) {
         UserInfoDto infoDto = userService.findById(id);
         return new SuccessResponse<>(infoDto);
     }
 
     @GetMapping("/blocked")
     @RequiresAuthorization(onlyAdmin = true)
-    public SuccessResponse<List<UserInfoDto>> getBlockedUsers() {
-        return new SuccessResponse<>(userService.getBlockedUsers());
+    public ResponseEntity<?> getBlockedUsers() {
+        return ResponseEntity.ok(new SuccessResponse<>(userService.getBlockedUsers()));
     }
 
     @PutMapping("/{id}")
-    public SuccessResponse<String> updateUser(UpdateUserDto userInfoDto, @PathVariable Long id) {
+    public ResponseEntity<?> updateUser(UpdateUserDto userInfoDto, @PathVariable("id") Long id) {
         userService.updateUser(id, userInfoDto);
-        return new SuccessResponse<>("Пользователь обновлен");
+        return ResponseEntity.ok(new SuccessResponse<>("Пользователь обновлен"));
     }
 
     @GetMapping("/active")
     @RequiresAuthorization(onlyAdmin = true)
-    public SuccessResponse<List<UserInfoDto>> getActiveUsers() {
-        return new SuccessResponse<>(userService.getActiveUsers());
+    public ResponseEntity<?> getActiveUsers() {
+        return ResponseEntity.ok(new SuccessResponse<>(userService.getActiveUsers()));
     }
 
     @PostMapping("/{id}/password")
     @RequiresAuthorization
-    public SuccessResponse<String> changePassword(ChangePasswordDto changePasswordDto, @PathVariable Long id) {
+    public ResponseEntity<?> changePassword(ChangePasswordDto changePasswordDto, @PathVariable("id") Long id) {
         userService.changePassword(id, changePasswordDto);
-        return new SuccessResponse<>("Пароль успешно изменен");
+        return ResponseEntity.ok(new SuccessResponse<>("Пароль успешно изменен"));
     }
 
     @DeleteMapping("/{id}")
     @RequiresAuthorization
-    public SuccessResponse<String> deleteProfile(@PathVariable Long id) {
+    public ResponseEntity<?> deleteProfile(@PathVariable("id") Long id) {
         userService.deleteProfile(id);
-        return new SuccessResponse<>("Профиль удален.");
+        return ResponseEntity.ok(new SuccessResponse<>("Профиль удален."));
     }
 
     @PostMapping("/{id}/block")
     @RequiresAuthorization(onlyAdmin = true)
-    public SuccessResponse<String> blockUser(@PathVariable Long id) {
+    public ResponseEntity<?> blockUser(@PathVariable("id") Long id) {
         userService.blockUser(id);
-        return new SuccessResponse<>("Пользователь заблокирован");
+        return ResponseEntity.ok(new SuccessResponse<>("Пользователь заблокирован"));
     }
 }

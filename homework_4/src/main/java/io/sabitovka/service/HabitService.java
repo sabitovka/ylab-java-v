@@ -3,7 +3,6 @@ package io.sabitovka.service;
 import io.sabitovka.dto.habit.HabitFilterDto;
 import io.sabitovka.dto.habit.HabitInfoDto;
 import io.sabitovka.dto.habit.SimpleLocalDateDto;
-import io.sabitovka.annotation.Audit;
 
 import java.util.List;
 
@@ -17,7 +16,6 @@ public interface HabitService {
      * @param habitInfoDto Информация о привычке для добавления
      * @return Модель новой привычки
      */
-    @Audit(action = "Создана новая привычка")
     HabitInfoDto createHabit(HabitInfoDto habitInfoDto);
 
     /**
@@ -26,7 +24,6 @@ public interface HabitService {
      * @param habitInfoDto Информация о привычке
      * @param habitId - ID привычки
      */
-    @Audit(action = "Привычка обновлена")
     void updateHabit(Long habitId, HabitInfoDto habitInfoDto);
 
     /**
@@ -34,7 +31,6 @@ public interface HabitService {
      *
      * @param filterDto@return Список привычек
      */
-    @Audit(action = "Получение привычек по фильтрам")
     List<HabitInfoDto> getHabitsByFilters(HabitFilterDto filterDto);
 
     /**
@@ -43,7 +39,6 @@ public interface HabitService {
      * @param userId Пользователь
      * @return Список привычек
      */
-    @Audit(action = "Получение привычек пользователя")
     List<HabitInfoDto> getAllByOwner(Long userId);
 
     /**
@@ -51,7 +46,6 @@ public interface HabitService {
      *
      * @param habitId Привычка
      */
-    @Audit(action = "Отключение привычки")
     void disableHabit(Long habitId);
 
     /**
@@ -60,7 +54,6 @@ public interface HabitService {
      * @param id Id привычки
      * @return Информация о пользователе
      */
-    @Audit(action = "Получение привычки по Id")
     HabitInfoDto getHabitById(Long id);
 
     /**
@@ -68,7 +61,6 @@ public interface HabitService {
      *
      * @param habitId Id привычки
      */
-    @Audit(action = "Удаление привычки")
     void delete(Long habitId);
 
     /**
@@ -77,6 +69,5 @@ public interface HabitService {
      * @param habitId      Id привычки
      * @param localDateDto Пользователь, который инициировал отметку привычки
      */
-    @Audit(action = "Выполнение привычки")
     void markHabitAsFulfilled(Long habitId, SimpleLocalDateDto localDateDto);
 }

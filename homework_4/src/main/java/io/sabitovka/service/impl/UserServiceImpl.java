@@ -1,5 +1,6 @@
 package io.sabitovka.service.impl;
 
+import io.sabitovka.annotation.Audit;
 import io.sabitovka.auth.AuthInMemoryContext;
 import io.sabitovka.auth.entity.UserDetails;
 import io.sabitovka.auth.util.PasswordHasher;
@@ -10,7 +11,6 @@ import io.sabitovka.dto.user.UserInfoDto;
 import io.sabitovka.enums.ErrorCode;
 import io.sabitovka.exception.ApplicationException;
 import io.sabitovka.model.User;
-import io.sabitovka.repository.FulfilledHabitRepository;
 import io.sabitovka.repository.HabitRepository;
 import io.sabitovka.repository.UserRepository;
 import io.sabitovka.service.UserService;
@@ -30,7 +30,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
     private final PasswordHasher passwordHasher;
+    private final UserMapper userMapper;
 
+    @Audit(action = "Выполнено создание нового пользователя")
     @Override
     public UserInfoDto createUser(CreateUserDto createUserDto) {
         Validator.validate(createUserDto);
@@ -41,12 +43,13 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = passwordHasher.hash(createUserDto.getPassword());
         createUserDto.setPassword(hashedPassword);
 
-        User user = UserMapper.INSTANCE.createUserDtoToUser(createUserDto);
+        User user = userMapper.createUserDtoToUser(createUserDto);
         User saved = userRepository.create(user);
 
-        return UserMapper.INSTANCE.userToUserInfoDto(saved);
+        return userMapper.userToUserInfoDto(saved);
     }
 
+    @Audit(action = "Выполнено обновление пользователя")
     @Override
     public void updateUser(Long userId, UpdateUserDto updateUserDto) {
         Validator.validate(updateUserDto);
@@ -62,6 +65,7 @@ public class UserServiceImpl implements UserService {
         userRepository.update(user);
     }
 
+    @Audit(action = "Выполнено обновление пароля пользователя")
     @Override
     public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
         Validator.validate(changePasswordDto);
@@ -80,6 +84,7 @@ public class UserServiceImpl implements UserService {
         userRepository.update(user);
     }
 
+    @Audit(action = "Выполнено удаление профиля пользователя")
     @Override
     public void deleteProfile(Long id) {
         throwIfNotCurrentUserOrNotAdmin(id);
@@ -90,6 +95,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(user.getId());
     }
 
+    @Audit(action = "Выполнена блокировка пользователя")
     @Override
     public void blockUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -101,26 +107,29 @@ public class UserServiceImpl implements UserService {
         userRepository.update(user);
     }
 
+    @Audit(action = "Выполнен поиск пользователя по ID")
     @Override
     public UserInfoDto findById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.USER_NOT_FOUND));
-        return UserMapper.INSTANCE.userToUserInfoDto(user);
+        return userMapper.userToUserInfoDto(user);
     }
 
+    @Audit(action = "Получены заблокированные пользователи")
     @Override
     public List<UserInfoDto> getBlockedUsers() {
         return userRepository.findAll().stream()
                 .filter(user -> !user.isActive())
-                .map(UserMapper.INSTANCE::userToUserInfoDto)
+                .map(userMapper::userToUserInfoDto)
                 .toList();
     }
 
+    @Audit(action = "Получены активные пользователи")
     @Override
     public List<UserInfoDto> getActiveUsers() {
         return userRepository.findAll().stream()
                 .filter(User::isActive)
-                .map(UserMapper.INSTANCE::userToUserInfoDto)
+                .map(userMapper::userToUserInfoDto)
                 .toList();
     }
 

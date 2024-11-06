@@ -1,5 +1,6 @@
 package io.sabitovka.service.impl;
 
+import io.sabitovka.annotation.Audit;
 import io.sabitovka.auth.util.Jwt;
 import io.sabitovka.auth.util.PasswordHasher;
 import io.sabitovka.dto.user.UserLoginDto;
@@ -24,6 +25,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private final Jwt jwt;
     private final PasswordHasher passwordHasher;
 
+    @Audit(action = "Выполнен вход в систему")
     @Override
     public String login(UserLoginDto userLoginDto) {
         Validator.validate(userLoginDto);
