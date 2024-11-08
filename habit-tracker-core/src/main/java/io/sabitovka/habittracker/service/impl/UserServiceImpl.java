@@ -1,6 +1,7 @@
 package io.sabitovka.habittracker.service.impl;
 
-import io.sabitovka.habittracker.annotation.Audit;
+import io.sabitovka.auditlogging.annotation.Audit;
+import io.sabitovka.auditlogging.annotation.IgnoreAudit;
 import io.sabitovka.habittracker.auth.AuthInMemoryContext;
 import io.sabitovka.habittracker.auth.entity.UserDetails;
 import io.sabitovka.habittracker.auth.util.PasswordHasher;
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Audit(action = "Выполнено обновление пароля пользователя")
     @Override
-    public void changePassword(Long userId, ChangePasswordDto changePasswordDto) {
+    public void changePassword(Long userId, @IgnoreAudit ChangePasswordDto changePasswordDto) {
         Validator.validate(changePasswordDto);
 
         throwIfNotCurrentUserOrNotAdmin(userId);

@@ -1,6 +1,7 @@
 package io.sabitovka.habittracker.service.impl;
 
-import io.sabitovka.habittracker.annotation.Audit;
+import io.sabitovka.auditlogging.annotation.Audit;
+import io.sabitovka.auditlogging.annotation.IgnoreAudit;
 import io.sabitovka.habittracker.auth.util.Jwt;
 import io.sabitovka.habittracker.auth.util.PasswordHasher;
 import io.sabitovka.habittracker.dto.user.UserLoginDto;
@@ -27,7 +28,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Audit(action = "Выполнен вход в систему")
     @Override
-    public String login(UserLoginDto userLoginDto) {
+    public String login(@IgnoreAudit UserLoginDto userLoginDto) {
         Validator.validate(userLoginDto);
 
         Optional<User> user = userRepository.findUserByEmail(userLoginDto.getEmail());

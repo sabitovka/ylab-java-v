@@ -1,33 +1,30 @@
-package io.sabitovka.habittracker.aspect;
+package io.sabitovka.auditlogging.aspect;
 
-import io.sabitovka.habittracker.annotation.Audit;
-import io.sabitovka.habittracker.annotation.IgnoreAudit;
-import io.sabitovka.habittracker.auth.AuthInMemoryContext;
-import io.sabitovka.habittracker.auth.entity.UserDetails;
-import io.sabitovka.habittracker.model.AuditRecord;
-import io.sabitovka.habittracker.service.AuditService;
+import io.sabitovka.auditlogging.annotation.Audit;
+import io.sabitovka.auditlogging.annotation.IgnoreAudit;
+import io.sabitovka.auditlogging.model.AuditRecord;
+import io.sabitovka.auditlogging.service.AuditService;
+import io.sabitovka.auditlogging.service.AuditUserService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Aspect
-@Component
 @RequiredArgsConstructor
 public class AuditAspect {
     private final AuditService auditService;
+    private final AuditUserService auditUserService;
 
-    @Pointcut("@annotation(io.sabitovka.habittracker.annotation.Audit)")
+    @Pointcut("@annotation(io.sabitovka.auditlogging.annotation.Audit)")
     public void annotatedByAudit() {}
 
     @Around("annotatedByAudit()")
@@ -40,12 +37,9 @@ public class AuditAspect {
 
         Object result = joinPoint.proceed();
 
-        Optional<UserDetails> userDetails = Optional.ofNullable(AuthInMemoryContext.getContext().isLoggedIn()
-                ? AuthInMemoryContext.getContext().getAuthentication() : null);
-
         String action = audit.action().isEmpty() ? signature.getMethod().getName() : audit.action();
-        String username = userDetails.map(UserDetails::getUsername).orElse("Не авторизован");
-        String ip = AuthInMemoryContext.getContext().getIp();
+        String username = auditUserService.getUsername();
+        String ip = auditUserService.getIp();
         LocalDateTime localDateTime = LocalDateTime.now();
 
         Parameter[] parameters = signature.getMethod().getParameters();

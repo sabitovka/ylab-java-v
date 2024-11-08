@@ -1,6 +1,6 @@
-package io.sabitovka.habittracker.repository;
+package io.sabitovka.auditlogging.repository;
 
-import io.sabitovka.habittracker.model.AuditRecord;
+import io.sabitovka.auditlogging.model.AuditRecord;
 
 /**
  * Репозиторий для доступа записей аудита из БД
@@ -10,5 +10,5 @@ public interface AuditRepository {
      * Сохраняет новую запись аудита
      * @param auditRecord Запись аудита
      */
-    AuditRecord create(AuditRecord auditRecord);
+    void create(AuditRecord auditRecord);
 }

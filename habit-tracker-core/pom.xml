@@ -83,12 +83,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-aop</artifactId>
-      <version>3.2.11</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
@@ -105,6 +99,12 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <version>3.2.11</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.sabitovka</groupId>
+      <artifactId>audit-logging-starter</artifactId>
+      <version>0.0.1</version>
     </dependency>
 
   </dependencies>
@@ -132,6 +132,19 @@
               <version>${mapstruct.version}</version>
             </path>
           </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </exclude>
+          </excludes>
         </configuration>
       </plugin>
 

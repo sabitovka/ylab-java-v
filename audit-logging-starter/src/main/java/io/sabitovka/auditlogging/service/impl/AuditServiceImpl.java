@@ -1,8 +1,8 @@
-package io.sabitovka.habittracker.service.impl;
+package io.sabitovka.auditlogging.service.impl;
 
-import io.sabitovka.habittracker.model.AuditRecord;
-import io.sabitovka.habittracker.repository.AuditRepository;
-import io.sabitovka.habittracker.service.AuditService;
+import io.sabitovka.auditlogging.model.AuditRecord;
+import io.sabitovka.auditlogging.repository.AuditRepository;
+import io.sabitovka.auditlogging.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

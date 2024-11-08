@@ -1,6 +1,5 @@
 package io.sabitovka.habittracker.service;
 
-import io.sabitovka.habittracker.annotation.IgnoreAudit;
 import io.sabitovka.habittracker.dto.user.UserLoginDto;
 
 /**
@@ -12,5 +11,5 @@ public interface AuthorizationService {
      * @param userLoginDto Данные для входа в систему
      * @return Токен авторизации
      */
-    String login(@IgnoreAudit UserLoginDto userLoginDto);
+    String login(UserLoginDto userLoginDto);
 }

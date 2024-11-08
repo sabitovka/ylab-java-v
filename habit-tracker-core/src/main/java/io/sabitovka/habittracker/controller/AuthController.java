@@ -1,5 +1,6 @@
 package io.sabitovka.habittracker.controller;
 
+import io.sabitovka.auditlogging.annotation.Loggable;
 import io.sabitovka.habittracker.dto.SuccessResponse;
 import io.sabitovka.habittracker.dto.user.CreateUserDto;
 import io.sabitovka.habittracker.dto.user.UserInfoDto;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Loggable
 public class AuthController {
     private final UserService userService;
     private final AuthorizationService authService;

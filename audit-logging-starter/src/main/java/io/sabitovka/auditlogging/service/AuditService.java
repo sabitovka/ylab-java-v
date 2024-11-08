@@ -1,6 +1,6 @@
-package io.sabitovka.habittracker.service;
+package io.sabitovka.auditlogging.service;
 
-import io.sabitovka.habittracker.model.AuditRecord;
+import io.sabitovka.auditlogging.model.AuditRecord;
 
 /**
  * Интерфейс сервиса для сохранения действий пользователя

@@ -8,8 +8,31 @@
     <name>homework-5</name>
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <start-class>io.sabitovka.habittracker.HabitTrackerApplication</start-class>
+    </properties>
+
     <modules>
+        <module>audit-logging-starter</module>
         <module>habit-tracker-core</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                    <mainClass>io.sabitovka.habittracker.HabitTrackerApplication</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

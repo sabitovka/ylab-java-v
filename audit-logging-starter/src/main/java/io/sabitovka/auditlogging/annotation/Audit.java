@@ -1,4 +1,4 @@
-package io.sabitovka.habittracker.annotation;
+package io.sabitovka.auditlogging.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

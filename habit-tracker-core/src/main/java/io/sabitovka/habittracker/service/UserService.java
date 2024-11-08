@@ -1,6 +1,5 @@
 package io.sabitovka.habittracker.service;
 
-import io.sabitovka.habittracker.annotation.IgnoreAudit;
 import io.sabitovka.habittracker.dto.user.ChangePasswordDto;
 import io.sabitovka.habittracker.dto.user.CreateUserDto;
 import io.sabitovka.habittracker.dto.user.UpdateUserDto;
@@ -34,7 +33,7 @@ public interface UserService {
      * @param changePasswordDto Информация о пользователе для смены пароля
      * @param userId - ID пользователя, чей пароль нужно поменять
      */
-    void changePassword(Long userId, @IgnoreAudit ChangePasswordDto changePasswordDto);
+    void changePassword(Long userId, ChangePasswordDto changePasswordDto);
 
     /**
      * Удаляет профиль пользователя. Для подтверждения нужно указать действующий пароль пользователя

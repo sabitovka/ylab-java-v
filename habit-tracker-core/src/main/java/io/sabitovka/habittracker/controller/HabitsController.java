@@ -1,5 +1,6 @@
 package io.sabitovka.habittracker.controller;
 
+import io.sabitovka.auditlogging.annotation.Loggable;
 import io.sabitovka.habittracker.annotation.RequiresAuthorization;
 import io.sabitovka.habittracker.dto.SuccessResponse;
 import io.sabitovka.habittracker.dto.habit.HabitFilterDto;
@@ -18,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/habits")
 @RequiredArgsConstructor
+@Loggable
 public class HabitsController {
     private final HabitService habitService;
 

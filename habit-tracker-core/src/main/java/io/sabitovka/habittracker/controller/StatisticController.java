@@ -1,5 +1,6 @@
 package io.sabitovka.habittracker.controller;
 
+import io.sabitovka.auditlogging.annotation.Loggable;
 import io.sabitovka.habittracker.dto.SuccessResponse;
 import io.sabitovka.habittracker.dto.statistic.ReportParamsDto;
 import io.sabitovka.habittracker.service.StatisticService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/statistic")
 @RestController
 @RequiredArgsConstructor
+@Loggable
 public class StatisticController {
     private final StatisticService statisticService;
 
