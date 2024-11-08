@@ -1,23 +1,19 @@
 package io.sabitovka.habittracker.repository;
 
-import io.sabitovka.habittracker.config.DataSourceConfig;
-import io.sabitovka.habittracker.config.TestConfig;
 import io.sabitovka.habittracker.enums.HabitFrequency;
 import io.sabitovka.habittracker.model.FulfilledHabit;
 import io.sabitovka.habittracker.model.Habit;
 import io.sabitovka.habittracker.model.User;
-import io.sabitovka.habittracker.persistence.JdbcTemplate;
-import io.sabitovka.habittracker.util.MigrationManager;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Тест репозитория FulfilledHabitRepositoryImpl")
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { TestConfig.class })
+@SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class FulfilledHabitRepositoryImplTest {
     private final static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:17.0")
             .withDatabaseName("testdb")
@@ -36,9 +33,9 @@ class FulfilledHabitRepositoryImplTest {
 
     @DynamicPropertySource
     private static void datasourceProperties(DynamicPropertyRegistry registry) {
-        registry.add("db.url", () -> postgresContainer.getJdbcUrl() + "&currentSchema=model");
-        registry.add("db.username", postgresContainer::getUsername);
-        registry.add("db.password", postgresContainer::getPassword);
+        registry.add("spring.datasource.url", () -> postgresContainer.getJdbcUrl() + "&currentSchema=model");
+        registry.add("spring.datasource.username", postgresContainer::getUsername);
+        registry.add("spring.datasource.password", postgresContainer::getPassword);
     }
 
     @Autowired
@@ -46,9 +43,6 @@ class FulfilledHabitRepositoryImplTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    private DataSourceConfig dataSourceConfig;
 
     @Autowired
     private UserRepository userRepository;
@@ -70,9 +64,7 @@ class FulfilledHabitRepositoryImplTest {
     }
 
     @BeforeEach
-    public void setUp() throws SQLException {
-        MigrationManager.migrate(dataSourceConfig.getDataSource().getConnection(), "db/changelog/test-changelog.xml", "model", "public");
-
+    public void setUp() {
         User user = new User(null, "mock", "mock@example.ru", "pass", false, true);
         userRepository.create(user);
 
@@ -84,7 +76,7 @@ class FulfilledHabitRepositoryImplTest {
 
     @AfterEach
     public void tearDown() {
-        jdbcTemplate.executeUpdate("TRUNCATE TABLE fulfilled_habits, habits, users RESTART IDENTITY CASCADE");
+        jdbcTemplate.update("TRUNCATE TABLE fulfilled_habits, habits, users RESTART IDENTITY CASCADE");
     }
 
     @Test

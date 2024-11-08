@@ -2,7 +2,6 @@ package io.sabitovka.habittracker.service;
 
 import io.sabitovka.habittracker.auth.util.Jwt;
 import io.sabitovka.habittracker.auth.util.PasswordHasher;
-import io.sabitovka.habittracker.config.TestConfig;
 import io.sabitovka.habittracker.dto.user.UserLoginDto;
 import io.sabitovka.habittracker.exception.ApplicationException;
 import io.sabitovka.habittracker.model.User;
@@ -15,8 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
@@ -26,8 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Тест сервиса авторизации")
-@ExtendWith({ MockitoExtension.class, SpringExtension.class})
-@ContextConfiguration(classes = { TestConfig.class })
+@ExtendWith({ MockitoExtension.class })
 class AuthorizationServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -45,8 +41,8 @@ class AuthorizationServiceTest {
 
     @BeforeEach
     void setUp() {
-         userLoginDto.setEmail("mock@example.com");
-         userLoginDto.setPassword("password");
+        userLoginDto.setEmail("mock@example.com");
+        userLoginDto.setPassword("password");
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.sabitovka.habittracker.persistence.rowmapper;
 
 import io.sabitovka.habittracker.model.User;
 import io.sabitovka.habittracker.util.EntityMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;

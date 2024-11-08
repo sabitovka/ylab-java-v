@@ -1,8 +1,6 @@
 package io.sabitovka.habittracker.auth.util;
 
-import io.sabitovka.habittracker.util.YamlPropertySourceFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.security.MessageDigest;
@@ -10,7 +8,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Component
-@PropertySource(value = "classpath:application.yml", factory = YamlPropertySourceFactory.class)
 public final class PasswordHasher {
     @Value("${security.salt}")
     private String salt;

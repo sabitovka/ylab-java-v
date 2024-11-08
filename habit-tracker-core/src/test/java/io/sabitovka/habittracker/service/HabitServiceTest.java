@@ -14,10 +14,12 @@ import io.sabitovka.habittracker.repository.FulfilledHabitRepository;
 import io.sabitovka.habittracker.repository.HabitRepository;
 import io.sabitovka.habittracker.repository.UserRepository;
 import io.sabitovka.habittracker.service.impl.HabitServiceImpl;
-import io.sabitovka.habittracker.service.impl.UserServiceImpl;
+import io.sabitovka.habittracker.util.mapper.HabitMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -42,13 +44,17 @@ class HabitServiceTest {
     @Mock
     private FulfilledHabitRepository fulfilledHabitRepository;
     @Mock
-    private UserServiceImpl userService;
+    private AuthInMemoryContext authInMemoryContext;
+    private HabitMapper habitMapper = Mappers.getMapper(HabitMapper.class);
     @InjectMocks
     private HabitServiceImpl habitService;
-    @Mock
-    private AuthInMemoryContext authInMemoryContext;
 
-    UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
+    private final UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
+
+    @BeforeEach
+    void setUp() {
+        habitService = new HabitServiceImpl(habitRepository, userRepository, fulfilledHabitRepository, habitMapper);
+    }
 
     @Test
     @DisplayName("[createHabit] Должен создать привычку")
@@ -175,7 +181,6 @@ class HabitServiceTest {
 
         when(habitRepository.findById(1L)).thenReturn(Optional.of(habit));
         when(userRepository.findById(2L)).thenReturn(Optional.of(new User(2L, "user", "user@example.com", "password", false, true)));
-        when(fulfilledHabitRepository.findAll()).thenReturn(List.of(fulfilledHabit));
 
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -184,7 +189,7 @@ class HabitServiceTest {
             habitService.delete(1L);
 
             verify(habitRepository).deleteById(1L);
-            verify(fulfilledHabitRepository).deleteById(1L);
+            verify(fulfilledHabitRepository).deleteByHabitId(1L);
         }
     }
 

@@ -1,10 +1,11 @@
 package io.sabitovka.habittracker.repository.impl;
 
 import io.sabitovka.habittracker.model.User;
-import io.sabitovka.habittracker.persistence.JdbcTemplate;
 import io.sabitovka.habittracker.persistence.PersistenceRepository;
 import io.sabitovka.habittracker.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.habittracker.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.Optional;
  */
 @Component
 public class UserRepositoryImpl extends PersistenceRepository<Long, User> implements UserRepository {
+    @Autowired
     public UserRepositoryImpl(JdbcTemplate jdbcTemplate, UserRowMapper rowMapper) {
         super(jdbcTemplate, rowMapper, User.class);
     }

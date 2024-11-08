@@ -22,7 +22,7 @@ public class LoggableAspect {
         long start = System.currentTimeMillis();
         Object result = proceedingJoinPoint.proceed();
         long end = System.currentTimeMillis() - start;
-        log.info("Выполнен метод %s [%d ms].\n%n".formatted(proceedingJoinPoint.getSignature(), end));
+        log.info("Выполнен метод %s [%d ms].".formatted(proceedingJoinPoint.getSignature(), end));
         return result;
     }
 }

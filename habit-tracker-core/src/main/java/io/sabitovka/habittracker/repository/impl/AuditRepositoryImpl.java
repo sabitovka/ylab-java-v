@@ -1,9 +1,10 @@
 package io.sabitovka.habittracker.repository.impl;
 
 import io.sabitovka.habittracker.model.AuditRecord;
-import io.sabitovka.habittracker.persistence.JdbcTemplate;
 import io.sabitovka.habittracker.persistence.PersistenceRepository;
 import io.sabitovka.habittracker.repository.AuditRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
  */
 @Repository
 public class AuditRepositoryImpl extends PersistenceRepository<Long, AuditRecord> implements AuditRepository {
+    @Autowired
     public AuditRepositoryImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate, null, AuditRecord.class);
     }

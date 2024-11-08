@@ -2,10 +2,16 @@ package io.sabitovka.habittracker.persistence;
 
 import io.sabitovka.habittracker.persistence.annotation.Column;
 import io.sabitovka.habittracker.persistence.annotation.Table;
-import io.sabitovka.habittracker.persistence.rowmapper.RowMapper;
 import io.sabitovka.habittracker.repository.BaseRepository;
+import io.sabitovka.habittracker.util.JdbcUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
+import java.sql.PreparedStatement;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,7 +21,7 @@ import java.util.stream.Collectors;
  * @param <M> Класс сущности
  */
 public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M> {
-    protected final JdbcTemplate jdbcTemplate;
+    protected final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
     protected final RowMapper<M> rowMapper;
     private final Class<M> modelClass;
 
@@ -71,11 +77,18 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
                 columns.keySet().stream().map(o -> "?").collect(Collectors.joining(", "))
         );
 
-        List<Long> generatedKeys = jdbcTemplate.executeInsert(sql, columns.values().toArray());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        if (!generatedKeys.isEmpty()) {
-            Long generatedId = generatedKeys.get(0);
+        jdbcTemplate.update(
+                con -> {
+                    PreparedStatement statement = con.prepareStatement(sql, new String[]{"id"});
+                    return JdbcUtils.prepareStatement(statement, columns.values().toArray());
+                },
+                keyHolder
+        );
 
+        Long generatedId = (Long) keyHolder.getKey();
+        if (generatedId != null) {
             try {
                 Field idField = modelClass.getDeclaredField("id");
                 idField.setAccessible(true);
@@ -96,7 +109,11 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
     @Override
     public Optional<M> findById(I id) {
         String sql = "select * from %s where id = ?".formatted(getEntityTableName());
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, id));
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, rowMapper, id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     /**
@@ -106,7 +123,7 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
     @Override
     public List<M> findAll() {
         String sql = "select * from %s".formatted(getEntityTableName());
-        return jdbcTemplate.queryForList(sql, rowMapper);
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     /**
@@ -168,7 +185,11 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
         List<Object> columnValues = new ArrayList<>(columns.values());
         columnValues.add(idValue);
 
-        int rowsAffected = jdbcTemplate.executeUpdate(sql, columnValues.toArray());
+        int rowsAffected = jdbcTemplate.update(con -> {
+            PreparedStatement statement = con.prepareStatement(sql);
+            JdbcUtils.prepareStatement(statement,  columnValues.toArray());
+            return statement;
+        });
         return rowsAffected > 0;
     }
 
@@ -180,6 +201,6 @@ public abstract class PersistenceRepository<I, M> implements BaseRepository<I, M
     @Override
     public boolean deleteById(I id) {
         String sql = "delete from %s where id = ?".formatted(getEntityTableName());
-        return jdbcTemplate.executeUpdate(sql, id) > 0;
+        return jdbcTemplate.update(sql, id) > 0;
     }
 }

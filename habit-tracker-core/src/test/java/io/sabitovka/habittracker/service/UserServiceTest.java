@@ -16,16 +16,18 @@ import io.sabitovka.habittracker.repository.FulfilledHabitRepository;
 import io.sabitovka.habittracker.repository.HabitRepository;
 import io.sabitovka.habittracker.repository.UserRepository;
 import io.sabitovka.habittracker.service.impl.UserServiceImpl;
+import io.sabitovka.habittracker.util.mapper.UserMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,11 +53,18 @@ class UserServiceTest {
     @Mock
     private PasswordHasher passwordHasher;
 
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
     @InjectMocks
     private UserServiceImpl userService;
 
-    UserDetails adminUserDetails = new UserDetails(1L, "admin", true);
-    UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
+    private final UserDetails adminUserDetails = new UserDetails(1L, "admin", true);
+    private final UserDetails simpleUserDetails = new UserDetails(2L, "user", false);
+
+    @BeforeEach
+    void setUp() {
+        userService = new UserServiceImpl(userRepository, habitRepository, passwordHasher, userMapper);
+    }
 
     @Test
     @DisplayName("[createUser] Когда регистрационные данные неверные, должен выбросить исключение")
@@ -211,7 +220,6 @@ class UserServiceTest {
 
         when(userRepository.findById(user1.getId())).thenReturn(Optional.of(user1));
         when(habitRepository.findAllByUserId(user1.getId())).thenReturn(List.of(habit1, habit2));
-        when(fulfilledHabitRepository.findAllByHabit(habit1)).thenReturn(Collections.emptyList());
 
         try (MockedStatic<AuthInMemoryContext> authInMemoryContextMock = mockStatic(AuthInMemoryContext.class)) {
             authInMemoryContextMock.when(AuthInMemoryContext::getContext).thenReturn(authInMemoryContext);
@@ -220,8 +228,8 @@ class UserServiceTest {
             userService.deleteProfile(user1.getId());
 
             verify(userRepository).deleteById(user1.getId());
-            verify(habitRepository).deleteById(habit1.getId());
-            verify(habitRepository).deleteById(habit2.getId());
+            verify(habitRepository).deleteWithHistoryByHabit(habit1);
+            verify(habitRepository).deleteWithHistoryByHabit(habit2);
         }
 
     }

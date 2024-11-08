@@ -1,10 +1,11 @@
 package io.sabitovka.habittracker.repository.impl;
 
 import io.sabitovka.habittracker.model.Habit;
-import io.sabitovka.habittracker.persistence.JdbcTemplate;
 import io.sabitovka.habittracker.persistence.PersistenceRepository;
 import io.sabitovka.habittracker.persistence.rowmapper.HabitRowMapper;
 import io.sabitovka.habittracker.repository.HabitRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 @Repository
 public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> implements HabitRepository {
+    @Autowired
     public HabitRepositoryImpl(JdbcTemplate jdbcTemplate, HabitRowMapper rowMapper) {
         super(jdbcTemplate, rowMapper, Habit.class);
     }
@@ -23,7 +25,7 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
     @Override
     public List<Habit> findAllByUserId(Long ownerId) {
         String sql = "select * from habits where owner_id = ?";
-        return jdbcTemplate.queryForList(sql, rowMapper, ownerId);
+        return jdbcTemplate.query(sql, rowMapper, ownerId);
     }
 
     @Override
@@ -33,7 +35,7 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
             and (? is null or created_at >= ?)
             and (? is null or created_at <= ?)
             and (? is null or is_active = ?)""";
-        return jdbcTemplate.queryForList(
+        return jdbcTemplate.query(
                 sql,
                 rowMapper,
                 ownerId,
@@ -48,8 +50,8 @@ public class HabitRepositoryImpl extends PersistenceRepository<Long, Habit> impl
 
     @Override
     public void deleteWithHistoryByHabit(Habit habit) {
-        String sqlHistory = "delete from fulfilled_habit where habit_id = ?";
-        jdbcTemplate.executeUpdate(sqlHistory, habit.getId());
+        String sqlHistory = "delete from fulfilled_habits where habit_id = ?";
+        jdbcTemplate.update(sqlHistory, habit.getId());
 
         this.deleteById(habit.getId());
     }
