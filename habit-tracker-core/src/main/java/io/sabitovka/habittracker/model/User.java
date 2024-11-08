@@ -4,6 +4,9 @@ import io.sabitovka.habittracker.persistence.annotation.Column;
 import io.sabitovka.habittracker.persistence.annotation.Table;
 import lombok.*;
 
+/**
+ * БД-сущность пользователя
+ */
 @Setter
 @Getter
 @NoArgsConstructor

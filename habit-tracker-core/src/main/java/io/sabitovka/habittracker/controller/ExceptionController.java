@@ -8,16 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * REST контроллер для обработки ошибок
+ */
 @RestControllerAdvice
 public class ExceptionController {
-    private ErrorDto wrapToErrorDto(ApplicationException exception) {
-        ErrorDto errorDto = new ErrorDto();
-        errorDto.setInternalCode(exception.getErrorCode().getId());
-        errorDto.setStatus(exception.getErrorCode().getHttpCode());
-        errorDto.setError(exception.getErrorCode().getMessage());
-        errorDto.setMessage(exception.getMessage());
-        return errorDto;
-    }
 
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<?> handleApplicationException(ApplicationException e) {
@@ -37,4 +32,12 @@ public class ExceptionController {
                 .body(wrapToErrorDto(new ApplicationException(ErrorCode.INTERNAL_ERROR, e.getMessage())));
     }
 
+    private ErrorDto wrapToErrorDto(ApplicationException exception) {
+        ErrorDto errorDto = new ErrorDto();
+        errorDto.setInternalCode(exception.getErrorCode().getId());
+        errorDto.setStatus(exception.getErrorCode().getHttpCode());
+        errorDto.setError(exception.getErrorCode().getMessage());
+        errorDto.setMessage(exception.getMessage());
+        return errorDto;
+    }
 }

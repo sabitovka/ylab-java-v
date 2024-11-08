@@ -7,6 +7,9 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * БД-сущность записи аудита
+ */
 @Getter
 @Setter
 @AllArgsConstructor

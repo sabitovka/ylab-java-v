@@ -6,6 +6,9 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+/**
+ * БД-сущность выполненной привычки
+ */
 @Getter
 @Setter
 @NoArgsConstructor

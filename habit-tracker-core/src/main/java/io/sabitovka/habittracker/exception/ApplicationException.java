@@ -3,6 +3,9 @@ package io.sabitovka.habittracker.exception;
 import io.sabitovka.habittracker.enums.ErrorCode;
 import lombok.Getter;
 
+/**
+ * Исключение выбрасываемое приложением
+ */
 @Getter
 public class ApplicationException extends RuntimeException {
     private final ErrorCode errorCode;

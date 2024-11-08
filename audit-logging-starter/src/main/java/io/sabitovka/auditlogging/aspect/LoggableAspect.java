@@ -6,6 +6,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
+/**
+ * Перехватывает все аннотации {@link io.sabitovka.auditlogging.annotation.Loggable}
+ * При выполнении аннотированного метода замеряет время его работы в мс.
+ */
 @Aspect
 @Log
 public class LoggableAspect {

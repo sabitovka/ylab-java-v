@@ -8,7 +8,7 @@ import io.sabitovka.auditlogging.model.AuditRecord;
 public interface AuditRepository {
     /**
      * Сохраняет новую запись аудита
-     * @param auditRecord Запись аудита
+     * @param auditRecord Запись аудита для сохранения
      */
     void create(AuditRecord auditRecord);
 }

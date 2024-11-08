@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Сущность данных о пользователе, используемых для авторизации и аутентификации
+ */
 @Getter
 @Setter
 @AllArgsConstructor

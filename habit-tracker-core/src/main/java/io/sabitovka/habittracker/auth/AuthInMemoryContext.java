@@ -6,6 +6,9 @@ import io.sabitovka.habittracker.exception.ApplicationException;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Контекст авторизации приложения
+ */
 public final class AuthInMemoryContext {
     private final static AuthInMemoryContext CONTEXT = new AuthInMemoryContext();
 
@@ -19,6 +22,13 @@ public final class AuthInMemoryContext {
         return CONTEXT;
     }
 
+    /**
+     * Возвращает текущего авторизованного пользователя или выбрасывает исключение.
+     * Для безопасной проверки, перед вызовом применять метод {@link #isLoggedIn}
+     *
+     * @return Авторизованный пользователь
+     * @throws ApplicationException если никто не авторизован
+     */
     public UserDetails getAuthentication() {
         if (authenticatedUser == null) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED, "Ошибка авторизации. Выполните вход");
@@ -26,10 +36,20 @@ public final class AuthInMemoryContext {
         return authenticatedUser;
     }
 
+    /**
+     * Выполняет проверку авторизации пользователя
+     *
+     * @return `true` если пользователь авторизован, `false` - иначе
+     */
     public boolean isLoggedIn() {
         return authenticatedUser != null;
     }
 
+    /**
+     * Устанавливает авторизованного пользователя в контекст
+     *
+     * @param user Данные авторизованного пользователя
+     */
     public void setAuthentication(UserDetails user) {
         authenticatedUser = user;
     }

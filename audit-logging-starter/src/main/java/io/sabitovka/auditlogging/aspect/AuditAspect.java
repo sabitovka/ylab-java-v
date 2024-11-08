@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Аспект, перехватывающий все методы с аннотацией {@link Audit}.
+ * Сохраняет информацию аудита в базу данных
+ */
 @Aspect
 @RequiredArgsConstructor
 public class AuditAspect {

@@ -9,8 +9,15 @@ import io.sabitovka.auditlogging.service.AuditUserService;
 import io.sabitovka.auditlogging.service.impl.AuditServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+/**
+ * Конфигурация аудита
+ */
+@Configuration
+@EnableAspectJAutoProxy
 @RequiredArgsConstructor
 @ConditionalOnEnableAuditAnnotation
 public class AuditStarterConfiguration {
