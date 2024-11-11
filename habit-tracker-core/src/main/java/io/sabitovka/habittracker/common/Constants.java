@@ -16,4 +16,6 @@ public class Constants {
      * Регулярное выражение для проверки пароля
      */
     public static final String PASSWORD_REGEX = ".{6,}";
+
+    public static final String BEARER_AUTHORIZATION = "Bearer Authorization";
 }

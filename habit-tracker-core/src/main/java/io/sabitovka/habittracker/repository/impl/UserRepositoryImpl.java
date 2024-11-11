@@ -5,6 +5,7 @@ import io.sabitovka.habittracker.persistence.PersistenceRepository;
 import io.sabitovka.habittracker.persistence.rowmapper.UserRowMapper;
 import io.sabitovka.habittracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -23,11 +24,12 @@ public class UserRepositoryImpl extends PersistenceRepository<Long, User> implem
     @Override
     public Optional<User> findUserByEmail(String email) {
         String sql = "select * from users where email = ?";
-        User user = jdbcTemplate.queryForObject(sql, rowMapper, email);
-        if (user == null) {
+        try {
+            User user = jdbcTemplate.queryForObject(sql, rowMapper, email);
+            return Optional.ofNullable(user);
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
-        return Optional.of(user);
     }
 }
 

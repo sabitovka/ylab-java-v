@@ -15,3 +15,6 @@ spring:
     default-schema: model
     liquibase-schema: public
     contexts: core,audit
+
+springdoc:
+  default-produces-media-type: application/json
