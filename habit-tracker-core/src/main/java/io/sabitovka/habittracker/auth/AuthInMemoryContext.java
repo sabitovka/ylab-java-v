@@ -12,7 +12,7 @@ import lombok.Setter;
 public final class AuthInMemoryContext {
     private final static AuthInMemoryContext CONTEXT = new AuthInMemoryContext();
 
-    private UserDetails authenticatedUser;
+    private final ThreadLocal<UserDetails> authenticatedUser = new ThreadLocal<>();
 
     @Setter
     @Getter
@@ -30,10 +30,10 @@ public final class AuthInMemoryContext {
      * @throws ApplicationException если никто не авторизован
      */
     public UserDetails getAuthentication() {
-        if (authenticatedUser == null) {
+        if (authenticatedUser.get() == null) {
             throw new ApplicationException(ErrorCode.UNAUTHORIZED, "Ошибка авторизации. Выполните вход");
         }
-        return authenticatedUser;
+        return authenticatedUser.get();
     }
 
     /**
@@ -42,7 +42,7 @@ public final class AuthInMemoryContext {
      * @return `true` если пользователь авторизован, `false` - иначе
      */
     public boolean isLoggedIn() {
-        return authenticatedUser != null;
+        return authenticatedUser.get() != null;
     }
 
     /**
@@ -51,6 +51,6 @@ public final class AuthInMemoryContext {
      * @param user Данные авторизованного пользователя
      */
     public void setAuthentication(UserDetails user) {
-        authenticatedUser = user;
+        authenticatedUser.set(user);
     }
 }
