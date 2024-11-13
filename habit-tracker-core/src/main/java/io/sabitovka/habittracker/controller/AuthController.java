@@ -1,6 +1,5 @@
 package io.sabitovka.habittracker.controller;
 
-import io.sabitovka.auditlogging.annotation.Loggable;
 import io.sabitovka.habittracker.dto.ErrorDto;
 import io.sabitovka.habittracker.dto.SuccessResponse;
 import io.sabitovka.habittracker.dto.user.CreateUserDto;
@@ -8,6 +7,7 @@ import io.sabitovka.habittracker.dto.user.UserInfoDto;
 import io.sabitovka.habittracker.dto.user.UserLoginDto;
 import io.sabitovka.habittracker.service.AuthorizationService;
 import io.sabitovka.habittracker.service.UserService;
+import io.sabitovka.logging.annotation.Loggable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

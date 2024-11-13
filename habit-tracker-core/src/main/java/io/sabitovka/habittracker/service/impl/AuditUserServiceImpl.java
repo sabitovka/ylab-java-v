@@ -1,6 +1,6 @@
 package io.sabitovka.habittracker.service.impl;
 
-import io.sabitovka.auditlogging.service.AuditUserService;
+import io.sabitovka.audit.service.AuditUserService;
 import io.sabitovka.habittracker.auth.AuthInMemoryContext;
 import io.sabitovka.habittracker.auth.entity.UserDetails;
 import org.springframework.stereotype.Service;

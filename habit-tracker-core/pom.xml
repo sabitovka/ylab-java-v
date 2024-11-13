@@ -102,9 +102,15 @@
     </dependency>
 
     <dependency>
-      <groupId>io.sabitovka</groupId>
-      <artifactId>audit-logging-starter</artifactId>
-      <version>0.0.1</version>
+      <groupId>io.sabitovka.starter</groupId>
+      <artifactId>audit-starter</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.sabitovka.starter</groupId>
+      <artifactId>logging-starter</artifactId>
+      <version>1.0.0</version>
     </dependency>
 
   </dependencies>

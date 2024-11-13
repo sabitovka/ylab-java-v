@@ -1,6 +1,6 @@
 package io.sabitovka.habittracker;
 
-import io.sabitovka.auditlogging.annotation.EnableAudit;
+import io.sabitovka.audit.annotation.EnableAudit;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

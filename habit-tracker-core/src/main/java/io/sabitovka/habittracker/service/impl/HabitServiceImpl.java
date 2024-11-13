@@ -1,6 +1,6 @@
 package io.sabitovka.habittracker.service.impl;
 
-import io.sabitovka.auditlogging.annotation.Audit;
+import io.sabitovka.audit.annotation.Audit;
 import io.sabitovka.habittracker.auth.AuthInMemoryContext;
 import io.sabitovka.habittracker.auth.entity.UserDetails;
 import io.sabitovka.habittracker.dto.habit.HabitFilterDto;

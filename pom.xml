@@ -13,7 +13,6 @@
     </properties>
 
     <modules>
-        <module>audit-logging-starter</module>
         <module>habit-tracker-core</module>
     </modules>
 

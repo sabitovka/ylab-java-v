@@ -1,7 +1,7 @@
 package io.sabitovka.habittracker.service.impl;
 
-import io.sabitovka.auditlogging.annotation.Audit;
-import io.sabitovka.auditlogging.annotation.IgnoreAudit;
+import io.sabitovka.audit.annotation.Audit;
+import io.sabitovka.audit.annotation.IgnoreAudit;
 import io.sabitovka.habittracker.auth.util.Jwt;
 import io.sabitovka.habittracker.auth.util.PasswordHasher;
 import io.sabitovka.habittracker.dto.user.UserLoginDto;

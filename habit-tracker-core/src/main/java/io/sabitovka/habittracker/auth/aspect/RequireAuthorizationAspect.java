@@ -1,6 +1,6 @@
-package io.sabitovka.habittracker.aspect;
+package io.sabitovka.habittracker.auth.aspect;
 
-import io.sabitovka.habittracker.annotation.RequiresAuthorization;
+import io.sabitovka.habittracker.auth.annotation.RequiresAuthorization;
 import io.sabitovka.habittracker.auth.AuthInMemoryContext;
 import io.sabitovka.habittracker.auth.entity.UserDetails;
 import io.sabitovka.habittracker.enums.ErrorCode;
@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 @Aspect
 @Component
 public class RequireAuthorizationAspect {
-    @Pointcut("@annotation(io.sabitovka.habittracker.annotation.RequiresAuthorization)")
+    @Pointcut("@annotation(io.sabitovka.habittracker.auth.annotation.RequiresAuthorization)")
     public void annotatedByRequiresAnnotation() {}
 
     @Around("annotatedByRequiresAnnotation()")
