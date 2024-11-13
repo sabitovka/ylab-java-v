@@ -1,0 +1,13 @@
+security:
+  salt: 2fO0utNp$56
+  jwt:
+    secret: uZVrPBMsfU
+    expirationMinutes: 5
+
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/test-changelog.xml
+    default-schema: model
+    liquibase-schema: public

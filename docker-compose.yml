@@ -5,8 +5,8 @@ services:
     image: postgres:17
     container_name: postgres-db
     environment:
-      POSTGRES_USER: habittrackerapp
-      POSTGRES_PASSWORD: P@ssw0rd
+      POSTGRES_USER: habit-tracker-app
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: habit-tracker
     ports:
       - "5433:5432"

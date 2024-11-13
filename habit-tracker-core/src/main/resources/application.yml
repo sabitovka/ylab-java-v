@@ -1,0 +1,20 @@
+security:
+  salt: 2fO0utNp$56
+  jwt:
+    secret: uZVrPBMsfU
+    expirationMinutes: 5
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/habit-tracker?currentSchema=model
+    username: habit-tracker-app
+    password: password
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/changelog.xml
+    default-schema: model
+    liquibase-schema: public
+    contexts: core,audit
+
+springdoc:
+  default-produces-media-type: application/json
