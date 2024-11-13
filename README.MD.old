@@ -29,7 +29,7 @@
    mvn clean compile
    ```
 4. Установите библиотеку audit-logging-starter
-   ```shell 
+   ```shell
    mvn -f .\audit-logging-starter\pom.xml install
    ```
 5. Запустите приложение с помощью Maven
@@ -37,6 +37,7 @@
    mvn -f .\habit-tracker-core\pom.xml spring-boot:run
    ```
 
+<<<<<<< HEAD:README.MD
 ### Доступ к Swagger UI
 Swagger UI доступен по ссылке `http://<host>:<port>/swagger-ui/`
 
